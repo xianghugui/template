@@ -1,0 +1,24 @@
+#LOGGING
+logging:
+    config: classpath:config/logback.xml
+
+base:
+    dynamic-datasource: #动态数据源配置
+
+          url: jdbc:mysql://localhost:3306/zxwl_mirror_2018?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+          type: mysql
+          username: root
+          password: root
+          icatch:
+            max-actives: 100
+            output-dir: ./data/apache-tomcat-8.5.31/webapps/ROOT/tmp/atomikos
+            log_base_dir: ./data/apache-tomcat-8.5.31/webapps/ROOT/tmp/atomikos
+            default-jta-timeout: 300000
+    access-logger: on #开启访问日志
+
+#文件上传配置
+multipart:
+    enabled: true
+    maxFileSize: 100Mb
+    maxRequestSize: 100Mb
+    location: /data/apache-tomcat-8.5.31/bin/upload
