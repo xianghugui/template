@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <import th:include="admin/include/head" th:remove="tag"/>
+    <link rel="stylesheet" th:href="@{/plugins/morris/morris.css}"/>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <import th:include="admin/include/layout" th:remove="tag"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <import th:include="admin/include/title" th:remove="tag"/>
+
+        <!-- Main content -->
+        <section class="content">
+
+            <div class="row">
+                <div class="col-md-3">
+
+                    <!-- Profile Image -->
+                    <div class="box box-primary">
+                        <div class="box-body box-profile">
+                            <img class="profile-user-img img-responsive img-circle" src="img/user4-128x128.jpg" alt="User profile picture"/>
+
+                            <h3 class="profile-username text-center" th:text="${user.name}">User</h3>
+
+                            <p class="text-muted text-center" th:text="${#calendars.format(#dates.createNow(), 'yyyy-MM-dd')}">0000-00-00</p>
+
+                            <ul class="list-group list-group-unbordered">
+                                <li class="list-group-item">
+                                    <b>Followers</b> <a class="pull-right">1,322</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Following</b> <a class="pull-right">543</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Friends</b> <a class="pull-right">13,287</a>
+                                </li>
+                            </ul>
+
+                            <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-9">
+
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <import th:include="admin/include/copyright" th:remove="tag" />
+
+</div>
+<!-- ./wrapper -->
+
+<import th:include="admin/include/footer" th:remove="tag" />
+<script src="//cdn.bootcss.com/raphael/2.1.0/raphael-min.js"></script>
+<script th:src="@{/plugins/morris/morris.min.js}"></script>
+<script th:src="@{/plugins/knob/jquery.knob.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+$(function () {
+
+    var datas = [];
+    for(var i = 0; i < 15; i++) {
+        datas.push({time: new Date(new Date().getTime()-1000*60*(i*2)).format('yyyy-MM-dd hh:mm:ss'), 'item': parseInt(Math.random()*3, 10)});
+    }
+
+    var line = new Morris.Line({
+        element          : 'line-chart',
+        resize           : true,
+        data             : datas,
+        xkey             : 'time',
+        ykeys            : ['item'],
+        labels           : ['在线数'],
+        lineColors       : ['#efefef'],
+        lineWidth        : 2,
+        hideHover        : 'auto',
+        gridTextColor    : '#fff',
+        gridStrokeWidth  : 0.4,
+        pointSize        : 4,
+        pointStrokeColors: ['#efefef'],
+        gridLineColor    : '#efefef',
+        gridTextFamily   : 'Open Sans',
+        gridTextSize     : 10
+    });
+
+
+
+    /* jQueryKnob */
+    $('.knob').knob({
+        'change' : function (v) { console.log(v); }
+    });
+
+    var getloadInfo = function () {
+        Request.get("monitor/info", null, function (e) {
+            if (e.success) {
+                $("#ram").val(e.data.ram).trigger('change');
+                $("#cpu").val(e.data.cpu).trigger('change');
+                $("#disk").val(e.data.disk).trigger('change');
+            }
+        });
+    };
+
+    setInterval(function () {
+        getloadInfo();
+    }, 2000);
+
+    getloadInfo();
+});
+/*]]>*/
+</script>
+</body>
+</html>

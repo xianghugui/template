@@ -1,0 +1,36 @@
+{
+  "groups": [
+    {
+      "name": "base.app",
+      "type": "com.base.web.starter.AppProperties",
+      "sourceType": "com.base.web.starter.AppProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "base.app.name",
+      "type": "java.lang.String",
+      "sourceType": "com.base.web.starter.AppProperties",
+      "defaultValue": "default"
+    },
+    {
+      "name": "base.app.comment",
+      "type": "java.lang.String",
+      "sourceType": "com.base.web.starter.AppProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "base.app.website",
+      "type": "java.lang.String",
+      "sourceType": "com.base.web.starter.AppProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "base.app.version",
+      "type": "java.lang.String",
+      "sourceType": "com.base.web.starter.AppProperties",
+      "defaultValue": "default"
+    }
+  ],
+  "hints": []
+}

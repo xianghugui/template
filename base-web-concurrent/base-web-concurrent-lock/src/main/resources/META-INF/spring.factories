@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.base.concurrent.lock.LockFactoryAutoConfig,\
+com.base.concurrent.lock.support.redis.RedisLockFactoryAutoConfig

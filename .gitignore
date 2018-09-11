@@ -1,0 +1,31 @@
+**/pom.xml.versionsBackup
+**/target/
+**/out/
+**/log/
+data/*.db
+data/atomikos/
+**/resources/application-dev.yml
+*.class
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+.idea/
+/nbproject
+*.ipr
+*.iws
+*.iml
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.log
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+/base-web-service/base-web-service-simple/data/
+
+# svn
+.svn/
+seeta_fr_v1.0.bin
+application-dev.yml
+application-prod.yml
+quartz.properties

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.base.web.dao.resource.FileRefMapper">
+    <resultMap id="FileRefResultMap" type="com.base.web.bean.po.resource.FileRef" >
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="refId" column="ref_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="type" column="type" javaType="Integer" jdbcType="TINYINT" />
+        <result property="priority" column="priority" javaType="Integer" jdbcType="TINYINT" />
+        <result property="dataType" column="data_type" javaType="Integer" jdbcType="TINYINT" />
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'FileRefResultMap'"/>
+        <bind name="tableName" value="'t_file_ref'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="String" resultMap="FileRefResultMap">
+        select * from t_file_ref WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="FileRefResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+
+
+</mapper>

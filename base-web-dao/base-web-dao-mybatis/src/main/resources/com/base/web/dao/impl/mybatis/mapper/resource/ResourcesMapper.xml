@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.base.web.dao.resource.ResourcesMapper">
+    <resultMap id="ResourcesResultMap" type="com.base.web.bean.po.resource.Resources" >
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="name" column="name" javaType="String" jdbcType="VARCHAR" />
+        <result property="path" column="path" javaType="String" jdbcType="VARCHAR" />
+        <result property="md5" column="md5" javaType="String" jdbcType="VARCHAR" />
+        <result property="type" column="type" javaType="String" jdbcType="VARCHAR" />
+        <result property="size" column="size" javaType="long" jdbcType="NUMERIC" />
+        <result property="createId" column="creator_id" javaType="Long" jdbcType="BIGINT" />
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'ResourcesResultMap'"/>
+        <bind name="tableName" value="'t_resource'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+    <select id="selectByPk" parameterType="Long" resultMap="ResourcesResultMap">
+        select * from t_resource WHERE u_id=#{id}
+    </select>
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="ResourcesResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+    <select id="selectAllImage" parameterType="Long" resultMap="ResourcesResultMap">
+        SELECT t_resource.*  FROM t_file_ref LEFT JOIN t_resource ON t_file_ref.resource_id = t_resource.u_id
+        WHERE t_file_ref.ref_id = #{recordId}
+    </select>
+
+    <select id="video" parameterType="string" resultType="java.util.HashMap">
+        <!--SELECT tr.u_id AS 'uId',tr.md5,tv.create_time AS 'createTime',ts.`name`,tfr.type, ts.address FROM t_file_ref tfr,t_resource tr,t_video tv,t_shop ts-->
+        <!--WHERE tfr.ref_id=tv.record_id AND tfr.resource_id=tr.u_id AND tfr.type =1 AND ts.u_id = tv.device_shop_id  AND tv.video_name = #{videoName}-->
+        SELECT
+        tr.u_id AS 'uId',
+        tr.md5,
+        tv.create_time AS 'createTime',
+        ts.`name`,
+        tfr.type,
+        ts.address,
+        ts.u_id AS shopId,
+        ts.user_id AS shopUserId,
+        img.resource_id AS imgSrc
+        FROM
+        t_resource tr
+        INNER JOIN t_video tv ON tv.video_name = #{videoName}
+        INNER JOIN t_shop ts ON ts.u_id = tv.device_shop_id
+        INNER JOIN t_file_ref tfr ON ( tfr.ref_id = tv.record_id AND tfr.resource_id = tr.u_id AND tfr.type = 1 )
+        INNER JOIN t_resource tr2
+        INNER JOIN t_file_ref img ON ( img.ref_id = tv.record_id AND img.resource_id = tr2.u_id AND img.type = 0 )
+
+
+    </select>
+
+
+</mapper>
