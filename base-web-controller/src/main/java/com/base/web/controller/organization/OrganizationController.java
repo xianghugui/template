@@ -22,7 +22,6 @@ import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.organization.OrganizationService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -52,6 +51,7 @@ public class OrganizationController extends GenericController<Organization, Long
     @AccessLogger("新增节点")
     @Authorize(action = "C")
     public ResponseMessage add(@RequestBody Organization data) {
+
         return ResponseMessage.ok(getService().insert(data));
     }
 

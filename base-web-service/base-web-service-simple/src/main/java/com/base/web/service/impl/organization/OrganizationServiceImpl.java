@@ -21,16 +21,6 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<Organization, L
     }
 
     @Override
-    public Long insert(Organization data) {
-        return super.insert(data);
-    }
-
-    @Override
-    public int update(Organization data) {
-        return super.update(data);
-    }
-
-    @Override
     public int delete(Long id) {
         getMapper().deleteNode(id);
         return 1;
