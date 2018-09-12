@@ -1,4 +1,6 @@
 package com.base.web.service;
 
-public interface CameraService {
+import com.base.web.bean.Camera;
+
+public interface CameraService extends GenericService<Camera, Long> {
 }

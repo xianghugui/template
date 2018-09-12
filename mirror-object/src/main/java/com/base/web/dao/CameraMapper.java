@@ -1,4 +1,8 @@
 package com.base.web.dao;
 
-public interface CameraMapper {
+import com.base.web.bean.Camera;
+
+public interface CameraMapper extends GenericMapper<Camera, Long> {
+
+
 }

@@ -4,57 +4,58 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <div th:include="admin/include/layout" th:remove="tag"></div>
+    <div th:include="admin/include/layout" th:remove="tag"></div>
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div th:include="admin/include/title" th:remove="tag"></div>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div th:include="admin/include/title" th:remove="tag"></div>
 
-    <!-- Main content -->
-    <section class="content">
+        <!-- Main content -->
+        <section class="content">
+            <div class="box myanimation">
+                <div class="box-tools">
+                    <button th:if="${user.hasAccessModuleAction('camera', 'C')}" type="button"
+                            class="btn btn-primary btn-sm btn-add pull-left" data-toggle="modal">添加
+                    </button>
+                    <div class="pull-right">
+                        设备IP<input/>
+                        设备状态<select></select>
+                        设备名称<input/>
+                        <button>搜索</button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table id="camera_list" class="table cell-border">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>设备名称</th>
+                            <th>设备编号</th>
+                            <th>设备IP</th>
+                            <th>组织机构</th>
+                            <th>设备地址</th>
+                            <th>设备状态</th>
+                            <th>添加时间</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
 
-      <div class="box myanimation">
-        <div class="box-header with-border">
-          <h3 class="box-title" th:text="${pageTitle}"></h3>
-
-          <div class="box-tools pull-right">
-            <!-- 判断是否有新增权限 -->
-            <button th:if="${user.hasAccessModuleAction('camera', 'C')}" type="button" class="btn btn-block btn-primary btn-xs btn-add" data-toggle="modal">添加</button>
-          </div>
-        </div>
-        <!-- /.box-header -->
-        <div class="box-body">
-          <table id="camera_list" class="table cell-border">
-            <thead>
-            <tr>
-              <th >ID</th>
-              <th >设备名称</th>
-              <th >设备编号</th>
-              <th >设备IP</th>
-              <th >组织机构</th>
-              <th >设备地址</th>
-              <th >设备状态</th>
-              <th >添加时间</th>
-              <th >操作</th>
-            </tr>
-            </thead>
-          </table>
-        </div>
-      </div>
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
-  <div th:include="admin/include/copyright" th:remove="tag"></div>
+    <div th:include="admin/include/copyright" th:remove="tag"></div>
 </div>
 <div th:include="admin/camera/form" th:remove="tag"></div>
 <!-- ./wrapper -->
 <div th:include="admin/include/footer" th:remove="tag"></div>
 <script th:inline="javascript">
-     var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
-     var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];
 </script>
 <script th:src="@{/js/admin/camera/camera.js}"></script>
 
