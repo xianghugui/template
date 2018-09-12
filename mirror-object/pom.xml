@@ -90,6 +90,22 @@
     </build>
 
     <dependencies>
+        <!--人脸模块外部到入库-->
+        <dependency>
+            <groupId>jna.jar</groupId>
+            <artifactId>jna.jar</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/lib/jna.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>examples.jar</groupId>
+            <artifactId>examples.jar</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/lib/examples.jar</systemPath>
+        </dependency>
+        <!--end-->
         <!--excel-->
         <dependency>
             <groupId>com.hynnet</groupId>
