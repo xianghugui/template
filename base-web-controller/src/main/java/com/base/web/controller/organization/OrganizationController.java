@@ -25,6 +25,7 @@ import com.base.web.service.organization.OrganizationService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -47,29 +48,50 @@ public class OrganizationController extends GenericController<Organization, Long
         return this.organizationService;
     }
 
-    @RequestMapping(value = "/add",method = RequestMethod.POST)
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
     @AccessLogger("新增节点")
     @Authorize(action = "C")
     public ResponseMessage add(@RequestBody Organization data) {
-
+        Integer idPrefix = 0;
+        if (data.getParentId() == null) {
+            idPrefix = getService().createQuery().where(Organization.Property.parentId, "-1").total();
+            if (idPrefix == null || idPrefix == 0) {
+                data.setId(100000000L);
+            } else {
+                Integer newId = idPrefix + 100;
+                data.setId(newId * 1000000L);
+            }
+            data.setParentId("-1");
+        } else {
+            idPrefix = getService().createQuery().where(Organization.Property.parentId, data.getParentId()).total();
+            DecimalFormat df = new DecimalFormat("000");
+            String str2 = df.format(idPrefix+1);
+            if (data.getLevel() == 0) {
+                String newId = Long.valueOf(data.getParentId()) / 1000000 + str2 + "000";
+                data.setId(Long.valueOf(newId));
+            } else {
+                String newId = Long.valueOf(data.getParentId()) / 1000 + str2;
+                data.setId(Long.valueOf(newId));
+            }
+        }
         return ResponseMessage.ok(getService().insert(data));
     }
 
-    @RequestMapping(value = "/delete/{id}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     @AccessLogger("删除节点")
     @Authorize(action = "D")
     public ResponseMessage delete(@PathVariable("id") Long id) {
         return ResponseMessage.ok(getService().delete(id));
     }
 
-    @RequestMapping(value = "/update",method = RequestMethod.PUT)
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @AccessLogger("修改节点")
     @Authorize(action = "U")
     public ResponseMessage update(@RequestBody Organization data) {
         return ResponseMessage.ok(getService().update(data));
     }
 
-    @RequestMapping(value = "/organizationTree",method = RequestMethod.GET)
+    @RequestMapping(value = "/organizationTree", method = RequestMethod.GET)
     @AccessLogger("查询列表")
     @Authorize(action = "R")
     public ResponseMessage listOrganization() {

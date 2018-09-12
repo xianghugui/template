@@ -16,7 +16,7 @@ $(document).ready(function () {
                 }
             });
 
-            $('#organization_tree').treeview('selectNode', [0]);
+            // $('#organization_tree').treeview('selectNode', [0]);
 
         });
     };
@@ -46,37 +46,39 @@ $(document).ready(function () {
         getRootNodes: function (data) {
             var that = this;
             var result = [];
+            var level = 0;
             $.each(data, function (index, item) {
                 if (item['parentId'] == '-1') {
                     var obj = {
                         id: item.id,
-                        cid: index,
+                        level: level,
                         code: item.code,
                         parentId: item.parentId,
                         text: item.name,
                         nodes: []
                     };
-                    obj.nodes = that.getChildNodes(data, item);
+                    obj.nodes = that.getChildNodes(data, item,level);
                     result.push(obj);
                 }
             });
             return result;
         },
-        getChildNodes: function (data, parentNode) {
+        getChildNodes: function (data, parentNode,level) {
             var that = this;
             var result = [];
+            level++;
             $.each(data, function (i, item) {
                 if (item['parentId'] == parentNode['id']) {
                     var obj = {
                         id: item.id,
-                        cid: i,
+                        level: level,
                         code: item.code,
                         parentId: item.parentId,
                         text: item.name,
                         nodes: null
                     };
                     result.push(obj);
-                    var childNodes = that.getChildNodes(data, item);
+                    var childNodes = that.getChildNodes(data, item,level);
                     if (childNodes != null && childNodes.length > 0) {
                         obj.nodes = childNodes;
                     }
@@ -88,21 +90,28 @@ $(document).ready(function () {
 
     // 添加节点
     $('.btn-tree-add').off('click').on('click', function () {
+        var selected = $('#organization_tree').treeview('getSelected');
+        if(selected !== null && selected.length !== 0 && selected[0].level === 2){
+            toastr.warning("当前类别树只支持三级");
+            return false;
+        }
         $("#organization_name").val("");
+        $("#organization_code").val("");
         $("#modal_organization_add").modal('show');
     });
 
     $("#add_organization_form").validate({
         rules: {
-            organizationName: {required: true}
+            organizationName: {required: true},
+            organizationCode: {required: true}
         },
         messages: {
-            organizationName: {required: "组织名称不能为空"}
+            organizationName: {required: "组织名称不能为空"},
+            organizationCode: {required: "组织编码不能为空"}
         },
         submitHandler: function () {
             var btn = $('#submit-parent'),
                 selected = $('#organization_tree').treeview('getSelected');
-
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
             var params = {
@@ -110,16 +119,18 @@ $(document).ready(function () {
                 code: $("#organization_code").val()
             };
 
-            if (selected == null || selected.length == 0) {
-
-            }
-
             var type = true,
                 req = Request.post;
             if ($('#add_organization_form').data("type") === '1') {
                 type = false;
                 params.id = $('#add_organization_form').data("id");
                 req = Request.put;
+            }
+            else{
+                if (selected !== null && selected.length !== 0) {
+                    params.level = selected[0].level;
+                    params.parentId = selected[0].id
+                }
             }
 
             req("organization/" + (type ? "add" : "update"), JSON.stringify(params), function (e) {
@@ -146,6 +157,7 @@ $(document).ready(function () {
             Request.delete("organization/delete/" + id, {}, function (e) {
                 if (e.success) {
                     toastr.success("删除成功");
+                    initOrganizationTree();
                 } else {
                     toastr.error(e.message);
                 }
@@ -156,6 +168,10 @@ $(document).ready(function () {
     // 添加节点
     $('.btn-tree-edit').off('click').on('click', function () {
         var selected = $('#organization_tree').treeview('getSelected');
+        if (selected === null || selected.length === 0) {
+            toastr.warning("请选择要编辑的节点");
+            return false;
+        }
         $(".modal-title").html("编辑组织信息");
         $("#organization_name").val(selected[0].text);
         $("#organization_code").val(selected[0].code);
