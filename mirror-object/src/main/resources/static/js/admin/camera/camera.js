@@ -5,11 +5,12 @@
 var user_id = '';
 $(function () {
     //用户列表
-    var user_list = $('#user_list').DataTable({
+    var camera_list = $('#camera_list').DataTable({
         "language": lang,
         "paging": true,
         "lengthChange": true,
         "searching": true,
+        "serverSide": true,
         "ordering": true,
         "destroy":true,
         "info": true,
@@ -20,26 +21,36 @@ $(function () {
             "exclude":[".exclude"]
         },
         "ajax": function (data, callback, settings) {
-            var param = {};
-            param.pageSize = data.length;
-            param.pageIndex = data.start;
-            param.page = (data.start / data.length) + 1;
+            // var param = {};
+            // param.pageSize = data.length;
+            // param.pageIndex = data.start;
+            // param.page = (data.start / data.length) + 1;
+            var param = {
+                pageSize: params.data.limit,
+                pageIndex: params.data.offset,
+                param: {}
+            };
             $.ajax({
-                url: BASE_PATH + "user",
+                url: BASE_PATH + "camera",
                 type: "GET",
                 cache: false,
                 data: param,
                 dataType: "json",
                 success: function (result) {
-                    var resultData = {};
-                    resultData.draw = result.data.draw;
-                    resultData.recordsTotal = result.total;
-                    resultData.recordsFiltered = result.total;
-                    resultData.data = result.data;
-                    if(resultData.data == null){
-                        resultData.data =[];
-                    }
-                    callback(resultData);
+                    data.success({
+                        'rows': result.data.data,
+                        'total': result.data.total
+                    });
+
+                    // var resultData = {};
+                    // resultData.draw = result.data.draw;
+                    // resultData.recordsTotal = result.total;
+                    // resultData.recordsFiltered = result.total;
+                    // resultData.data = result.data;
+                    // if(resultData.data == null){
+                    //     resultData.data =[];
+                    // }
+                    // callback(resultData);
                 },
                 error: function () {
                     toastr.warning("请求列表数据失败, 请重试");
@@ -162,8 +173,8 @@ $(function () {
                     if (e.success) {
                         toastr.info("新增用户成功");
                         $("#modal-add").modal('hide');
-                        user_list.draw( false );
-                        user_list.ajax.reload();
+                        camera_list.draw( false );
+                        camera_list.ajax.reload();
                     }
                     else
                     {
@@ -184,7 +195,7 @@ $(function () {
                     if (e.success) {
                         toastr.info("修改用户成功");
                         $("#modal-add").modal('hide');
-                        user_list.draw( false );
+                        camera_list.draw( false );
 
                     }
                     else
@@ -205,7 +216,7 @@ $(function () {
     });
 
     //编辑用户弹出操作
-    $("#user_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
+    $("#camera_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
     var that = $(this);
     var id = that.data('id');user_id = id;
     $(".modal-title").html("编辑用户");
@@ -239,7 +250,7 @@ $(function () {
 
     });
     //用户禁用
-    $("#user_list").off('click', '.btn-close').on('click', '.btn-close', function () {
+    $("#camera_list").off('click', '.btn-close').on('click', '.btn-close', function () {
         var that = $(this);
         var id = that.data('id');
         user_id = id;
@@ -251,29 +262,29 @@ $(function () {
         Request.put("user/" + id + "/disable", {}, function (e) {
             if (e.success) {
                 toastr.info("注销成功!");
-                user_list.draw(  );
-                user_list.ajax.reload();
+                camera_list.draw(  );
+                camera_list.ajax.reload();
             } else {
                 toastr.error(e.message);
             }
         });
     });
     //用户启用
-    $("#user_list").off('click', '.btn-open').on('click', '.btn-open', function () {
+    $("#camera_list").off('click', '.btn-open').on('click', '.btn-open', function () {
         var that = $(this);
         var id = that.data('id');
         Request.put("user/" + id + "/enable", {}, function (e) {
             if (e.success) {
                 toastr.info("启用成功!");
-                user_list.draw(  );
-                user_list.ajax.reload();
+                camera_list.draw(  );
+                camera_list.ajax.reload();
             } else {
                 toastr.error(e.message);
             }
         });
     });
     //用户删除
-    $("#user_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
+    $("#camera_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
         var that = $(this);
         var id = that.data('id');
         if(id==1008611){
@@ -282,8 +293,8 @@ $(function () {
             Request.delete("user/" + id + "/delete", {}, function (e) {
                 if (e.success) {
                     toastr.info("删除成功!");
-                    user_list.draw(  );
-                    user_list.ajax.reload();
+                    camera_list.draw(  );
+                    camera_list.ajax.reload();
                 } else {
                     toastr.error(e.message);
                 }

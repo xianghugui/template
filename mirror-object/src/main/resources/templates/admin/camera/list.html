@@ -20,20 +20,22 @@
 
           <div class="box-tools pull-right">
             <!-- 判断是否有新增权限 -->
-            <button th:if="${user.hasAccessModuleAction('user', 'C')}" type="button" class="btn btn-block btn-primary btn-xs btn-add" data-toggle="modal">新增</button>
+            <button th:if="${user.hasAccessModuleAction('camera', 'C')}" type="button" class="btn btn-block btn-primary btn-xs btn-add" data-toggle="modal">添加</button>
           </div>
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-          <table id="user_list" class="table cell-border">
+          <table id="camera_list" class="table cell-border">
             <thead>
             <tr>
-              <th >id</th>
-              <th >用户名</th>
-              <th >姓名</th>
-              <th >联系电话</th>
-              <th >创建时间</th>
-              <th >状态</th>
+              <th >ID</th>
+              <th >设备名称</th>
+              <th >设备编号</th>
+              <th >设备IP</th>
+              <th >组织机构</th>
+              <th >设备地址</th>
+              <th >设备状态</th>
+              <th >添加时间</th>
               <th >操作</th>
             </tr>
             </thead>
@@ -47,14 +49,14 @@
 
   <div th:include="admin/include/copyright" th:remove="tag"></div>
 </div>
-<div th:include="admin/user/form" th:remove="tag"></div>
+<div th:include="admin/camera/form" th:remove="tag"></div>
 <!-- ./wrapper -->
 <div th:include="admin/include/footer" th:remove="tag"></div>
 <script th:inline="javascript">
-     var accessUpdate = [[${user.hasAccessModuleAction('user', 'U')}]];
-     var accessDelete = [[${user.hasAccessModuleAction('user', 'D')}]];
+     var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
+     var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];
 </script>
-<script th:src="@{/js/admin/user/user.js}"></script>
+<script th:src="@{/js/admin/camera/camera.js}"></script>
 
 </body>
 </html>
