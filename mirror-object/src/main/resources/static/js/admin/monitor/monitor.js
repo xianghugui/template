@@ -1,6 +1,3 @@
-/**
- * Created by david on 2017/6/12.
- */
 var camera_id = '';
 $(function () {
     var camera_list;
