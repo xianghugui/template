@@ -9,9 +9,9 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
@@ -20,13 +20,18 @@ import java.util.List;
 @RequestMapping(value = "/server")
 @AccessLogger("服务器管理")
 @Authorize(module = "server")
-public class ServerController {
+public class ServerController extends GenericController<Server, Long>{
 
-    @Autowired
+    @Resource
     private ServerService serverService;
 
-    @Autowired
+    @Resource
     private CameraService cameraService;
+
+    @Override
+    public ServerService getService(){
+        return this.serverService;
+    }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @AccessLogger("添加服务器")
@@ -50,7 +55,7 @@ public class ServerController {
         return ResponseMessage.ok(serverService.update(data));
     }
 
-    @RequestMapping(value = "/selectAll", method = RequestMethod.GET)
+    @RequestMapping(value = "/selectInfo", method = RequestMethod.GET)
     @AccessLogger("查询服务器详情")
     @Authorize(action = "R")
     public ResponseMessage serverInfo(QueryParam param) {
@@ -73,7 +78,7 @@ public class ServerController {
         return ResponseMessage.ok(queryList);
     }
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/addDevice", method = RequestMethod.POST)
     @AccessLogger("服务器关联设备")
     @Authorize(action = "C")
     public ResponseMessage addDevice(@RequestBody ServerDevice data) {

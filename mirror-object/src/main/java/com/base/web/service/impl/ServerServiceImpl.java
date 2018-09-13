@@ -16,15 +16,15 @@ import javax.annotation.Resource;
 @Service("serverService")
 public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> implements ServerService {
 
-    @Autowired
-    private ServerMapper ServerMapper;
+    @Resource
+    private ServerMapper serverMapper;
 
     @Resource
     private ServerDeviceMapper serverDeviceMapper;
 
     @Override
-    protected GenericMapper<Server, Long> getMapper() {
-        return ServerMapper;
+    public ServerMapper getMapper(){
+        return this.serverMapper;
     }
 
     @Override
