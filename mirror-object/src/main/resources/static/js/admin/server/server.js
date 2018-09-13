@@ -170,11 +170,11 @@ $(function () {
             btn.html("保存中..请稍后");
 
             var params = {
-                serverId: $(form).data("id"),
+                serverId: $("#add_server_device_form").data("id"),
                 deviceIdList: checkArray
             };
 
-            Request.post("server/add", JSON.stringify(params), function (e) {
+            Request.post("server/addDevice", JSON.stringify(params), function (e) {
                 if (e.success) {
                     toastr.info("保存完毕");
                     $("#modal_server_add").modal('hide');

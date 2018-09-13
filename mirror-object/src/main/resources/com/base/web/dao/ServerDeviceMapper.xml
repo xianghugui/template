@@ -6,7 +6,7 @@
 <mapper namespace="com.base.web.dao.ServerDeviceMapper">
     <resultMap id="ServerDeviceResultMap" type="com.base.web.bean.ServerDevice">
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
-        <result property="servceId" column="servce_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="serverId" column="server_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="deviceId" column="device_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="associationCode" column="association_code" javaType="Long" jdbcType="BIGINT"/>
     </resultMap>

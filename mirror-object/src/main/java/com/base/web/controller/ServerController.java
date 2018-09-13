@@ -9,6 +9,7 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,16 +23,17 @@ import java.util.List;
 @Authorize(module = "server")
 public class ServerController extends GenericController<Server, Long>{
 
-    @Resource
+    @Autowired
     private ServerService serverService;
 
-    @Resource
+    @Override
+    protected ServerService getService() {
+        return serverService;
+    }
+
+    @Autowired
     private CameraService cameraService;
 
-    @Override
-    public ServerService getService(){
-        return this.serverService;
-    }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @AccessLogger("添加服务器")
