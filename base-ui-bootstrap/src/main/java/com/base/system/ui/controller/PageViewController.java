@@ -82,7 +82,7 @@ public class PageViewController {
         modelAndView.addObject("menu", this.buildMenu(""));
         modelAndView.addObject("path", path);
         modelAndView.addObject("user", user);
-        modelAndView.addObject("pageTitle", "衣魅欧");
+        modelAndView.addObject("pageTitle", "智能监控平台");
         return modelAndView;
     }
 
