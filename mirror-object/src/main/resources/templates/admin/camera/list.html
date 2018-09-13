@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
 <head th:include="admin/include/head"></head>
-<link rel="stylesheet" th:href="@{plugins/selectpicker/bootstrap-select.min.css}"/>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
@@ -31,8 +30,8 @@
                                 <input type="text" class="form-control" id="searchIp" placeholder="请输入设备IP">
                             </div>
                             <div class="form-group">
-                                <label for="searchStatus">设备IP</label>
-                                <select id="searchStatus">
+                                <label for="searchStatus">设备状态</label>
+                                <select id="searchStatus"  class="form-control">
                                     <option value="-1">请选择</option>
                                     <option value="1">已布防</option>
                                     <option value="0">未布防</option>
@@ -55,6 +54,8 @@
                                 <th>设备IP</th>
                                 <th>端口</th>
                                 <th>备注</th>
+                                <th>用户名</th>
+                                <th>密码</th>
                                 <th>设备状态</th>
                                 <th>添加时间</th>
                                 <th>操作</th>
@@ -74,7 +75,6 @@
 <div th:include="admin/camera/form" th:remove="tag"></div>
 <!-- ./wrapper -->
 <div th:include="admin/include/footer" th:remove="tag"></div>
-<script th:src="@{/plugins/selectpicker/bootstrap-select.min.js}"></script>
 <script th:inline="javascript">
     var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
     var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];

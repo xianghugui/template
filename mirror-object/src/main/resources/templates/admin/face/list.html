@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head th:include="admin/include/head"></head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <div th:include="admin/include/layout" th:remove="tag"></div>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div th:include="admin/include/title" th:remove="tag"></div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="col-md-3">
+                <div class="box">
+                    <div id="area_tree"></div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="box">
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <div th:include="admin/include/copyright" th:remove="tag"></div>
+</div>
+<!-- ./wrapper -->
+<div th:include="admin/include/footer" th:remove="tag"></div>
+<script th:inline="javascript">
+    var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];
+</script>
+<script th:src="@{/js/admin/face/face.js}"></script>
+
+</body>
+</html>
