@@ -3,12 +3,103 @@
  */
 var camera_id = '';
 $(function () {
-//用户列表
+    var camera_list;
+    /**
+     * 初始化下拉选择框
+     */
     $('select').selectpicker({ noneSelectedText : '请选择' });
 
-    $('#area_tree').treeview();
+    /**
+     * 初始化组织树
+     * @type {boolean}
+     */
+    var inited = false;
+    var organization_list = [];
 
-    var camera_list = $('#camera_list').DataTable({
+    var initOrganizationTree = function () {
+        Request.get("organization/organizationTree", function (e) {
+            organization_list = e;
+            var tree = organizationTree.init();
+            var rootNodes = tree.getRootNodes(e);
+
+            $('#area_tree').treeview({
+                data: rootNodes,
+                levels: 3,
+                onNodeSelected: function (event, data) {
+                    camera_list.draw(false);
+                }
+            });
+            $('#area_tree').treeview('selectNode', [0]);
+        });
+    };
+
+    initOrganizationTree();
+
+    var organizationTree = {
+        init: function () {
+            if (inited) return this;
+            if (jQuery === undefined) {
+                console.error("Required jQuery support is not available");
+            } else {
+                inited = true;
+                var that = this;
+                $(function () {
+
+                });
+            }
+            return this;
+        },
+        reload: function () {
+
+        },
+        getRootNodes: function (data) {
+            var that = this;
+            var result = [];
+            var level = 0;
+            $.each(data, function (index, item) {
+                if (item['parentId'] == '-1') {
+                    var obj = {
+                        id: item.id,
+                        level: level,
+                        parentId: item.parentId,
+                        text: item.name,
+                        nodes: []
+                    };
+                    obj.nodes = that.getChildNodes(data, item,level);
+                    result.push(obj);
+                }
+            });
+            return result;
+        },
+        getChildNodes: function (data, parentNode,level) {
+            var that = this;
+            var result = [];
+            level++;
+            $.each(data, function (i, item) {
+                if (item['parentId'] == parentNode['id']) {
+                    var obj = {
+                        id: item.id,
+                        level: level,
+                        parentId: item.parentId,
+                        text: item.name,
+                        nodes: null
+                    };
+                    result.push(obj);
+                    var childNodes = that.getChildNodes(data, item,level);
+                    if (childNodes != null && childNodes.length > 0) {
+                        obj.nodes = childNodes;
+                    }
+                }
+            });
+            return result;
+        }
+    };
+
+    /**
+     * 初始化Table
+     * @type {*|jQuery}
+     */
+    camera_list = $('#camera_list').DataTable({
         "language": lang,
         "lengthChange": false,
         "searching": false,
@@ -16,52 +107,70 @@ $(function () {
         "destroy": true,
         "info": true,
         "autoWidth": false,
-        "renderer": "bootstrap",
+        "order": [],
         "mark": {
             "exclude": [".exclude"]
         },
         "ajax": function (data, callback, settings) {
-            var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
-            var searchIp = $("#searchIp").val().trim();
-            if (searchIp != "") {
-                str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
-            }
-            var searchName = $("#searchName").val().trim();
-            if (searchName != "") {
-                str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName + '%25&terms%5b1%5d.termType=like&terms%5b1%5d.type=and';
-            }
-            if ($("#searchStatus").val() == 1) {
-                str += '&terms%5b2%5d.column=status&terms%5b2%5d.value=1&terms%5b2%5d.termType=eq&terms%5b2%5d.type=and';
-            }
-            $.ajax({
-                url: BASE_PATH + "camera",
-                type: "GET",
-                data: str,
-                dataType: "json",
-                success: function (result) {
-                    var resultData = {};
-                    resultData.draw = result.data.draw;
-                    resultData.recordsTotal = result.total;
-                    resultData.recordsFiltered = result.total;
-                    resultData.data = result.data;
-                    if(resultData.data == null){
-                        resultData.data =[];
-                    }
-                    callback(resultData);
-                },
-                error: function () {
-                    toastr.warning("请求列表数据失败, 请重试");
+            var organization = $('#area_tree').treeview('getSelected')[0];
+            if (!isNaN(organization.id)) {
+                var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+                var searchIp = $("#searchIp").val().trim();
+                if (searchIp != "") {
+                    str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
                 }
-            });
+                var searchName = $("#searchName").val().trim();
+                if (searchName != "") {
+                    str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName + '%25&terms%5b1%5d.termType=like&terms%5b1%5d.type=and';
+                }
+                if ($("#searchStatus").val() == 1) {
+                    str += '&terms%5b2%5d.column=status&terms%5b2%5d.value=1&terms%5b2%5d.termType=eq&terms%5b2%5d.type=and';
+                }
+                if (organization.level == 0){
+                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                } else if(organization.level == 1) {
+                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                }else if(organization.level == 2) {
+                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
+                }
+                if (data.order.length > 0) {
+                    str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=' + data.order[0].dir;
+                }
+                $.ajax({
+                    url: BASE_PATH + "camera",
+                    type: "GET",
+                    data: str,
+                    cache: false,
+                    dataType: "json",
+                    success: function (result) {
+                        var resultData = {};
+                        resultData.draw = result.data.draw;
+                        resultData.recordsTotal = result.total;
+                        resultData.recordsFiltered = result.total;
+                        resultData.data = result.data;
+                        if(resultData.data == null){
+                            resultData.data =[];
+                        }
+                        callback(resultData);
+                    },
+                    error: function () {
+                        toastr.warning("请求列表数据失败, 请重试");
+                    }
+                });
+            }
         },
         columns: [
-            {"data": "id", "searchable": false, "orderable": false, "className": "exclude"},
+            {"data": null, "searchable": false, "orderable": false, "className": "exclude",
+                render:function(data,type,row,meta) {
+                    return meta.row + 1;
+                }
+            },
             {"data": "name", "orderable": false},
             {"data": "code", "searchable": false, "className": "exclude", "orderable": false},
             {"data": "ip", "orderable": false},
             {"data": "port", "searchable": false, "className": "exclude", "orderable": false},
             {"data": "note", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "status", "searchable": false, "className": "exclude"},
+            {"data": "status", "searchable": false, "className": "exclude", "orderable": false},
             {"data": "createTime", "searchable": false, "className": "exclude"},
             {"data": "null", "searchable": false, "orderable": false, "className": "exclude"}
         ],
@@ -150,9 +259,17 @@ $(function () {
             note: {required: "请输入备注"}
         },
         submitHandler: function (form) {
-
+            var tree = $('#area_tree').treeview('getSelected')[0];
+            if (isNaN(tree.id) || tree.level != 2) {
+                toastr.warn("请选择子节点");
+                return;
+            }
             //提交数据
             var data = $("#camera_form").serializeArray();
+            data.push({
+                name: 'organizationId',
+                value: tree.id
+            })
             var dataJson = formatArray(data, "json");
             if (camera_id == '') {
                 $('button[type="submit"]').attr('disabled', true);
@@ -192,6 +309,11 @@ $(function () {
     });
     //新增设备弹出操作
     $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
+        var tree = $('#area_tree').treeview('getSelected')[0];
+        if (isNaN(tree.id) || tree.level != 2) {
+            toastr.warn("请选择子节点");
+            return;
+        }
         camera_id = '';
         $(".modal-title").html("添加设备");
         clearData();
