@@ -3,7 +3,11 @@
  */
 var camera_id = '';
 $(function () {
-    //用户列表
+//用户列表
+    $('select').selectpicker({ noneSelectedText : '请选择' });
+
+    $('#area_tree').treeview();
+
     var camera_list = $('#camera_list').DataTable({
         "language": lang,
         "lengthChange": false,
@@ -12,40 +16,38 @@ $(function () {
         "destroy": true,
         "info": true,
         "autoWidth": false,
+        "renderer": "bootstrap",
         "mark": {
             "exclude": [".exclude"]
         },
         "ajax": function (data, callback, settings) {
-            // var param = {};
-            // param.pageSize = data.length;
-            // param.pageIndex = data.start;
-            // param.page = (data.start / data.length) + 1;
-            var param = {
-                pageSize: data.data.limit,
-                pageIndex: data.data.offset,
-                param: {}
-            };
+            var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+            var searchIp = $("#searchIp").val().trim();
+            if (searchIp != "") {
+                str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
+            }
+            var searchName = $("#searchName").val().trim();
+            if (searchName != "") {
+                str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName + '%25&terms%5b1%5d.termType=like&terms%5b1%5d.type=and';
+            }
+            if ($("#searchStatus").val() == 1) {
+                str += '&terms%5b2%5d.column=status&terms%5b2%5d.value=1&terms%5b2%5d.termType=eq&terms%5b2%5d.type=and';
+            }
             $.ajax({
                 url: BASE_PATH + "camera",
                 type: "GET",
-                cache: false,
-                data: param,
+                data: str,
                 dataType: "json",
                 success: function (result) {
-                    data.success({
-                        'rows': result.data.data,
-                        'total': result.data.total
-                    });
-
-                    // var resultData = {};
-                    // resultData.draw = result.data.draw;
-                    // resultData.recordsTotal = result.total;
-                    // resultData.recordsFiltered = result.total;
-                    // resultData.data = result.data;
-                    // if(resultData.data == null){
-                    //     resultData.data =[];
-                    // }
-                    // callback(resultData);
+                    var resultData = {};
+                    resultData.draw = result.data.draw;
+                    resultData.recordsTotal = result.total;
+                    resultData.recordsFiltered = result.total;
+                    resultData.data = result.data;
+                    if(resultData.data == null){
+                        resultData.data =[];
+                    }
+                    callback(resultData);
                 },
                 error: function () {
                     toastr.warning("请求列表数据失败, 请重试");
@@ -57,8 +59,8 @@ $(function () {
             {"data": "name", "orderable": false},
             {"data": "code", "searchable": false, "className": "exclude", "orderable": false},
             {"data": "ip", "orderable": false},
-            {"data": "organization", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "address", "searchable": false, "className": "exclude", "orderable": false},
+            {"data": "port", "searchable": false, "className": "exclude", "orderable": false},
+            {"data": "note", "searchable": false, "className": "exclude", "orderable": false},
             {"data": "status", "searchable": false, "className": "exclude"},
             {"data": "createTime", "searchable": false, "className": "exclude"},
             {"data": "null", "searchable": false, "orderable": false, "className": "exclude"}
@@ -72,16 +74,10 @@ $(function () {
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-edit">编辑</button>\n';
+                        buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-default btn-xs btn-edit">编辑</button>\n';
                     }
                     if (accessDelete) {
-                        if (c.status == 1) {
-                            buttons += '<button type="button" data-id="' + a + '" class="btn btn-warning btn-xs btn-close">关闭</button>';
-                        }
-                        else {
-                            buttons += '<button type="button" data-id="' + a + '" class="btn btn-success btn-xs btn-open">开启</button>';
-                        }
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
+                        buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
                     }
                     return buttons;
 
@@ -90,14 +86,27 @@ $(function () {
         ],
         fnRowCallback: function (nRow, aData, iDataIndex) {
             var status = aData.status;
-            var html = '<text aria-hidden="true" style="color: red" data-state = "' + status + '">未开启</text>';
+            var html = '<text aria-hidden="true" style="color: red" data-state = "' + status + '">未布防</text>';
             if (status == 1) {
-                html = '<text aria-hidden="true" style="color: #00e765"  data-state = "' + status + '">已开启</text>';
+                html = '<text aria-hidden="true" style="color: #00e765"  data-state = "' + status + '">已布防</text>';
             }
             $('td:eq(6)', nRow).html(html);
             return nRow;
         }
 
+    });
+
+    /**
+     * 搜索条件
+     */
+    $(".box-header").off('click', '.btn-search').on('click', '.btn-search', function () {
+        if ($("#searchIp").val().trim() == "") {
+            $("#searchIp").val("");
+        }
+        if ($("#searchName").val().trim() == "") {
+            $("#searchName").val("");
+        }
+        camera_list.draw(false);
     });
 
     /* 数组转json
@@ -119,49 +128,38 @@ $(function () {
         return ((type == "json") ? JSON.stringify(dataArray) : dataArray);
     }
 
-    jQuery.validator.addMethod("telphoneValid", function (value, element) {
-        var tel = /^(13|14|15|17|18)\d{9}$/;
+    jQuery.validator.addMethod("ipValid", function (value, element) {
+        var tel = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
         return tel.test(value) || this.optional(element);
-    }, "请输入正确的手机号码");
+    }, "请输入正确的IP");
 
     //新增或修改用户验证
-    $("form#user_form").validate({
+    $("form#camera_form").validate({
         rules: {
-            username: {required: true},
-            password: {required: true},
-            email: {required: true, email: true},
-            phone: {required: true, telphoneValid: true}
+            code: {required: true},
+            name: {required: true},
+            ip: {required: true, ipValid: true},
+            port: {required: true, digits: true},
+            note: {required: true, }
         },
         messages: {
-            username: {required: "请输入用户名."},
-            password: {required: "请输入密码"},
-            email: {required: "请输入 E-Mail 地址", email: "请输入正确的 E-Mail 地址"},
-            phone: {required: "请输入手机号码", telphoneValid: "请输入正确的手机号码"}
+            code: {required: "请输入设备编号"},
+            name: {required: "请输入设备名称"},
+            ip: {required: "请输入设备IP", ipValid: "请输入正确的IP"},
+            port: {required: "请输入端口", digits: "请输入正确的端口号"},
+            note: {required: "请输入备注"}
         },
         submitHandler: function (form) {
 
             //提交数据
-            var data = $("#user_form").serializeArray();
-            var roles = new Array();
-            for (var item in data) {
-                if (data[item]["name"] == "userRoles") {
-                    roles.push({roleId: data[item]["value"]});
-                    delete data[item];
-                }
-
-            }
-            data.push({name: "userRoles", value: roles});
+            var data = $("#camera_form").serializeArray();
             var dataJson = formatArray(data, "json");
-            console.log(dataJson);
             if (camera_id == '') {
-                var api = "user/add";
-                // ajax
                 $('button[type="submit"]').attr('disabled', true);
-                Request.post(api, dataJson, function (e) {
-                    console.log(e);
+                Request.post("camera", dataJson, function (e) {
                     $('button[type="submit"]').attr('disabled', false);
                     if (e.success) {
-                        toastr.info("新增用户成功");
+                        toastr.info("添加设备成功");
                         $("#modal-add").modal('hide');
                         camera_list.draw(false);
                         camera_list.ajax.reload();
@@ -177,11 +175,9 @@ $(function () {
                 // ajax
                 $('button[type="submit"]').attr('disabled', true);
                 Request.put(api, dataJson, function (e) {
-                    console.log(e);
                     $('button[type="submit"]').attr('disabled', false);
-
                     if (e.success) {
-                        toastr.info("修改用户成功");
+                        toastr.info("修改设备成功");
                         $("#modal-add").modal('hide');
                         camera_list.draw(false);
 
@@ -194,49 +190,35 @@ $(function () {
             }
         }
     });
-    //新增用户弹出操作
-    $(".box-tools").off('click', '.btn-add').on('click', '.btn-add', function () {
+    //新增设备弹出操作
+    $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
         camera_id = '';
-        $(".modal-title").html("新增用户");
-        $("#modal-add").modal('show');
+        $(".modal-title").html("添加设备");
         clearData();
+        $("#modal-add").modal('show');
     });
 
-    //编辑用户弹出操作
+    //编辑设备弹出操作
     $("#camera_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
         var that = $(this);
         var id = that.data('id');
         camera_id = id;
-        $(".modal-title").html("编辑用户");
-        $("#modal-add").modal('show');
+        $(".modal-title").html("编辑设备");
         //加载编辑数据
         Request.get("camera/" + id, {}, function (e) {
             if (e.success) {
-                e.data.password = "$default";
                 var data = e.data;
-                $("input#username").val(data.username);
-                $("input#password").val(data.password);
+                $("input#code").val(data.code);
                 $("input#name").val(data.name);
-                $("input#phone").val(data.phone);
-                $("input#email").val(data.email);
-                var roles = [];
-                for (var i = 0; i < data.userRoles.length; i++) {
-                    roles.push(data.userRoles[i]["roleId"])
-                }
-                var checkchilds = $("input.checkchild");
-                for (var i = 0; i < checkchilds.length; i++) {
-                    if (contains(roles, checkchilds[i].value)) {
-                        checkchilds[i].checked = true;
-                    }
-
-                }
-
+                $("input#ip").val(data.ip);
+                $("input#port").val(data.port);
+                $("input#note").val(data.note);
             }
         });
-
+        $("#modal-add").modal('show');
     });
-    //用户禁用
-    $("#camera_list").off('click', '.btn-close').on('click', '.btn-close', function () {
+    //用户删除
+    $("#camera_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
         var that = $(this);
         var id = that.data('id');
         camera_id = id;
@@ -245,35 +227,7 @@ $(function () {
     });
     $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
         var id = camera_id;
-        Request.put("camera/" + id + "/disable", {}, function (e) {
-            if (e.success) {
-                toastr.info("注销成功!");
-                camera_list.draw();
-                camera_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-    });
-    //用户启用
-    $("#camera_list").off('click', '.btn-open').on('click', '.btn-open', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.put("user/" + id + "/enable", {}, function (e) {
-            if (e.success) {
-                toastr.info("启用成功!");
-                camera_list.draw();
-                camera_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-    });
-    //用户删除
-    $("#camera_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.delete("camera/" + id + "/delete", {}, function (e) {
+        Request.delete("camera/" + id, {}, function (e) {
             if (e.success) {
                 toastr.info("删除成功!");
                 camera_list.draw();
@@ -282,8 +236,6 @@ $(function () {
                 toastr.error(e.message);
             }
         });
-
-
     });
 
     //表单数据清空
@@ -291,20 +243,8 @@ $(function () {
         $("input#code").val("");
         $("input#name").val("");
         $("input#ip").val("");
-        $("input#address").val("");
-        $("input#node").val("");
-        $("input.checkchild").prop("checked", false);
-    }
-
-    //数组是否存在元素
-    function contains(arr, obj) {
-        var i = arr.length;
-        while (i--) {
-            if (arr[i] === obj) {
-                return true;
-            }
-        }
-        return false;
+        $("input#port").val("");
+        $("input#note").val("");
     }
 
 });

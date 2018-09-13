@@ -11,13 +11,22 @@ public class Camera extends GenericPo<Long> {
     private String code; //设备编号
     private String name;
     private String ip;
+    private Integer port;
     private Long organizationId;  //组织机构
     private String address;
     @JsonIgnore
     private Long associationCode; //摄像头-服务器：关联编号
-    private Integer status; //0:未激活，1:激活
+    private Integer status; //0:未布防，1:已布防
     private Date createTime;
     private String note;
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
 
     public String getCode() {
         return code;
@@ -94,6 +103,7 @@ public class Camera extends GenericPo<Long> {
     public interface Property extends GenericPo.Property {
         String CODE = "code";
         String NAME = "name";
+        String PORT = "port";
         String IP = "ip";
         String ORGANIZATIONID = "organizationId";
         String ADDRESS = "address";

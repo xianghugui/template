@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
 <head th:include="admin/include/head"></head>
+<link rel="stylesheet" th:href="@{plugins/selectpicker/bootstrap-select.min.css}"/>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
@@ -13,34 +14,54 @@
 
         <!-- Main content -->
         <section class="content">
-            <div class="box myanimation">
-                <div class="box-tools">
-                    <button th:if="${user.hasAccessModuleAction('camera', 'C')}" type="button"
-                            class="btn btn-primary btn-sm btn-add pull-left" data-toggle="modal">添加
-                    </button>
-                    <div class="pull-right">
-                        设备IP<input/>
-                        设备状态<select></select>
-                        设备名称<input/>
-                        <button>搜索</button>
-                    </div>
+            <div class="col-md-3">
+                <div class="box">
+                    <div id="area_tree"></div>
                 </div>
-                <div class="box-body">
-                    <table id="camera_list" class="table cell-border">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>设备名称</th>
-                            <th>设备编号</th>
-                            <th>设备IP</th>
-                            <th>组织机构</th>
-                            <th>设备地址</th>
-                            <th>设备状态</th>
-                            <th>添加时间</th>
-                            <th>操作</th>
-                        </tr>
-                        </thead>
-                    </table>
+            </div>
+            <div class="col-md-9">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <button th:if="${user.hasAccessModuleAction('camera', 'C')}" type="button"
+                                class="btn btn-primary btn-add pull-left" data-toggle="modal">添加
+                        </button>
+                        <div class="form-inline pull-right">
+                            <div class="form-group">
+                                <label for="searchIp">设备IP</label>
+                                <input type="text" class="form-control" id="searchIp" placeholder="请输入设备IP">
+                            </div>
+                            <div class="form-group">
+                                <label for="searchStatus">设备IP</label>
+                                <select id="searchStatus">
+                                    <option value="-1">请选择</option>
+                                    <option value="1">已布防</option>
+                                    <option value="0">未布防</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="searchName">设备名称</label>
+                                <input type="text" class="form-control" id="searchName" placeholder="请输入设备名称">
+                            </div>
+                            <button type="submit" class="btn btn-default btn-search">搜索</button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <table id="camera_list" class="table cell-border">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>设备名称</th>
+                                <th>设备编号</th>
+                                <th>设备IP</th>
+                                <th>端口</th>
+                                <th>备注</th>
+                                <th>设备状态</th>
+                                <th>添加时间</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -53,6 +74,7 @@
 <div th:include="admin/camera/form" th:remove="tag"></div>
 <!-- ./wrapper -->
 <div th:include="admin/include/footer" th:remove="tag"></div>
+<script th:src="@{/plugins/selectpicker/bootstrap-select.min.js}"></script>
 <script th:inline="javascript">
     var accessUpdate = [[${user.hasAccessModuleAction('camera', 'U')}]];
     var accessDelete = [[${user.hasAccessModuleAction('camera', 'D')}]];

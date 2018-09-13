@@ -4,51 +4,70 @@
             <div class="modal-header">
                 <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">添加设备</h4>
+                <h4 class="modal-title">添加设备设备</h4>
             </div>
-            <div class="modal-body">
-                <form class="form-horizontal" name="add_form" id="camera_form" method="post">
-                    <div class="form-group">
-                        <label for="code" class="col-sm-2 control-label">设备编号:</label>
-                        <div class="col-sm-10">
+            <form name="add_form" id="camera_form" method="post">
+                <div class="modal-body">
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="code" class="control-label">设备编号:</label>
                             <input type="text" class="form-control" name="code" id="code" value=""
                                    placeholder="请输入设备编号"/>
                         </div>
+
                     </div>
-                    <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">设备名称:</label>
-                        <div class="col-sm-10">
+                    <div class="col-md-12">
+
+                        <div class="form-group">
+                            <label for="name" class="control-label">设备名称:</label>
                             <input type="text" class="form-control" name="name" id="name" value=""
                                    placeholder="请输入设备名称"/>
                         </div>
+
                     </div>
-                    <div class="form-group">
-                        <label for="ip" class="col-sm-2 control-label">设备IP:</label>
-                        <div class="col-sm-10">
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="ip" class="control-label">设备IP:</label>
                             <input type="text" class="form-control" name="ip" id="ip" value=""
                                    placeholder="请输入设备IP"/>
                         </div>
+
                     </div>
-                    <div class="form-group">
-                        <label for="port" class="col-sm-2 control-label">端口:</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="port" id="port" value=""
-                                   placeholder="端口"/>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="name" class="control-label">组织机构:</label>
+                            <select id="organization"/>
                         </div>
+
                     </div>
-                    <div class="form-group">
-                        <label for="note" class="col-sm-2 control-label">备注:</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="note" id="note" value=""
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="address" class="control-label">投放地址:</label>
+                            <input type="text" class="form-control" name="address" id="address" value=""
+                                   placeholder="请输入投放地址"/>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="node" class="control-label">备注:</label>
+                            <input type="text" class="form-control" name="node" id="node" value=""
                                    placeholder="请输入备注"/>
                         </div>
+
                     </div>
+
                     <div class="modal-footer">
-                            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">取消</button>
-                            <button type="submit" class="btn btn-primary">确定</button>
+                        <button type="button" class="btn btn-xs btn-danger pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-xs btn-primary">添加</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
         <!-- /.modal-content -->
     </div>
@@ -67,7 +86,7 @@
                 <h4 class="title">提示信息</h4>
             </div>
             <div class="modal-body">
-                <p>您确认要删除该用户吗？</p>
+                <p>您确认要禁用该用户吗？</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="url"/>
