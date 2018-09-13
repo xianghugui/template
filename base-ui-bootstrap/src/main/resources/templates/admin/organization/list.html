@@ -29,18 +29,22 @@
                     <h3 class="box-title">组织管理</h3>
                 </div>
                 <div class="box-body">
-                    <div class="col-md-3">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <!-- 树列表 -->
-                                <div id="organization_tree"></div>
-                            </div>
-                            <div class="col-md-12 col-md-offset-2">
-                                <div class="form-group">
-                                    <button type="button" th:if="${user.hasAccessModuleAction('organization', 'C')}" class="btn  btn-primary btn-tree-add">新增</button>
-                                    <button type="button" th:if="${user.hasAccessModuleAction('organization', 'U')}" class="btn  btn-info btn-tree-edit">编辑</button>
-                                    <button type="button" th:if="${user.hasAccessModuleAction('organization', 'D')}" class="btn  btn-danger btn-tree-del">删除</button>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- 树列表 -->
+                            <div id="organization_tree"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="button" th:if="${user.hasAccessModuleAction('organization', 'C')}"
+                                        class="btn  btn-primary btn-tree-add">新增
+                                </button>
+                                <button type="button" th:if="${user.hasAccessModuleAction('organization', 'U')}"
+                                        class="btn  btn-info btn-tree-edit">编辑
+                                </button>
+                                <button type="button" th:if="${user.hasAccessModuleAction('organization', 'D')}"
+                                        class="btn  btn-danger btn-tree-del">删除
+                                </button>
                             </div>
                         </div>
                     </div>

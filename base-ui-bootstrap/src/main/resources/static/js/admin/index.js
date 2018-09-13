@@ -29,7 +29,7 @@ var lang = {
     "sLengthMenu": "每页 _MENU_ 项",
     "sZeroRecords": "没有匹配结果",
     "sInfo": "当前显示第 _START_ 至 _END_ 项，共 _TOTAL_ 项",
-    "sInfoEmpty": "当前显示第 0 至 0 项，共 0 项",
+    "sInfoEmpty": "",
     "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
     "sInfoPostFix": "",
     "sSearch": "<span class='fa fa-search'></span>",
