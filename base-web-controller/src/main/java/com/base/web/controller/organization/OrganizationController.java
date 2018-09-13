@@ -55,7 +55,7 @@ public class OrganizationController extends GenericController<Organization, Long
         Integer idPrefix = 0;
         if (data.getParentId() == null) {
             idPrefix = getService().createQuery().where(Organization.Property.parentId, "-1").total();
-            if (idPrefix == null || idPrefix == 0) {
+            if (idPrefix == null && idPrefix == 0) {
                 data.setId(100000000L);
             } else {
                 Integer newId = idPrefix + 100;

@@ -52,7 +52,6 @@ $(document).ready(function () {
                     var obj = {
                         id: item.id,
                         level: level,
-                        code: item.code,
                         parentId: item.parentId,
                         text: item.name,
                         nodes: []
@@ -72,7 +71,6 @@ $(document).ready(function () {
                     var obj = {
                         id: item.id,
                         level: level,
-                        code: item.code,
                         parentId: item.parentId,
                         text: item.name,
                         nodes: null
@@ -96,18 +94,16 @@ $(document).ready(function () {
             return false;
         }
         $("#organization_name").val("");
-        $("#organization_code").val("");
+        $("#add_organization_form").data("type", "0");
         $("#modal_organization_add").modal('show');
     });
 
     $("#add_organization_form").validate({
         rules: {
-            organizationName: {required: true},
-            organizationCode: {required: true}
+            organizationName: {required: true}
         },
         messages: {
-            organizationName: {required: "组织名称不能为空"},
-            organizationCode: {required: "组织编码不能为空"}
+            organizationName: {required: "组织名称不能为空"}
         },
         submitHandler: function () {
             var btn = $('#submit-parent'),
@@ -115,8 +111,7 @@ $(document).ready(function () {
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
             var params = {
-                name: $("#organization_name").val(),
-                code: $("#organization_code").val()
+                name: $("#organization_name").val()
             };
 
             var type = true,
@@ -174,7 +169,6 @@ $(document).ready(function () {
         }
         $(".modal-title").html("编辑组织信息");
         $("#organization_name").val(selected[0].text);
-        $("#organization_code").val(selected[0].code);
         $("#add_organization_form").data("id", selected[0].id).data("type", "1");
         $("#modal_organization_add").modal('show');
     });
