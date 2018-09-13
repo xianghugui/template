@@ -7,18 +7,44 @@ import java.util.Date;
 
 public class Camera extends GenericPo<Long> {
 
-
     private String code; //设备编号
     private String name;
     private String ip;
     private Integer port;
+    private Integer aisle; //通道
     private Long organizationId;  //组织机构
     private String address;
     @JsonIgnore
     private Long associationCode; //摄像头-服务器：关联编号
     private Integer status; //0:未布防，1:已布防
-    private Date createTime;
     private String note;
+    private String account;
+    private String password;
+    private Date createTime;
+
+    public Integer getAisle() {
+        return aisle;
+    }
+
+    public void setAisle(Integer aisle) {
+        this.aisle = aisle;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public Integer getPort() {
         return port;
@@ -111,5 +137,8 @@ public class Camera extends GenericPo<Long> {
         String STATUS = "status";
         String CREATETIME = "createTime";
         String NOTE = "note";
+        String AISLE = "aisle";
+        String ACCOUNT = "account";
+        String PASSWORD = "password";
     }
 }

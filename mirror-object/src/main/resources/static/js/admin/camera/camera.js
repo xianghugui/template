@@ -5,11 +5,6 @@ var camera_id = '';
 $(function () {
     var camera_list;
     /**
-     * 初始化下拉选择框
-     */
-    $('select').selectpicker({ noneSelectedText : '请选择' });
-
-    /**
      * 初始化组织树
      * @type {boolean}
      */
@@ -29,6 +24,7 @@ $(function () {
                     camera_list.draw(false);
                 }
             });
+            initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
     };
@@ -65,13 +61,13 @@ $(function () {
                         text: item.name,
                         nodes: []
                     };
-                    obj.nodes = that.getChildNodes(data, item,level);
+                    obj.nodes = that.getChildNodes(data, item, level);
                     result.push(obj);
                 }
             });
             return result;
         },
-        getChildNodes: function (data, parentNode,level) {
+        getChildNodes: function (data, parentNode, level) {
             var that = this;
             var result = [];
             level++;
@@ -85,7 +81,7 @@ $(function () {
                         nodes: null
                     };
                     result.push(obj);
-                    var childNodes = that.getChildNodes(data, item,level);
+                    var childNodes = that.getChildNodes(data, item, level);
                     if (childNodes != null && childNodes.length > 0) {
                         obj.nodes = childNodes;
                     }
@@ -99,111 +95,116 @@ $(function () {
      * 初始化Table
      * @type {*|jQuery}
      */
-    camera_list = $('#camera_list').DataTable({
-        "language": lang,
-        "lengthChange": false,
-        "searching": false,
-        "serverSide": true,
-        "destroy": true,
-        "info": true,
-        "autoWidth": false,
-        "order": [],
-        "mark": {
-            "exclude": [".exclude"]
-        },
-        "ajax": function (data, callback, settings) {
-            var organization = $('#area_tree').treeview('getSelected')[0];
-            if (!isNaN(organization.id)) {
-                var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
-                var searchIp = $("#searchIp").val().trim();
-                if (searchIp != "") {
-                    str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
-                }
-                var searchName = $("#searchName").val().trim();
-                if (searchName != "") {
-                    str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName + '%25&terms%5b1%5d.termType=like&terms%5b1%5d.type=and';
-                }
-                if ($("#searchStatus").val() == 1) {
-                    str += '&terms%5b2%5d.column=status&terms%5b2%5d.value=1&terms%5b2%5d.termType=eq&terms%5b2%5d.type=and';
-                }
-                if (organization.level == 0){
-                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
-                } else if(organization.level == 1) {
-                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
-                }else if(organization.level == 2) {
-                    str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
-                }
-                if (data.order.length > 0) {
-                    str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=' + data.order[0].dir;
-                }
-                $.ajax({
-                    url: BASE_PATH + "camera",
-                    type: "GET",
-                    data: str,
-                    cache: false,
-                    dataType: "json",
-                    success: function (result) {
-                        var resultData = {};
-                        resultData.draw = result.data.draw;
-                        resultData.recordsTotal = result.total;
-                        resultData.recordsFiltered = result.total;
-                        resultData.data = result.data;
-                        if(resultData.data == null){
-                            resultData.data =[];
-                        }
-                        callback(resultData);
-                    },
-                    error: function () {
-                        toastr.warning("请求列表数据失败, 请重试");
+    function initTable() {
+        camera_list = $('#camera_list').DataTable({
+            "language": lang,
+            "lengthChange": false,
+            "searching": false,
+            "serverSide": true,
+            "destroy": true,
+            "info": true,
+            "autoWidth": false,
+            "order": [],
+            "mark": {
+                "exclude": [".exclude"]
+            },
+            "ajax": function (data, callback, settings) {
+                var organization = $('#area_tree').treeview('getSelected')[0];
+                if (typeof organization !== "undefined") {
+                    var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+                    var searchIp = $("#searchIp").val().trim();
+                    if (searchIp != "") {
+                        str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
                     }
-                });
-            }
-        },
-        columns: [
-            {"data": null, "searchable": false, "orderable": false, "className": "exclude",
-                render:function(data,type,row,meta) {
-                    return meta.row + 1;
+                    var searchName = $("#searchName").val().trim();
+                    if (searchName != "") {
+                        str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName + '%25&terms%5b1%5d.termType=like&terms%5b1%5d.type=and';
+                    }
+                    if ($("#searchStatus").val() == 1) {
+                        str += '&terms%5b2%5d.column=status&terms%5b2%5d.value=1&terms%5b2%5d.termType=eq&terms%5b2%5d.type=and';
+                    }
+                    if (organization.level == 0) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                    } else if (organization.level == 1) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                    } else if (organization.level == 2) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
+                    }
+                    if (data.order.length > 0) {
+                        str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=' + data.order[0].dir;
+                    }
+                    $.ajax({
+                        url: BASE_PATH + "camera",
+                        type: "GET",
+                        data: str,
+                        cache: false,
+                        dataType: "json",
+                        success: function (result) {
+                            var resultData = {};
+                            resultData.draw = result.data.draw;
+                            resultData.recordsTotal = result.total;
+                            resultData.recordsFiltered = result.total;
+                            resultData.data = result.data;
+                            if (resultData.data == null) {
+                                resultData.data = [];
+                            }
+                            callback(resultData);
+                        },
+                        error: function () {
+                            toastr.warning("请求列表数据失败, 请重试");
+                        }
+                    });
                 }
             },
-            {"data": "name", "orderable": false},
-            {"data": "code", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "ip", "orderable": false},
-            {"data": "port", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "note", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "status", "searchable": false, "className": "exclude", "orderable": false},
-            {"data": "createTime", "searchable": false, "className": "exclude"},
-            {"data": "null", "searchable": false, "orderable": false, "className": "exclude"}
-        ],
-        "aoColumnDefs": [
-            {
-                "sClass": "center",
-                "aTargets": [8],
-                "mData": "id",
-                "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
-                    // 修改 删除 权限判断
-                    var buttons = '';
-                    if (accessUpdate) {
-                        buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-default btn-xs btn-edit">编辑</button>\n';
+            columns: [
+                {
+                    "data": null, "searchable": false, "orderable": false, "className": "exclude",
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
                     }
-                    if (accessDelete) {
-                        buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
-                    }
-                    return buttons;
+                },
+                {"data": "name", "orderable": false},
+                {"data": "code", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "ip", "orderable": false},
+                {"data": "port", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "note", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "account", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "password", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "status", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "createTime", "searchable": false, "className": "exclude"},
+                {"data": "null", "searchable": false, "orderable": false, "className": "exclude"}
+            ],
+            "aoColumnDefs": [
+                {
+                    "sClass": "center",
+                    "aTargets": [10],
+                    "mData": "id",
+                    "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
+                        // 修改 删除 权限判断
+                        var buttons = '';
+                        if (accessUpdate) {
+                            buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-default btn-xs btn-edit">编辑</button>\n';
+                        }
+                        if (accessDelete) {
+                            buttons += '<button type="button" data-id="' + c.id + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
+                        }
+                        return buttons;
 
+                    }
                 }
+            ],
+            fnRowCallback: function (nRow, aData, iDataIndex) {
+                var status = aData.status;
+                var html = '<text aria-hidden="true" style="color: red" data-state = "' + status + '">未布防</text>';
+                if (status == 1) {
+                    html = '<text aria-hidden="true" style="color: #0099FF"  data-state = "' + status + '">已布防</text>';
+                }
+                $('td:eq(8)', nRow).html(html);
+                return nRow;
             }
-        ],
-        fnRowCallback: function (nRow, aData, iDataIndex) {
-            var status = aData.status;
-            var html = '<text aria-hidden="true" style="color: red" data-state = "' + status + '">未布防</text>';
-            if (status == 1) {
-                html = '<text aria-hidden="true" style="color: #00e765"  data-state = "' + status + '">已布防</text>';
-            }
-            $('td:eq(6)', nRow).html(html);
-            return nRow;
-        }
 
-    });
+        });
+    }
 
     /**
      * 搜索条件
@@ -242,6 +243,21 @@ $(function () {
         return tel.test(value) || this.optional(element);
     }, "请输入正确的IP");
 
+    jQuery.validator.addMethod("accountValid", function (value, element) {
+        var account = $("input#account").val().trim();
+        var password = $("input#password").val().trim();
+        return (account === "" && password === "")
+            || (account !== "" && password !== "");
+    }, "请输入密码或删除账号");
+
+    jQuery.validator.addMethod("passwordValid", function (value, element) {
+        var account = $("input#account").val().trim();
+        var password = $("input#password").val().trim();
+        return (password === "" && account === "")
+            || (password !== "" && account !== "");
+    }, "请输入账号或删除密码");
+
+
     //新增或修改用户验证
     $("form#camera_form").validate({
         rules: {
@@ -249,29 +265,33 @@ $(function () {
             name: {required: true},
             ip: {required: true, ipValid: true},
             port: {required: true, digits: true},
-            note: {required: true, }
+            note: {required: true,},
+            account: {accountValid: true},
+            password: {passwordValid: true}
         },
         messages: {
             code: {required: "请输入设备编号"},
             name: {required: "请输入设备名称"},
             ip: {required: "请输入设备IP", ipValid: "请输入正确的IP"},
             port: {required: "请输入端口", digits: "请输入正确的端口号"},
-            note: {required: "请输入备注"}
+            note: {required: "请输入备注"},
+            account: {accountValid: "请输入密码或删除账号"},
+            password: {passwordValid: "请输入账号或删除密码"}
         },
         submitHandler: function (form) {
-            var tree = $('#area_tree').treeview('getSelected')[0];
-            if (isNaN(tree.id) || tree.level != 2) {
-                toastr.warn("请选择子节点");
-                return;
-            }
-            //提交数据
+            // 提交数据
             var data = $("#camera_form").serializeArray();
-            data.push({
-                name: 'organizationId',
-                value: tree.id
-            })
-            var dataJson = formatArray(data, "json");
             if (camera_id == '') {
+                var tree = $('#area_tree').treeview('getSelected')[0];
+                if (isNaN(tree.id) || tree.level != 2) {
+                    toastr.warn("请选择子节点");
+                    return;
+                }
+                data.push({
+                    name: 'organizationId',
+                    value: tree.id
+                })
+                var dataJson = formatArray(data, "json");
                 $('button[type="submit"]').attr('disabled', true);
                 Request.post("camera", dataJson, function (e) {
                     $('button[type="submit"]').attr('disabled', false);
@@ -288,6 +308,7 @@ $(function () {
                 });
             }
             else {
+                var dataJson = formatArray(data, "json");
                 var api = "camera/" + camera_id;
                 // ajax
                 $('button[type="submit"]').attr('disabled', true);
@@ -310,8 +331,8 @@ $(function () {
     //新增设备弹出操作
     $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
         var tree = $('#area_tree').treeview('getSelected')[0];
-        if (isNaN(tree.id) || tree.level != 2) {
-            toastr.warn("请选择子节点");
+        if (typeof tree === "undefined"|| tree.level !== 2) {
+            toastr.warning("请选择子节点");
             return;
         }
         camera_id = '';
@@ -335,6 +356,8 @@ $(function () {
                 $("input#ip").val(data.ip);
                 $("input#port").val(data.port);
                 $("input#note").val(data.note);
+                $("input#account").val(data.account);
+                $("input#password").val(data.password);
             }
         });
         $("#modal-add").modal('show');
@@ -367,6 +390,8 @@ $(function () {
         $("input#ip").val("");
         $("input#port").val("");
         $("input#note").val("");
+        $("input#account").val("");
+        $("input#password").val("");
     }
 
 });

@@ -10,10 +10,13 @@
         <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
         <result property="ip" column="ip" javaType="String" jdbcType="VARCHAR"/>
         <result property="port" column="port" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="aisle" column="aisle" javaType="Integer" jdbcType="TINYINT"/>
         <result property="organizationId" column="organization_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="address" column="address" javaType="String" jdbcType="VARCHAR"/>
         <result property="associationCode" column="association_code" javaType="Long" jdbcType="BIGINT"/>
         <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
+        <result property="account" column="account" javaType="String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="String" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result property="note" column="note" javaType="String" jdbcType="VARCHAR"/>
     </resultMap>

@@ -133,7 +133,8 @@
                     <div th:remove="tag" th:if="${module.childList != null or module.childList.length > 0}">
                         <ul class="treeview-menu">
                             <li th:each="moduleChild: ${module.childList}" th:class="${#strings.indexOf(moduleChild.uri, path) != -1 ? 'active' : ''}">
-                                <a href="" th:href="@{${moduleChild.uri}}">
+                                <a href="" th:href="@{'../../' + ${moduleChild.uri}}">
+                                <!--<a href="" th:href="${#strings.substringAfter(moduleChild.uri,'/')}">-->
                                     <i class="fa fa-circle-o" th:class="${moduleChild.icon eq '' ? 'fa fa-circle-o' : moduleChild.icon}"></i>
                                     <span th:text="${moduleChild.name}"></span>
                                 </a>
