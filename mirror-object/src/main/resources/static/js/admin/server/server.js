@@ -1,43 +1,38 @@
-/**
- * Created by david on 2017/6/12.
- */
-//用户id
-var user_id = '';
 $(function () {
-    //用户列表
-    var user_list = $('#user_list').DataTable({
+    //服务器列表
+    var serverList = $('#server_list').DataTable({
         "language": lang,
-        "paging": true,
-        "lengthChange": true,
-        "searching": true,
-        "ordering": true,
-        "destroy":true,
+        "lengthChange": false,
+        "searching": false,
+        "serverSide": true,
+        "destroy": true,
         "info": true,
         "autoWidth": false,
-        "bStateSave": true,
-        "sPaginationType": "full_numbers",
-        "mark":{
-            "exclude":[".exclude"]
+        "order": [],
+        "mark": {
+            "exclude": [".exclude"]
         },
         "ajax": function (data, callback, settings) {
-            var param = {};
-            param.pageSize = data.length;
-            param.pageIndex = data.start;
-            param.page = (data.start / data.length) + 1;
+            var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+            var searchName = $("#searchName").val().trim();
+            if (searchName != "") {
+                str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName;
+            }
             $.ajax({
-                url: BASE_PATH + "user",
+                url: BASE_PATH + "server/selectAll",
                 type: "GET",
                 cache: false,
-                data: param,
+                data: str,
                 dataType: "json",
+                crossDomain: true,
                 success: function (result) {
                     var resultData = {};
                     resultData.draw = result.data.draw;
                     resultData.recordsTotal = result.total;
                     resultData.recordsFiltered = result.total;
                     resultData.data = result.data;
-                    if(resultData.data == null){
-                        resultData.data =[];
+                    if (resultData.data == null) {
+                        resultData.data = [];
                     }
                     callback(resultData);
                 },
@@ -47,269 +42,191 @@ $(function () {
             });
         },
         columns: [
-            {"data": "id","searchable":false,"orderable":false,"className":"exclude"},
-            {"data": "username"},
+            {
+                "data": null, "searchable": false, "orderable": false, "className": "exclude",
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
             {"data": "name"},
-            {"data": "phone","orderable":false},
-            {"data": "createDate"},
-            {"data": "status","searchable":false,"orderable":false,"className":"exclude"}
+            {"data": "serverIp"},
+            {"data": "serverPort", "orderable": false},
+            {"data": "associationCode", "orderable": false},
+            {"data": "note", "searchable": false, "orderable": false, "className": "exclude"},
+            {"data": "createTime"}
         ],
         "aoColumnDefs": [
             {
-                "sClass":"center",
-                "aTargets":[6],
-                "mData":"id",
-                "mRender":function(a,b,c,d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
+                "sClass": "center",
+                "aTargets": [7],
+                "mData": "id",
+                "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                    buttons += '<button type="button" data-id="'+a+'" class="btn btn-default btn-xs btn-edit">修改</button>\n';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-edit">编辑</button>\n';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-add-device">添加设备</button>\n';
                     }
+                    buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-info">详情</button>\n';
                     if (accessDelete) {
-                        if (c.status==1)
-                        {
-                            buttons += '<button type="button" data-id="'+a+'" class="btn btn-warning btn-xs btn-close">禁用</button>';
-                        }
-                        else {
-                            buttons += '<button type="button" data-id="'+a+'" class="btn btn-success btn-xs btn-open">启用</button>';
-                        }
-                        buttons += '\n<button type="button" data-id="'+a+'" class="btn btn-danger btn-xs btn-delete">删除</button>';
+                        buttons += '\n<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
                     }
                     return buttons;
 
                 }
             }
-        ],
-        fnRowCallback : function(nRow,aData,iDataIndex){
-            var status=aData.status;
-            var html = '<span class="fa fa-circle text-error" aria-hidden="true" style="color: red" data-state = "'+status+'"></span>';
-            if (status==1)
-            {
-                html = '<span class="fa fa-circle text-success" aria-hidden="true" style="color: #00e765"  data-state = "'+status+'"></span>';
-            }
-            $('td:eq(5)', nRow).html(html);
-            return nRow;
-        }
+        ]
 
     });
-    //全选复选框
-    $(".checkall").click(function () {
-        var check = $(this).prop("checked");
-        $(".checkchild").prop("checked", check);
+
+    loadDeviceList();
+
+    //添加服务器
+    $('.btn-add').off('click').on('click', function () {
+        $("#server_name").val("");
+        $("#server_ip").val("");
+        $("#server_port").val("");
+        $("#remark").val("");
+        $("#modal_server_add").modal('show');
     });
-    /* 数组转json
-     * @param array 数组
-     * @param type 类型 json array
-     */
-    function formatArray(array, type) {
-        var dataArray = {};
-        $.each(array, function () {
-            if (dataArray[this.name]) {
-                if (!dataArray[this.name].push) {
-                    dataArray[this.name] = [dataArray[this.name]];
-                }
-                dataArray[this.name].push(this.value || '');
-            } else {
-                dataArray[this.name] = this.value || '';
-            }
-        });
-        return ((type == "json") ? JSON.stringify(dataArray) : dataArray);
-    }
 
-    jQuery.validator.addMethod("telphoneValid", function(value, element) {
-        var tel = /^(13|14|15|17|18)\d{9}$/;
-        return tel.test(value) || this.optional(element);
-    }, "请输入正确的手机号码");
 
-    //新增或修改用户验证
-    $("form#user_form").validate({
+    $("#add_server_form").validate({
         rules: {
-            username: {required: true},
-            password: {required: true},
-            email: {required: true, email: true},
-            phone: {required: true, telphoneValid: true}
+            serverName: {required: true},
+            serverIP: {required: true},
+            serverPort: {required: true}
         },
         messages: {
-            username: {required: "请输入用户名."},
-            password: {required: "请输入密码"},
-            email: {required: "请输入 E-Mail 地址", email: "请输入正确的 E-Mail 地址"},
-            phone: {required: "请输入手机号码", telphoneValid: "请输入正确的手机号码"}
+            serverName: {required: "服务器名称不能为空"},
+            serverIP: {required: "IP地址不能为空"},
+            serverPort: {required: "端口不能为空"}
         },
-        submitHandler: function (form) {
+        submitHandler: function () {
+            var btn = $('#submit-parent');
+            btn.attr('disabled', "true");
+            btn.html("保存中..请稍后");
 
-            //提交数据
-            var data = $("#user_form").serializeArray();
-            var  roles = new Array();
-            for(var item in data){
-                if (data[item]["name"]=="userRoles")
-                {
-                    roles.push({roleId:data[item]["value"]});
-                    delete data[item];
+            var params = {
+                name: $("#server_name").val(),
+                serverIp: $("#server_ip").val(),
+                serverPort: $("#server_port").val(),
+                node: $("#remark").val()
+            };
+
+            Request.post("server/add", JSON.stringify(params), function (e) {
+                if (e.success) {
+                    toastr.info("保存完毕");
+                    $("#modal_server_add").modal('hide');
+                    serverList.reload().draw();
+                } else {
+                    toastr.error(e.message);
                 }
-
-            }
-            data.push({name:"userRoles",value:roles});
-            var  dataJson = formatArray(data,"json");
-            console.log(dataJson);
-            if (user_id=='')
-            {
-                var api = "user/add";
-                // ajax
-                $('button[type="submit"]').attr('disabled', true);
-                Request.post(api,dataJson,function (e) {
-                    console.log(e);
-                    $('button[type="submit"]').attr('disabled', false);
-                    if (e.success) {
-                        toastr.info("新增用户成功");
-                        $("#modal-add").modal('hide');
-                        user_list.draw( false );
-                        user_list.ajax.reload();
-                    }
-                    else
-                    {
-                        toastr.error(e.message);
-                    }
-
-                });
-            }
-            else
-            {
-                var api = "user/" + user_id;
-                // ajax
-                $('button[type="submit"]').attr('disabled', true);
-                Request.put(api,dataJson,function (e) {
-                    console.log(e);
-                    $('button[type="submit"]').attr('disabled', false);
-
-                    if (e.success) {
-                        toastr.info("修改用户成功");
-                        $("#modal-add").modal('hide');
-                        user_list.draw( false );
-
-                    }
-                    else
-                    {
-                        toastr.error(e.message);
-                    }
-
-                });
-            }
+                btn.html("保存");
+                btn.removeAttr('disabled');
+            });
         }
-    });
-    //新增用户弹出操作
-    $(".box-tools").off('click', '.btn-add').on('click', '.btn-add', function () {
-        user_id = '';
-        $(".modal-title").html("新增用户");
-        $("#modal-add").modal('show');
-        clearData();
     });
 
     //编辑用户弹出操作
     $("#user_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
-    var that = $(this);
-    var id = that.data('id');user_id = id;
-    $(".modal-title").html("编辑用户");
-    $("#modal-add").modal('show');
-    clearData();
-    //加载编辑数据
-        Request.get("user/" + id, {}, function (e) {
-            if (e.success) {
-                e.data.password = "$default";
-                var  data = e.data;
-                $("input#username").val(data.username);
-                $("input#password").val(data.password);
-                $("input#name").val(data.name);
-                $("input#phone").val(data.phone);
-                $("input#email").val(data.email);
-                var  roles = [];
-                for (var  i=0;i<data.userRoles.length;i++){
-                    roles.push(data.userRoles[i]["roleId"])
-                }
-                var checkchilds =  $("input.checkchild");
-                for (var  i=0;i<checkchilds.length;i++){
-                    if (contains(roles,checkchilds[i].value))
-                    {
-                        checkchilds[i].checked = true;
-                    }
-
-                }
-
-             }
-        });
-
-    });
-    //用户禁用
-    $("#user_list").off('click', '.btn-close').on('click', '.btn-close', function () {
         var that = $(this);
         var id = that.data('id');
         user_id = id;
-       $("#modal-delete").modal('show');
-
+        $(".modal-title").html("编辑用户");
+        $("#modal-add").modal('show');
     });
+
+    //删除服务器
     $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
         var id = user_id;
         Request.put("user/" + id + "/disable", {}, function (e) {
             if (e.success) {
                 toastr.info("注销成功!");
-                user_list.draw(  );
+                user_list.draw();
                 user_list.ajax.reload();
             } else {
                 toastr.error(e.message);
             }
         });
     });
-    //用户启用
-    $("#user_list").off('click', '.btn-open').on('click', '.btn-open', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.put("user/" + id + "/enable", {}, function (e) {
-            if (e.success) {
-                toastr.info("启用成功!");
-                user_list.draw(  );
-                user_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
+
+    //添加设备
+    $("#server_list").off('click', '.btn-add-device').on('click', '.btn-add-device', function () {
+        $("#add_server_device_form").data("id",$(this).data("id"));
+        $("#modal_server_device_add").modal('show');
     });
-    //用户删除
-    $("#user_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
-        var that = $(this);
-        var id = that.data('id');
-        if(id==1008611){
-            toastr.error("管理员账号不允许删除！！");
-        }else {
-            Request.delete("user/" + id + "/delete", {}, function (e) {
+
+    $("#add_server_device_form").validate({
+        submitHandler: function () {
+
+            var checkArray = getCheckAdIds();
+            if(checkArray === null || checkArray.length === 0){
+                toastr.info("请选择设备");
+                return;
+            }
+            var btn = $('#submit-parent');
+            btn.attr('disabled', "true");
+            btn.html("保存中..请稍后");
+
+            var params = {
+                serverId: $(form).data("id"),
+                deviceIdList: checkArray
+            };
+
+            Request.post("server/add", JSON.stringify(params), function (e) {
                 if (e.success) {
-                    toastr.info("删除成功!");
-                    user_list.draw(  );
-                    user_list.ajax.reload();
+                    toastr.info("保存完毕");
+                    $("#modal_server_add").modal('hide');
+                    serverList.reload().draw();
                 } else {
                     toastr.error(e.message);
                 }
+                btn.html("保存");
+                btn.removeAttr('disabled');
             });
         }
-
     });
-    //表单数据清空
-    function  clearData() {
-        $("input#username").val("");
-        $("input#password").val("");
-        $("input#name").val("");
-        $("input#phone").val("");
-        $("input#email").val("");
-        $("input.checkchild").prop("checked", false);
-    }
-    //数组是否存在元素
-    function contains(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-        if (arr[i] === obj) {
-            return true;
+
+
+
+
+    //全选
+    $("#checkAll").off('change').on('change',function () {
+        if($(this).prop("checked")){
+            $(".checkbox").attr("checked", true);
         }
-      }
-    return false;
+        else{
+            $(".checkbox").attr("checked", false);
+        }
+    });
+
+
+    //选中设备
+    function getCheckAdIds() {
+        var arrays = new Array();
+        $("input:checkbox[name=vehicle]:checked").each(function(i){
+            arrays[i] = $(this).val();
+        });
+        return arrays;
     }
+
+    //加载设备列表
+    function loadDeviceList() {
+        Request.get('server/queryDevice', {}, function (e) {
+            var checkList = e.data,
+                len = checkList.length,
+                str = "";
+            if (len > 0) {
+                for (var i = 0; i < len; i++) {
+                        str += "<label class=''><input class='checkbox' type='checkbox' name='vehicle' " +
+                            "value='" + checkList[i].id + "'>" + checkList[i].code + "</label>";
+                }
+                $("#checkbox").append(str);
+            }
+        })
+    }
+
 
 });
 

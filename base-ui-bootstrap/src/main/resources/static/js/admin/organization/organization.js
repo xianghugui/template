@@ -12,7 +12,7 @@ $(document).ready(function () {
                 data: rootNodes,
                 selectedBackColor: "#07100e",
                 onNodeSelected: function (event, data) {
-                    // setModuleInfo(organization_list[data.code]);
+
                 }
             });
 
@@ -98,6 +98,7 @@ $(document).ready(function () {
         $("#modal_organization_add").modal('show');
     });
 
+
     $("#add_organization_form").validate({
         rules: {
             organizationName: {required: true}
@@ -108,6 +109,7 @@ $(document).ready(function () {
         submitHandler: function () {
             var btn = $('#submit-parent'),
                 selected = $('#organization_tree').treeview('getSelected');
+
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
             var params = {
@@ -144,9 +146,16 @@ $(document).ready(function () {
 
     // 删除节点
     $('.btn-tree-del').off('click').on('click', function () {
-        var selected = $('#organization_tree').treeview('getSelected'),
-            id = selected[0].id,
+        var selected = $('#organization_tree').treeview('getSelected');
+
+        if (selected === null || selected.length === 0) {
+            toastr.warning("请选择要删除的节点");
+            return false;
+        }
+
+        var id = selected[0].id,
             organizationName = selected[0].text;
+
         confirm('警告', '真的要删除： [' + organizationName + '] 吗，如果为主节点，将会导致子节点都被删除?', function () {
             // 请求 module_id 删除
             Request.delete("organization/delete/" + id, {}, function (e) {

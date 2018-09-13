@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/camera")
@@ -32,7 +33,6 @@ public class CameraController extends GenericController<Camera, Long> {
         camera.setCreateTime(new Date());
         return ResponseMessage.ok(getService().insert(camera));
     }
-
 
     @Override
     protected CameraService getService() {

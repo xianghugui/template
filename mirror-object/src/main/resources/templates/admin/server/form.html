@@ -1,70 +1,41 @@
-<div class="modal fade" id="modal-add">
+<!-- /.modal add -->
+<div class="modal fade" id="modal_server_add">
     <div class="modal-dialog">
-        <div class="modal-content panel-blur">
+        <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">添加设备设备</h4>
+                <h4 class="modal-title text-center">添加服务器</h4>
             </div>
-            <form name="add_form" id="camera_form" method="post">
+            <form name="add_organization_form" id="add_server_form" data-type="0" data-id="">
                 <div class="modal-body">
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="code" class="control-label">设备编号:</label>
-                            <input type="text" class="form-control" name="code" id="code" value=""
-                                   placeholder="请输入设备编号"/>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="server_name" class="control-label" data-id="">服务器名称</label>
+                                <input type="text" class="form-control" name="serverName" id="server_name" value=""
+                                       placeholder="请输入服务器名称"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="server_ip" class="control-label" data-id="">IP地址</label>
+                                <input type="text" class="form-control" name="serverIP" id="server_ip" value=""
+                                       placeholder="请输入IP地址"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="server_port" class="control-label" data-id="">端口</label>
+                                <input type="text" class="form-control" name="serverPort" id="server_port" value=""
+                                       placeholder="请输入端口"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="remark" class="control-label" data-id="">备注</label>
+                                <input type="text" class="form-control" name="remark" id="remark" value=""
+                                       placeholder="请输入备注"/>
+                            </div>
                         </div>
-
                     </div>
-                    <div class="col-md-12">
-
-                        <div class="form-group">
-                            <label for="name" class="control-label">设备名称:</label>
-                            <input type="text" class="form-control" name="name" id="name" value=""
-                                   placeholder="请输入设备名称"/>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="ip" class="control-label">设备IP:</label>
-                            <input type="text" class="form-control" name="ip" id="ip" value=""
-                                   placeholder="请输入设备IP"/>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="name" class="control-label">组织机构:</label>
-                            <select id="organization"/>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="address" class="control-label">投放地址:</label>
-                            <input type="text" class="form-control" name="address" id="address" value=""
-                                   placeholder="请输入投放地址"/>
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="node" class="control-label">备注:</label>
-                            <input type="text" class="form-control" name="node" id="node" value=""
-                                   placeholder="请输入备注"/>
-                        </div>
-
-                    </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-xs btn-danger pull-left" data-dismiss="modal">取消</button>
-                        <button type="submit" class="btn btn-xs btn-primary">添加</button>
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit-parent" class="btn btn-primary">添加</button>
                     </div>
                 </div>
             </form>
@@ -76,25 +47,41 @@
 <!-- /.modal add -->
 
 
-<!-- 信息删除确认 -->
-<div class="modal fade" id="modal-delete">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content message_align">
+<!-- /.modal add -->
+<div class="modal fade" id="modal_server_device_add">
+    <div class="modal-dialog">
+        <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-                <h4 class="title">提示信息</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title text-center">添加设备</h4>
             </div>
-            <div class="modal-body">
-                <p>您确认要禁用该用户吗？</p>
-            </div>
-            <div class="modal-footer">
-                <input type="hidden" id="url"/>
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-success btn-close-sure" data-dismiss="modal">确定</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
+            <form name="add_organization_form" id="add_server_device_form" data-type="0" data-id="">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="checkbox pull-right">
+                                    <input type="checkbox" id="checkAll">全选
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-12 checkbox" id="checkbox">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                        <button type="submit-parent" class="btn btn-primary">添加</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->

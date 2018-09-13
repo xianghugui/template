@@ -55,7 +55,7 @@ public class OrganizationController extends GenericController<Organization, Long
         Integer idPrefix = 0;
         if (data.getParentId() == null) {
             idPrefix = getService().createQuery().where(Organization.Property.parentId, "-1").total();
-            if (idPrefix == null && idPrefix == 0) {
+            if (idPrefix == null || idPrefix == 0) {
                 data.setId(100000000L);
             } else {
                 Integer newId = idPrefix + 100;
@@ -65,14 +65,14 @@ public class OrganizationController extends GenericController<Organization, Long
         } else {
             idPrefix = getService().createQuery().where(Organization.Property.parentId, data.getParentId()).total();
             DecimalFormat df = new DecimalFormat("000");
-            String str2 = df.format(idPrefix+1);
+            String IdLevel = df.format(idPrefix+1);
+            String newId;
             if (data.getLevel() == 0) {
-                String newId = Long.valueOf(data.getParentId()) / 1000000 + str2 + "000";
-                data.setId(Long.valueOf(newId));
+                newId = Long.valueOf(data.getParentId()) / 1000000 + IdLevel + "000";
             } else {
-                String newId = Long.valueOf(data.getParentId()) / 1000 + str2;
-                data.setId(Long.valueOf(newId));
+                newId = Long.valueOf(data.getParentId()) / 1000 + IdLevel;
             }
+            data.setId(Long.valueOf(newId));
         }
         return ResponseMessage.ok(getService().insert(data));
     }
