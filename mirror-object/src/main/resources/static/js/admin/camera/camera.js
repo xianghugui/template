@@ -99,7 +99,9 @@ $(function () {
         camera_list = $('#camera_list').DataTable({
             "language": lang,
             "lengthChange": false,
-            "searching": false,
+            "searching": true,
+            "searchable": true,
+            "dom": 'lrtip',
             "serverSide": true,
             "destroy": true,
             "info": true,
@@ -158,21 +160,21 @@ $(function () {
             },
             columns: [
                 {
-                    "data": null, "searchable": false, "orderable": false, "className": "exclude",
+                    "data": null, "orderable": false, "className": "exclude",
                     render: function (data, type, row, meta) {
                         return meta.row + 1;
                     }
                 },
                 {"data": "name", "orderable": false},
-                {"data": "code", "searchable": false, "className": "exclude", "orderable": false},
+                {"data": "code", "className": "exclude", "orderable": false},
                 {"data": "ip", "orderable": false},
-                {"data": "port", "searchable": false, "className": "exclude", "orderable": false},
-                {"data": "note", "searchable": false, "className": "exclude", "orderable": false},
-                {"data": "account", "searchable": false, "className": "exclude", "orderable": false},
-                {"data": "password", "searchable": false, "className": "exclude", "orderable": false},
-                {"data": "status", "searchable": false, "className": "exclude", "orderable": false},
-                {"data": "createTime", "searchable": false, "className": "exclude"},
-                {"data": "null", "searchable": false, "orderable": false, "className": "exclude"}
+                {"data": "port", "className": "exclude", "orderable": false},
+                {"data": "note", "className": "exclude", "orderable": false},
+                {"data": "account", "className": "exclude", "orderable": false},
+                {"data": "password", "className": "exclude", "orderable": false},
+                {"data": "status", "className": "exclude", "orderable": false},
+                {"data": "createTime", "className": "exclude"},
+                {"data": "null", "orderable": false, "className": "exclude"}
             ],
             "aoColumnDefs": [
                 {
@@ -216,7 +218,7 @@ $(function () {
         if ($("#searchName").val().trim() == "") {
             $("#searchName").val("");
         }
-        camera_list.draw(false);
+        camera_list.search($("#searchName").val().trim()).draw();
     });
 
     /* 数组转json

@@ -7,6 +7,7 @@ $(function () {
      */
     var inited = false;
     var organization_list = [];
+    var face_list = null;
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
@@ -18,9 +19,11 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
+
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
+            initTable();
         });
     };
 
@@ -109,4 +112,67 @@ $(function () {
             return result;
         }
     };
+
+    /**
+     * dataTable
+     */
+    function initTable() {
+        face_list = $('#face_list').DataTable({
+            "language": lang,
+            "lengthChange": false,
+            "searching": false,
+            "serverSide": true,
+            "destroy": true,
+            "info": true,
+            "ordering": false,
+            "autoWidth": false,
+            "order": [],
+            "ajax": function (data, callback, settings) {
+                var organization = $('#area_tree').treeview('getSelected')[0];
+                if (typeof organization !== "undefined") {
+                    var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+                    //区域树条件
+                    if (organization.level == 0) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                    } else if (organization.level == 1) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                    } else if (organization.level == 2) {
+                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
+                    }
+                    //按时间排序
+                    str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
+                    $.ajax({
+                        url: BASE_PATH + "camera",
+                        type: "GET",
+                        data: str,
+                        cache: false,
+                        dataType: "json",
+                        success: function (result) {
+                            var resultData = {};
+                            resultData.draw = result.data.draw;
+                            resultData.recordsTotal = result.total;
+                            resultData.recordsFiltered = result.total;
+                            resultData.data = result.data;
+                            if (resultData.data == null) {
+                                resultData.data = [];
+                            }
+                            callback(resultData);
+                        },
+                        error: function () {
+                            toastr.warning("请求列表数据失败, 请重试");
+                        }
+                    });
+                }
+            },
+            columns: [
+                {
+                    "data": null,
+                    render: function (data, type, row, meta) {
+                        var html = "<div class='col-md-3'><image></image><div>2018-08-09 17:30</div></div>"
+                        return html;
+                    }
+                },
+            ]
+        });
+    }
 });
