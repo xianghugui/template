@@ -8,9 +8,6 @@ import java.util.Date;
 public class Server extends GenericPo<Long> {
     //服务器名称
     private String name;
-    //摄像头关联码
-    @JsonIgnore
-    private String associationCode;
     //创建时间
     private Date createTime;
     //备注
@@ -20,20 +17,15 @@ public class Server extends GenericPo<Long> {
     //服务器端口
     private Integer serverPort;
 
+    //拓展字段 设备列表
+    private String deviceList;
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAssociationCode() {
-        return associationCode;
-    }
-
-    public void setAssociationCode(String associationCode) {
-        this.associationCode = associationCode;
     }
 
     public Date getCreateTime() {
@@ -68,12 +60,20 @@ public class Server extends GenericPo<Long> {
         this.serverPort = serverPort;
     }
 
+    public String getDeviceList() {
+        return deviceList;
+    }
+
+    public void setDeviceList(String deviceList) {
+        this.deviceList = deviceList;
+    }
+
     public interface Property extends GenericPo.Property {
         String name = "name";
-        String associationCode = "associationCode";
         String createTime = "createTime";
         String note = "note";
         String serverIp = "serverIp";
         String serverPort = "serverPort";
+        String deviceList = "deviceList";
     }
 }

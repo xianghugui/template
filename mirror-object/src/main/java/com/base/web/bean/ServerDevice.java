@@ -7,8 +7,6 @@ public class ServerDevice extends GenericPo<Long> {
     private Long deviceId;
     //服务器ID
     private Long serverId;
-    //关联id
-    private Long associationCode;
 
     //拓展字段设备ID数组
     private Long[] deviceIdList;
@@ -29,14 +27,6 @@ public class ServerDevice extends GenericPo<Long> {
         this.serverId = serverId;
     }
 
-    public Long getAssociationCode() {
-        return associationCode;
-    }
-
-    public void setAssociationCode(Long associationCode) {
-        this.associationCode = associationCode;
-    }
-
     public Long[] getDeviceIdList() {
         return deviceIdList;
     }
@@ -48,6 +38,5 @@ public class ServerDevice extends GenericPo<Long> {
     public interface Property extends GenericPo.Property {
         String deviceId = "deviceId";
         String serverId = "serverId";
-        String associationCode = "associationCode";
     }
 }

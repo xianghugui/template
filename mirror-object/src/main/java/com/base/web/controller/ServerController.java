@@ -57,18 +57,18 @@ public class ServerController extends GenericController<Server, Long>{
         return ResponseMessage.ok(serverService.update(data));
     }
 
-    @RequestMapping(value = "/selectInfo", method = RequestMethod.GET)
+    @RequestMapping(value = "/selectInfo/{id}", method = RequestMethod.GET)
     @AccessLogger("查询服务器详情")
     @Authorize(action = "R")
-    public ResponseMessage serverInfo(QueryParam param) {
-        return ResponseMessage.ok(serverService.select(param));
+    public ResponseMessage serverInfo(@PathVariable("id") Long id) {
+        return ResponseMessage.ok(serverService.queryServerInfo(id)).onlyData();
     }
 
     @RequestMapping(value = "/selectAll", method = RequestMethod.GET)
     @AccessLogger("查询服务器列表")
     @Authorize(action = "R")
     public ResponseMessage listServer(QueryParam param) {
-        return ResponseMessage.ok(serverService.select(param));
+        return ResponseMessage.ok(serverService.queryServer(param));
     }
 
     @RequestMapping(value = "/queryDevice", method = RequestMethod.GET)

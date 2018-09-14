@@ -8,12 +8,11 @@
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="serverId" column="server_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="deviceId" column="device_id" javaType="Long" jdbcType="BIGINT"/>
-        <result property="associationCode" column="association_code" javaType="Long" jdbcType="BIGINT"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">
         <bind name="resultMapId" value="'ServerDeviceResultMap'"/>
-        <bind name="tableName" value="'t_servce_device'"/>
+        <bind name="tableName" value="'t_server_device'"/>
     </sql>
 
     <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
@@ -45,6 +44,16 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
+    <insert id="insertServerDevice" parameterType="com.base.web.bean.ServerDevice">
+        INSERT INTO t_server_device(u_id, device_id,server_id) values
+        <foreach collection="deviceIdList" index="index" item="item" separator=",">
+            (#{id},#{item},#{serverId})
+        </foreach>
+    </insert>
+
+    <update id="updateDeviceStatus" parameterType="Long">
+        UPDATE t_device SET `status` = 1 WHERE u_id
+    </update>
 
 </mapper>
 

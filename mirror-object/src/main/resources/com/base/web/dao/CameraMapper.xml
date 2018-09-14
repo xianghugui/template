@@ -13,7 +13,6 @@
         <result property="aisle" column="aisle" javaType="Integer" jdbcType="TINYINT"/>
         <result property="organizationId" column="organization_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="address" column="address" javaType="String" jdbcType="VARCHAR"/>
-        <result property="associationCode" column="association_code" javaType="Long" jdbcType="BIGINT"/>
         <result property="status" column="status" javaType="Integer" jdbcType="TINYINT"/>
         <result property="account" column="account" javaType="String" jdbcType="VARCHAR"/>
         <result property="password" column="password" javaType="String" jdbcType="VARCHAR"/>
@@ -54,13 +53,6 @@
         <include refid="config"/>
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
-
-   <update id="updateStatus" parameterType="Long">
-       UPDATE t_device SET status = 0 where id =
-       <foreach collection="deviceIdList" item="item" index="index">
-           #{item}
-       </foreach>
-   </update>
 
 </mapper>
 

@@ -7,11 +7,11 @@
     <resultMap id="ServerResultMap" type="com.base.web.bean.Server">
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
-        <result property="associationCode" column="association_code" javaType="Long" jdbcType="BIGINT"/>
         <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result property="note" column="note" javaType="String" jdbcType="VARCHAR"/>
         <result property="serverIp" column="ip" javaType="String" jdbcType="VARCHAR"/>
         <result property="serverPort" column="port" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="deviceList" column="deviceList" javaType="String" jdbcType="VARCHAR"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">
@@ -19,7 +19,7 @@
         <bind name="tableName" value="'t_server'"/>
     </sql>
 
-    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
         <include refid="config"/>
         <include refid="BasicMapper.buildInsertSql"/>
     </insert>
@@ -48,7 +48,33 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
+    <select id="queryServer" parameterType="com.base.web.bean.common.QueryParam" resultMap="ServerResultMap">
+        SELECT ts.name,ts.create_time,ts.note,ts.ip,ts.`port`,GROUP_CONCAT(td.`code`,',') AS deviceList
+        FROM t_server ts
+        LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
+        LEFT JOIN t_device td ON td.u_id = tsd.device_id
+        <if test="param.name != null">
+            WHERE ts.name = #{param.name}
+        </if>
+        LIMIT #{param.pageSize},#{param.pageIndex}
+    </select>
 
+    <select id="queryServerTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT COUNT(ts.u_id)
+        FROM t_server ts
+        LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
+        LEFT JOIN t_device td ON td.u_id = tsd.device_id
+        <if test="param.name != null">
+            WHERE ts.name = #{param.name}
+        </if>
+    </select>
+
+    <!--查询服务器详情-->
+    <select id="queryServerInfo" parameterType="Long" resultType="com.base.web.bean.Server">
+        SELECT ts.note,GROUP_CONCAT(td.`code`,",") AS deviceList
+        FROM t_server_device tsd,t_device td,t_server ts
+        WHERE tsd.device_id = td.u_id AND tsd.server_id = #{id}
+    </select>
 
 </mapper>
 

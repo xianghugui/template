@@ -14,8 +14,6 @@ public class Camera extends GenericPo<Long> {
     private Integer aisle; //通道
     private Long organizationId;  //组织机构
     private String address;
-    @JsonIgnore
-    private Long associationCode; //摄像头-服务器：关联编号
     private Integer status; //0:未布防，1:已布防
     private String note;
     private String account;
@@ -94,14 +92,6 @@ public class Camera extends GenericPo<Long> {
         this.address = address;
     }
 
-    public Long getAssociationCode() {
-        return associationCode;
-    }
-
-    public void setAssociationCode(Long associationCode) {
-        this.associationCode = associationCode;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -133,7 +123,6 @@ public class Camera extends GenericPo<Long> {
         String IP = "ip";
         String ORGANIZATIONID = "organizationId";
         String ADDRESS = "address";
-        String ASSOCIATIONCODE = "associationCode";
         String STATUS = "status";
         String CREATETIME = "createTime";
         String NOTE = "note";
