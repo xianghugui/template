@@ -1,7 +1,6 @@
 package com.base.web.bean;
 
 import com.base.web.bean.po.GenericPo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
@@ -19,6 +18,18 @@ public class Camera extends GenericPo<Long> {
     private String account;
     private String password;
     private Date createTime;
+
+    /**
+     * 验证参数是否为空
+     * @return
+     */
+    public String validate() {
+        if ("".equals(ip)) return "请输入IP";
+        if (port == null) return "请输入端口";
+        if ("".equals(account)) return "请输入账号";
+        if ("".equals(password)) return "请输入密码";
+        return null;
+    }
 
     public Integer getAisle() {
         return aisle;

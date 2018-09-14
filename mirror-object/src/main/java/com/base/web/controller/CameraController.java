@@ -29,6 +29,8 @@ public class CameraController extends GenericController<Camera, Long> {
     @Authorize(action = "C")
     @Override
     public ResponseMessage add(@RequestBody Camera camera) {
+        String message = camera.validate();
+        if (message != null) return ResponseMessage.error(message);
         camera.setStatus(0);
         camera.setCreateTime(new Date());
         return ResponseMessage.ok(getService().insert(camera));

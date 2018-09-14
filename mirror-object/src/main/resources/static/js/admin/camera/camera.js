@@ -243,21 +243,6 @@ $(function () {
         return tel.test(value) || this.optional(element);
     }, "请输入正确的IP");
 
-    jQuery.validator.addMethod("accountValid", function (value, element) {
-        var account = $("input#account").val().trim();
-        var password = $("input#password").val().trim();
-        return (account === "" && password === "")
-            || (account !== "" && password !== "");
-    }, "请输入密码或删除账号");
-
-    jQuery.validator.addMethod("passwordValid", function (value, element) {
-        var account = $("input#account").val().trim();
-        var password = $("input#password").val().trim();
-        return (password === "" && account === "")
-            || (password !== "" && account !== "");
-    }, "请输入账号或删除密码");
-
-
     //新增或修改用户验证
     $("form#camera_form").validate({
         rules: {
@@ -266,8 +251,8 @@ $(function () {
             ip: {required: true, ipValid: true},
             port: {required: true, digits: true},
             note: {required: true,},
-            account: {accountValid: true},
-            password: {passwordValid: true}
+            account: {required: true},
+            password: {required: true}
         },
         messages: {
             code: {required: "请输入设备编号"},
@@ -275,8 +260,8 @@ $(function () {
             ip: {required: "请输入设备IP", ipValid: "请输入正确的IP"},
             port: {required: "请输入端口", digits: "请输入正确的端口号"},
             note: {required: "请输入备注"},
-            account: {accountValid: "请输入密码或删除账号"},
-            password: {passwordValid: "请输入账号或删除密码"}
+            account: {required: "请输入账号"},
+            password: {required: "请输入密码"}
         },
         submitHandler: function (form) {
             // 提交数据

@@ -18,6 +18,15 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
+                    var selected = $('#area_tree').treeview('getSelected')[0];
+                    if (selected.level === 3) {
+                        Request.get("camera/" + selected.id, function (e) {
+                            var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.port
+                                +"/MPEG-4/ch1/main/av_stream";
+                            $('#monitor_video').attr('src', url);
+                            $('#monitor_video').show();
+                        });
+                    }
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
@@ -84,11 +93,14 @@ $(function () {
                     }
                 }
             });
-            return result.concat().sort(function(a, b) {
-                return a.id - b.id;
-            }).filter(function(item, index, array){
-                return !index || item.id !== array[index - 1].id
-            });
+            if (level === 2) {
+                result = result.concat().sort(function(a, b) {
+                    return a.id - b.id;
+                }).filter(function(item, index, array){
+                    return !index || item.id !== array[index - 1].id
+                });
+            }
+            return result;
         },
         getMonitor: function (data, parentNode, level) {
             var that = this;
@@ -109,4 +121,13 @@ $(function () {
             return result;
         }
     };
+
+
 });
+
+/**
+ * 视频发生故障并且文件突然不可用时
+ */
+function emptied() {
+    toastr.warning("请确认设备账号/密码/IP/端口是否正确");
+}
