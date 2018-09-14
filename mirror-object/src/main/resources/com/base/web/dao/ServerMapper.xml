@@ -91,6 +91,7 @@
                 <foreach collection="list" item="item" index="index">
                     when `status` = #{status} then #{status}
                 </foreach>
+                
             </trim>
         </trim>
         where u_id in
