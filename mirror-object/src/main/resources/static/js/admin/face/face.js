@@ -9,7 +9,7 @@ $(function () {
     var organization_list = [];
 
     var initOrganizationTree = function () {
-        Request.get("organization/organizationTree", function (e) {
+        Request.get("organization/queryTree", function (e) {
             organization_list = e;
             var tree = organizationTree.init();
             var rootNodes = tree.getRootNodes(e);
@@ -18,7 +18,6 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
-                    camera_list.draw(false);
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
@@ -51,41 +50,63 @@ $(function () {
             $.each(data, function (index, item) {
                 if (item['parentId'] == '-1') {
                     var obj = {
-                        id: item.id,
+                        id: item.organizationId,
                         level: level,
                         parentId: item.parentId,
-                        text: item.name,
+                        text: item.organizationName,
                         nodes: []
                     };
-                    obj.nodes = that.getChildNodes(data, item,level);
+                    obj.nodes = that.getChildNodes(data, item, level);
                     result.push(obj);
                 }
             });
             return result;
         },
-        getChildNodes: function (data, parentNode,level) {
+        getChildNodes: function (data, parentNode, level) {
             var that = this;
             var result = [];
             level++;
             $.each(data, function (i, item) {
-                if (item['parentId'] == parentNode['id']) {
+                if (item['parentId'] == parentNode['organizationId']) {
                     var obj = {
-                        id: item.id,
+                        id: item.organizationId,
                         level: level,
                         parentId: item.parentId,
-                        text: item.name,
+                        text: item.organizationName,
                         nodes: null
                     };
                     result.push(obj);
-                    var childNodes = that.getChildNodes(data, item,level);
+                    var childNodes = that.getChildNodes(data, item, level);
                     if (childNodes != null && childNodes.length > 0) {
                         obj.nodes = childNodes;
+                    } else {
+                        obj.nodes = that.getMonitor(data, item, level);
                     }
+                }
+            });
+            return result.concat().sort(function(a, b) {
+                return a.id - b.id;
+            }).filter(function(item, index, array){
+                return !index || item.id !== array[index - 1].id
+            });
+        },
+        getMonitor: function (data, parentNode, level) {
+            var that = this;
+            var result = [];
+            level++;
+            $.each(data, function (i, item) {
+                if (item['deviceId'] !== null && item['organizationId'] === parentNode['organizationId']) {
+                    var obj = {
+                        id: item.deviceId,
+                        level: level,
+                        parentId: item.organizationId,
+                        text: item.deviceName,
+                        nodes: null
+                    };
+                    result.push(obj);
                 }
             });
             return result;
         }
     };
 });
-
-
