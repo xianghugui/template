@@ -243,20 +243,28 @@ $(function () {
         var that = $(this);
         var id = that.data('id');
         user_id = id;
-       $("#modal-delete").modal('show');
-
+        if(id == 1008611){
+            toastr.error("管理员账号不允许禁用！！");
+        }else {
+            $("#modal-delete").modal('show');
+        }
     });
     $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
         var id = user_id;
-        Request.put("user/" + id + "/disable", {}, function (e) {
-            if (e.success) {
-                toastr.info("注销成功!");
-                user_list.draw(  );
-                user_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
+        if(id == 1008611){
+            toastr.error("管理员账号不允许禁用！！");
+        }else {
+            Request.put("user/" + id + "/disable", {}, function (e) {
+                if (e.success) {
+                    toastr.info("注销成功!");
+                    user_list.draw(  );
+                    user_list.ajax.reload();
+                } else {
+                    toastr.error(e.message);
+                }
+            });
+        }
+
     });
     //用户启用
     $("#user_list").off('click', '.btn-open').on('click', '.btn-open', function () {
