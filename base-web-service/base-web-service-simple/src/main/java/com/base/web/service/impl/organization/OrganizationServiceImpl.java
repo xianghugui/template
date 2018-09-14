@@ -7,6 +7,8 @@ import com.base.web.service.organization.OrganizationService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 @Service("organizationService")
 public class OrganizationServiceImpl extends AbstractServiceImpl<Organization, Long> implements OrganizationService {
@@ -26,4 +28,8 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<Organization, L
         return 1;
     }
 
+    @Override
+    public List<Map> queryTree() {
+        return organizationMapper.queryTree();
+    }
 }

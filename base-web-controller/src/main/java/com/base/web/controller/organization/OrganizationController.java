@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 组织管理模块(菜单)控制器,继承自{@link GenericController<Organization, Long>}
@@ -51,6 +52,7 @@ public class OrganizationController extends GenericController<Organization, Long
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @AccessLogger("新增节点")
     @Authorize(action = "C")
+    @Override
     public ResponseMessage add(@RequestBody Organization data) {
         Integer idPrefix = 0;
         if (data.getParentId() == null) {
@@ -80,6 +82,7 @@ public class OrganizationController extends GenericController<Organization, Long
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     @AccessLogger("删除节点")
     @Authorize(action = "D")
+    @Override
     public ResponseMessage delete(@PathVariable("id") Long id) {
         return ResponseMessage.ok(getService().delete(id));
     }
@@ -99,5 +102,11 @@ public class OrganizationController extends GenericController<Organization, Long
         return ResponseMessage.ok(organizationList).onlyData();
     }
 
-
+    @RequestMapping(value = "/queryTree", method = RequestMethod.GET)
+    @AccessLogger("查询设备在内的四级树")
+    @Authorize(action = "R")
+    public ResponseMessage queryTree() {
+        List<Map> organizationList = organizationService.queryTree();
+        return ResponseMessage.ok(organizationList).onlyData();
+    }
 }
