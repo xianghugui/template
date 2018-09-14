@@ -170,7 +170,7 @@ var confirm = function (title, message, callback) {
 };
 
 
-Socket.URL = "wss://" + window.location.host + BASE_PATH + "socket";
+Socket.URL = "ws://" + window.location.host + BASE_PATH + "socket";
 
 Request.BASH_PATH = BASE_PATH;
 

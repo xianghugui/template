@@ -3,7 +3,7 @@
  */
 
 var Socket = {};
-Socket.URL = "wss://" + window.location.host + "/socket";
+Socket.URL = "ws://" + window.location.host + "/socket";
 function randomChar(len) {
     len = len || 32;
     var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz';
@@ -53,7 +53,7 @@ Socket.createNewSocket = function (func) {
             console.log('测试websocket'+window.WebSocket);
             console.log('测试websocket'+Socket.URL);
         }else if (window.SockJS){
-            this_.socket = new SockJS((Socket.URL + "/js").replace("wss", "https"), undefined, {protocols_whitelist: []});
+            this_.socket = new SockJS((Socket.URL + "/js").replace("ws", "https"), undefined, {protocols_whitelist: []});
         }else {
             return null;
         }
