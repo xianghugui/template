@@ -92,6 +92,52 @@ $(function () {
         }
 
     });
+    //角色列表
+    $('#role_list').DataTable({
+        "language": lang,
+        "paging": false,
+        "lengthChange": true,
+        "searching": false,
+        "ordering": false,
+        "info": false,
+        "autoWidth": false,
+        "bStateSave": true,
+        "serverSide": true,
+        "sPaginationType": "full_numbers",
+        "singleSelect":true,
+        "ajax": function (data, callback, settings) {
+            $.ajax({
+                url: BASE_PATH + "role?paging=false",
+                type: "GET",
+                cache: false,
+                dataType: "json",
+                success: function (result) {
+
+                    var resultData = [];
+                    resultData.draw = data.draw;
+                    resultData.recordsTotal = result.total;
+                    resultData.recordsFiltered = result.total;
+                    resultData.data = result;
+                    callback(resultData);
+                },
+                error: function (jqXhr) {
+                    toastr.warning("请求列表数据失败, 请重试");
+                }
+            });
+        },
+        columns: [
+            { "sClass": "text-center",
+                "data": "id",
+                "render": function (data, type, full, meta) {
+                    return '<input  type="checkbox" name="userRoles" class="checkchild"  value="' + data + '" />';
+                },
+                "bSortable": false
+            },
+            {"data": "id"},
+            {"data": "name"},
+            {"data": "remark"}
+        ]
+    });
     //全选复选框
     $(".checkall").click(function () {
         var check = $(this).prop("checked");
