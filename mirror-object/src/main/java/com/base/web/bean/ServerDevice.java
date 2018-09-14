@@ -11,6 +11,9 @@ public class ServerDevice extends GenericPo<Long> {
     //拓展字段设备ID数组
     private Long[] deviceIdList;
 
+    //取消设备ID数组
+    private Long[] cancelDeviceIdList;
+
     public Long getDeviceId() {
         return deviceId;
     }
@@ -33,6 +36,14 @@ public class ServerDevice extends GenericPo<Long> {
 
     public void setDeviceIdList(Long[] deviceIdList) {
         this.deviceIdList = deviceIdList;
+    }
+
+    public Long[] getCancelDeviceIdList() {
+        return cancelDeviceIdList;
+    }
+
+    public void setCancelDeviceIdList(Long[] cancelDeviceIdList) {
+        this.cancelDeviceIdList = cancelDeviceIdList;
     }
 
     public interface Property extends GenericPo.Property {

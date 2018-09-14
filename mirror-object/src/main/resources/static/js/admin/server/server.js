@@ -16,7 +16,7 @@ $(function () {
             var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
             var searchName = $("#searchName").val().trim();
             if (searchName != "") {
-                str += '&terms%5b1%5d.column=name&terms%5b1%5d.value=%25' + searchName;
+                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName;
             }
             $.ajax({
                 url: BASE_PATH + "server/selectAll",
@@ -51,6 +51,7 @@ $(function () {
             {"data": "name"},
             {"data": "serverIp"},
             {"data": "serverPort", "orderable": false},
+            {"data": "deviceList", "orderable": false},
             {"data": "note", "searchable": false, "orderable": false, "className": "exclude"},
             {"data": "createTime"}
         ],
@@ -77,7 +78,11 @@ $(function () {
 
     });
 
-    loadDeviceList();
+    //搜索
+    $('.btn-search').off('click').on('click', function () {
+        serverList.draw();
+        serverList.ajax.reload();
+    });
 
     //添加服务器
     $('.btn-add').off('click').on('click', function () {
@@ -126,23 +131,111 @@ $(function () {
         }
     });
 
-    //编辑用户弹出操作
-    $("#user_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
-        var that = $(this);
-        var id = that.data('id');
-        user_id = id;
-        $(".modal-title").html("编辑用户");
-        $("#modal-add").modal('show');
+    //添加设备
+    $("#server_list").off('click', '.btn-add-device').on('click', '.btn-add-device', function () {
+        var id = $(this).data("id");
+        $("#add_server_device_form").data("id", id);
+        loadDeviceList(id);
+        $("#checkbox").empty();
+        $("#noCheckbox").empty();
+        $("#modal_server_device_add").modal('show');
     });
 
+    $("#add_server_device_form").validate({
+        submitHandler: function () {
+            var checkArray = getCheckAdIds(),
+                noCheckArray = cancelCheckAdIds();
+            var btn = $('#submit-parent');
+            btn.attr('disabled', "true");
+            btn.html("保存中..请稍后");
+
+            var params = {
+                serverId: $("#add_server_device_form").data("id")
+            };
+
+            if(noCheckArray !== null){
+                params.cancelDeviceIdList = noCheckArray;
+            }
+            if(checkArray !== null && checkArray.length > 0){
+                params.deviceIdList = checkArray;
+            }
+
+            Request.post("server/addDevice", JSON.stringify(params), function (e) {
+                if (e.success) {
+                    toastr.info("保存完毕");
+                    $("#modal_server_device_add").modal('show');
+                    serverList.reload().draw();
+                } else {
+                    toastr.error(e.message);
+                }
+                btn.html("保存");
+                btn.removeAttr('disabled');
+                $("#modal_server_device_add").modal('hide');
+            });
+        }
+    });
+
+    //
+    $(".checkbox").off('change').on('change', function () {
+        var str ="";
+        if (event.target.dataset.type === "2") {
+            $("#noCheckbox label[data-id='"+event.target.dataset.id+"']").remove();
+            str = "<label class='checklabel' data-id='" + event.target.dataset.id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
+                "data-id='" + event.target.dataset.id + "' data-name='"+event.target.dataset.name+"' data-status = '" +
+                event.target.dataset.status + "' " +
+                "checked='checked' data-type='1'>" + event.target.dataset.name + "</label>";
+            $("#checkbox").append(str);
+        }
+        else {
+            $("#checkbox label[data-id='"+event.target.dataset.id+"']").remove();
+            str = "<label class='checklabel' data-id='" + event.target.dataset.id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
+                "data-id='" + event.target.dataset.id + "' data-name='"+event.target.dataset.name+"' data-status = '" +
+                event.target.dataset.status + "' " +
+                " data-type='2'>" + event.target.dataset.name + "</label>";
+            $("#noCheckbox").append(str);
+        }
+    });
+
+    //全选
+    $("#checkAll").off('change').on('change', function () {
+        if ($(this).prop("checked")) {
+            $(".checkbox").attr("checked", true);
+        }
+        else {
+            $(".checkbox").attr("checked", false);
+        }
+    });
+
+
+    //选中设备
+    function getCheckAdIds() {
+        var arrays = new Array();
+        $("#checkbox input:checkbox[name=vehicle]").each(function (i) {
+            if($(this).data("status") === 0){
+                arrays.push($(this).data("id"));
+            }
+        });
+        return arrays;
+    }
+
+    //取消选中设备
+    function cancelCheckAdIds() {
+        var arrays = new Array();
+        $("#noCheckbox input:checkbox[name=vehicle]").each(function (i) {
+            if($(this).data("status") === 1){
+                arrays.push($(this).data("id"));
+            }
+        });
+        return arrays;
+    }
+
     //删除服务器
-    $("#modal-delete").off('click', '.btn-close-sure').on('click', '.btn-close-sure', function () {
-        var id = user_id;
-        Request.put("user/" + id + "/disable", {}, function (e) {
+    $("#server_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
+        var id = $(this);
+        Request.delete("server/deleteServer/" + id, {}, function (e) {
             if (e.success) {
-                toastr.info("注销成功!");
-                user_list.draw();
-                user_list.ajax.reload();
+                toastr.info("删除成功!");
+                serverList.reload().draw();
             } else {
                 toastr.error(e.message);
             }
@@ -151,6 +244,8 @@ $(function () {
 
     //查看服务器详情
     $("#server_list").off('click', '.btn-info').on('click', '.btn-info', function () {
+        $("#info-deviceInfo").html("");
+        $("#info-note").html("")
         var id = $(this).data("id");
         Request.get('server/selectInfo/' + id, {}, function (e) {
             if (e !== null) {
@@ -169,76 +264,27 @@ $(function () {
         $("#modal_server_info").modal('show');
     });
 
-    //添加设备
-    $("#server_list").off('click', '.btn-add-device').on('click', '.btn-add-device', function () {
-        $("#add_server_device_form").data("id", $(this).data("id"));
-        $("#modal_server_device_add").modal('show');
-    });
-
-    $("#add_server_device_form").validate({
-        submitHandler: function () {
-
-            var checkArray = getCheckAdIds();
-            if (checkArray === null || checkArray.length === 0) {
-                toastr.info("请选择设备");
-                return;
-            }
-            var btn = $('#submit-parent');
-            btn.attr('disabled', "true");
-            btn.html("保存中..请稍后");
-
-            var params = {
-                serverId: $("#add_server_device_form").data("id"),
-                deviceIdList: checkArray
-            };
-
-            Request.post("server/addDevice", JSON.stringify(params), function (e) {
-                if (e.success) {
-                    toastr.info("保存完毕");
-                    $("#modal_server_add").modal('hide');
-                    serverList.reload().draw();
-                } else {
-                    toastr.error(e.message);
-                }
-                btn.html("保存");
-                btn.removeAttr('disabled');
-                $("#modal_server_device_add").modal('hide');
-            });
-        }
-    });
-
-    //全选
-    $("#checkAll").off('change').on('change', function () {
-        if ($(this).prop("checked")) {
-            $(".checkbox").attr("checked", true);
-        }
-        else {
-            $(".checkbox").attr("checked", false);
-        }
-    });
-
-
-    //选中设备
-    function getCheckAdIds() {
-        var arrays = new Array();
-        $("input:checkbox[name=vehicle]:checked").each(function (i) {
-            arrays[i] = $(this).val();
-        });
-        return arrays;
-    }
-
     //加载设备列表
-    function loadDeviceList() {
-        Request.get('server/queryDevice', {}, function (e) {
+    function loadDeviceList(id) {
+        Request.get('server/queryDevice/'+id, {}, function (e) {
             var checkList = e.data,
                 len = checkList.length,
-                str = "";
+                checkStr = "",
+                noCheckStr = "";
             if (len > 0) {
                 for (var i = 0; i < len; i++) {
-                    str += "<label class=''><input class='checkbox' type='checkbox' name='vehicle' " +
-                        "value='" + checkList[i].id + "'>" + checkList[i].code + "</label>";
+                    if(checkList[i].status === 1) {
+                        checkStr += "<label class='checklabel' data-id='" + checkList[i].id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
+                            "data-id='" + checkList[i].id + "' data-name='"+checkList[i].code+"' data-status = '" + checkList[i].status + "' " +
+                            "checked='checked' data-type='1'>" + checkList[i].code + "</label>";
+                    }else{
+                        noCheckStr += "<label class='checklabel' data-id='" + checkList[i].id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
+                            "data-id='" + checkList[i].id + "' data-name='"+checkList[i].code+"' data-status = '" + checkList[i].status + "' " +
+                            " data-type='2'>" + checkList[i].code + "</label>";
+                    }
                 }
-                $("#checkbox").append(str);
+                $("#checkbox").append(checkStr);
+                $("#noCheckbox").append(noCheckStr);
             }
         })
     }

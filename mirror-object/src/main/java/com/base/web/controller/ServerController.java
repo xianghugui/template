@@ -43,11 +43,11 @@ public class ServerController extends GenericController<Server, Long>{
         return ResponseMessage.ok(serverService.insert(data));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/deleteServer/{id}", method = RequestMethod.DELETE)
     @AccessLogger("删除服务器")
     @Authorize(action = "D")
     public ResponseMessage delete(@PathVariable("id") Long id) {
-        return ResponseMessage.ok(serverService.delete(id));
+        return ResponseMessage.ok(serverService.deleteServer(id));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
@@ -68,16 +68,17 @@ public class ServerController extends GenericController<Server, Long>{
     @AccessLogger("查询服务器列表")
     @Authorize(action = "R")
     public ResponseMessage listServer(QueryParam param) {
-        return ResponseMessage.ok(serverService.queryServer(param));
+        return ResponseMessage.ok(serverService.queryServer(param))
+                .include(getPOType(), param.getIncludes())
+                .exclude(getPOType(), param.getExcludes())
+                .onlyData();
     }
 
-    @RequestMapping(value = "/queryDevice", method = RequestMethod.GET)
-    @AccessLogger("查询没设防的设备")
+    @RequestMapping(value = "/queryDevice/{id}", method = RequestMethod.GET)
+    @AccessLogger("查询没设防的设备和已关联设备")
     @Authorize(action = "R")
-    public ResponseMessage queryDevice() {
-        List<Camera> queryList = cameraService.createQuery()
-                .where(Camera.Property.STATUS,0).list();
-        return ResponseMessage.ok(queryList);
+    public ResponseMessage queryDevice(@PathVariable("id") Long id) {
+        return ResponseMessage.ok(serverService.queryCamera(id));
     }
 
     @RequestMapping(value = "/addDevice", method = RequestMethod.POST)

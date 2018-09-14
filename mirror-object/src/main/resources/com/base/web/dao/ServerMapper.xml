@@ -49,14 +49,14 @@
     </select>
 
     <select id="queryServer" parameterType="com.base.web.bean.common.QueryParam" resultMap="ServerResultMap">
-        SELECT ts.name,ts.create_time,ts.note,ts.ip,ts.`port`,GROUP_CONCAT(td.`code`,',') AS deviceList
+        SELECT ts.u_id,ts.name,ts.create_time,ts.note,ts.ip,ts.`port`,GROUP_CONCAT(td.`code`,',') AS deviceList
         FROM t_server ts
         LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
         LEFT JOIN t_device td ON td.u_id = tsd.device_id
-        <if test="param.name != null">
-            WHERE ts.name = #{param.name}
+        <if test="terms.size > 0">
+            WHERE ts.name LIKE #{terms[0].value}
         </if>
-        LIMIT #{param.pageSize},#{param.pageIndex}
+        LIMIT #{pageIndex},#{pageSize}
     </select>
 
     <select id="queryServerTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
@@ -64,8 +64,8 @@
         FROM t_server ts
         LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
         LEFT JOIN t_device td ON td.u_id = tsd.device_id
-        <if test="param.name != null">
-            WHERE ts.name = #{param.name}
+        <if test="terms.size > 0">
+            WHERE ts.name LIKE #{terms[0].value}
         </if>
     </select>
 
@@ -75,6 +75,34 @@
         FROM t_server_device tsd,t_device td,t_server ts
         WHERE tsd.device_id = td.u_id AND tsd.server_id = #{id}
     </select>
+
+    <!--查询没设防的设备和已关联的设备-->
+    <select id="queryCamera" parameterType="Long" resultType="com.base.web.bean.Camera">
+        SELECT td.u_id AS id, td.`code`,td.`status` FROM t_device td WHERE td.`status` = 0
+        UNION  ALL
+        SELECT td.u_id, td.`code`,td.`status` FROM t_device td,t_server_device tsd
+        WHERE td.u_id = tsd.device_id AND tsd.server_id = #{id}
+    </select>
+
+    <update id="updateCameraStatus">
+        UPDATE t_device
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when `status` = #{status} then #{status}
+                </foreach>
+            </trim>
+        </trim>
+        where u_id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <delete id="deleteServer" parameterType="Long">
+        DELETE FROM t_server WHERE u_id = #{id}
+        DELETE FROM t_server_device WHERE server_id = #{id}
+    </delete>
 
 </mapper>
 

@@ -51,9 +51,5 @@
         </foreach>
     </insert>
 
-    <update id="updateDeviceStatus" parameterType="Long">
-        UPDATE t_device SET `status` = 1 WHERE u_id
-    </update>
-
 </mapper>
 
