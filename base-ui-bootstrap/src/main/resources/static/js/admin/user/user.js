@@ -5,6 +5,8 @@
 var user_id = '';
 $(function () {
     //用户列表
+    var searchPlaceholder ="姓名/联系电话/用户名";
+    lang.searchPlaceholder  = searchPlaceholder;
     var user_list = $('#user_list').DataTable({
         "language": lang,
         "paging": true,
@@ -51,7 +53,7 @@ $(function () {
             {"data": "username"},
             {"data": "name"},
             {"data": "phone","orderable":false},
-            {"data": "createDate"},
+            {"data": "createDate" ,"searchable":false, "className":"exclude"},
             {"data": "status","searchable":false,"orderable":false,"className":"exclude"}
         ],
         "aoColumnDefs": [
@@ -63,7 +65,7 @@ $(function () {
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                    buttons += '<button type="button" data-id="'+a+'" class="btn btn-default btn-xs btn-edit">修改</button>\n';
+                        buttons += '<button type="button" data-id="'+a+'" class="btn btn-default btn-xs btn-edit">修改</button>\n';
                     }
                     if (accessDelete) {
                         if (c.status==1)
@@ -252,12 +254,12 @@ $(function () {
 
     //编辑用户弹出操作
     $("#user_list").off('click', '.btn-edit').on('click', '.btn-edit', function () {
-    var that = $(this);
-    var id = that.data('id');user_id = id;
-    $(".modal-title").html("编辑用户");
-    $("#modal-add").modal('show');
-    clearData();
-    //加载编辑数据
+        var that = $(this);
+        var id = that.data('id');user_id = id;
+        $(".modal-title").html("编辑用户");
+        $("#modal-add").modal('show');
+        clearData();
+        //加载编辑数据
         Request.get("user/" + id, {}, function (e) {
             if (e.success) {
                 e.data.password = "$default";
@@ -280,7 +282,7 @@ $(function () {
 
                 }
 
-             }
+            }
         });
 
     });
@@ -333,14 +335,16 @@ $(function () {
         if(id==1008611){
             toastr.error("管理员账号不允许删除！！");
         }else {
-            Request.delete("user/" + id + "/delete", {}, function (e) {
-                if (e.success) {
-                    toastr.info("删除成功!");
-                    user_list.draw(  );
-                    user_list.ajax.reload();
-                } else {
-                    toastr.error(e.message);
-                }
+            confirm('警告', '真的要删除该用户 吗?', function () {
+                Request.delete("user/" + id + "/delete", {}, function (e) {
+                    if (e.success) {
+                        toastr.info("删除成功!");
+                        user_list.draw(  );
+                        user_list.ajax.reload();
+                    } else {
+                        toastr.error(e.message);
+                    }
+                });
             });
         }
 
@@ -356,15 +360,12 @@ $(function () {
     }
     //数组是否存在元素
     function contains(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-        if (arr[i] === obj) {
-            return true;
+        for (var j = 0; j < arr.length; j++) {
+            if (arr[j] == obj) {
+                return true;
+            } else {
+                return false;
+            }
         }
-      }
-    return false;
     }
-
 });
-
-
