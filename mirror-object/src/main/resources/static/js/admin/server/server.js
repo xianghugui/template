@@ -114,14 +114,14 @@ $(function () {
                 name: $("#server_name").val(),
                 serverIp: $("#server_ip").val(),
                 serverPort: $("#server_port").val(),
-                node: $("#remark").val()
+                note: $("#remark").val()
             };
 
             Request.post("server/add", JSON.stringify(params), function (e) {
                 if (e.success) {
                     toastr.info("保存完毕");
                     $("#modal_server_add").modal('hide');
-                    serverList.reload().draw();
+                    serverList.ajax.reload();
                 } else {
                     toastr.error(e.message);
                 }
@@ -163,8 +163,8 @@ $(function () {
             Request.post("server/addDevice", JSON.stringify(params), function (e) {
                 if (e.success) {
                     toastr.info("保存完毕");
-                    $("#modal_server_device_add").modal('show');
-                    serverList.reload().draw();
+                    $("#modal_server_device_add").modal('hide');
+                    serverList.ajax.reload();
                 } else {
                     toastr.error(e.message);
                 }
@@ -231,11 +231,11 @@ $(function () {
 
     //删除服务器
     $("#server_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
-        var id = $(this);
+        var id = $(this).data("id");
         Request.delete("server/deleteServer/" + id, {}, function (e) {
             if (e.success) {
                 toastr.info("删除成功!");
-                serverList.reload().draw();
+                serverList.ajax.reload();
             } else {
                 toastr.error(e.message);
             }

@@ -13,5 +13,5 @@ public interface ServerService extends GenericService<Server, Long> {
     Server queryServerInfo(Long id);
     PagerResult<Server> queryServer(QueryParam param);
     List<Camera> queryCamera(Long id);
-    int deleteServer(Long id);
+    String deleteServer(Long id);
 }

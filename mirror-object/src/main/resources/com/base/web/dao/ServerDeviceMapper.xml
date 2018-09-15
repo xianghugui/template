@@ -51,5 +51,9 @@
         </foreach>
     </insert>
 
+    <select id="queryByServerId" parameterType="Long" resultType="java.lang.Long">
+        SELECT device_id FROM t_server_device WHERE server_id = #{id}
+    </select>
+
 </mapper>
 

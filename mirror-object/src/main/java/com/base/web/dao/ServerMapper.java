@@ -3,9 +3,9 @@ package com.base.web.dao;
 import com.base.web.bean.Camera;
 import com.base.web.bean.Server;
 import com.base.web.bean.common.QueryParam;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ServerMapper extends GenericMapper<Server, Long> {
 
@@ -13,6 +13,5 @@ public interface ServerMapper extends GenericMapper<Server, Long> {
     List<Server> queryServer(QueryParam param);
     int queryServerTotal(QueryParam param);
     List<Camera> queryCamera(Long id);
-    int deleteServer(Long id);
-    void updateCameraStatus(@Param("status")int status,@Param("list")Long[] list);
+    void updateCameraStatus(Map map);
 }

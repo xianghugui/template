@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("serverService")
 public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> implements ServerService {
@@ -34,6 +36,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
 
     @Override
     public String addDevice(ServerDevice serverDevice) {
+        Map map = new HashMap();
         //添加关联设备
         if (serverDevice.getDeviceIdList() != null && serverDevice.getDeviceIdList().length > 0) {
             for (Long deviceId : serverDevice.getDeviceIdList()) {
@@ -41,7 +44,9 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 serverDevice.setId(GenericPo.createUID());
                 serverDeviceMapper.insert(InsertParam.build(serverDevice));
             }
-            serverMapper.updateCameraStatus(1, serverDevice.getDeviceIdList());
+            map.put("status",1);
+            map.put("list",serverDevice.getDeviceIdList());
+            serverMapper.updateCameraStatus(map);
         }
         //取消关联设备
         if (serverDevice.getCancelDeviceIdList() != null && serverDevice.getCancelDeviceIdList().length > 0) {
@@ -51,7 +56,9 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                         .where(ServerDevice.Property.deviceId, serverDevice.getDeviceId())
                         .and(ServerDevice.Property.serverId, serverDevice.getServerId()));
             }
-            serverMapper.updateCameraStatus(0, serverDevice.getDeviceIdList());
+            map.put("status",0);
+            map.put("list",serverDevice.getCancelDeviceIdList());
+            serverMapper.updateCameraStatus(map);
         }
 
         return "关联成功";
@@ -84,7 +91,16 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     }
 
     @Override
-    public int deleteServer(Long id) {
-        return serverMapper.deleteServer(id);
+    public String deleteServer(Long id) {
+        serverMapper.delete(DeleteParam.build().where(Server.Property.id,id));
+        Long[] list = serverDeviceMapper.queryByServerId(id);
+        if(list != null){
+            Map map = new HashMap();
+            serverDeviceMapper.delete(DeleteParam.build().where(ServerDevice.Property.serverId,id));
+            map.put("status",0);
+            map.put("list",list);
+            serverMapper.updateCameraStatus(map);
+        }
+        return "删除成功";
     }
 }
