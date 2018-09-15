@@ -16,7 +16,7 @@ $(function () {
             var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
             var searchName = $("#searchName").val().trim();
             if (searchName != "") {
-                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName;
+                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName+'%25';
             }
             $.ajax({
                 url: BASE_PATH + "server/selectAll",

@@ -58,7 +58,7 @@
     </select>
 
     <select id="queryServer" parameterType="com.base.web.bean.common.QueryParam" resultMap="ServerAddDeviceResultMap">
-        SELECT ts.u_id,ts.name,ts.create_time,ts.note,ts.ip,ts.`port`,GROUP_CONCAT(td.`code`,',') AS deviceList
+        SELECT ts.u_id,ts.name,ts.create_time,ts.note,ts.ip,ts.`port`,GROUP_CONCAT(td.`code`) AS deviceList
         FROM t_server ts
         LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
         LEFT JOIN t_device td ON td.u_id = tsd.device_id
