@@ -252,8 +252,6 @@ $(function () {
                 var deviceArray = e.deviceList.split(","),
                     len = deviceArray.length,
                     str = "";
-                deviceArray.splice(len - 1, 1);
-                len = len - 1;
                 for (var i = 0; i < len; i++) {
                     str += "<label class=''><input type='checkbox' checked='checked' disabled>" + deviceArray[i] + "</label>";
                 }
