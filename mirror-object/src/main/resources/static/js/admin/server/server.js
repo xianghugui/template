@@ -27,7 +27,6 @@ $(function () {
                 data: str,
                 dataType: "json",
                 crossDomain: true,
-                cache:false, //关闭缓存
                 success: function (result) {
                     var resultData = {};
                     resultData.draw = result.data.draw;
