@@ -20,6 +20,16 @@ public class Server extends GenericPo<Long> {
     //拓展字段 设备列表
     private String deviceList;
 
+    /**
+     * 验证参数是否为空
+     * @return
+     */
+    public String validate() {
+        if ("".equals(serverIp)) return "请输入IP";
+        if (serverPort == null) return "请输入端口";
+        return null;
+    }
+
     public String getName() {
         return name;
     }

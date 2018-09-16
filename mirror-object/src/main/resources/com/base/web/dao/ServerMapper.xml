@@ -65,14 +65,13 @@
         <if test="terms.size > 0">
             WHERE ts.name LIKE #{terms[0].value}
         </if>
+        GROUP BY ts.u_id
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
     <select id="queryServerTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
         SELECT COUNT(ts.u_id)
         FROM t_server ts
-        LEFT JOIN t_server_device tsd ON tsd.server_id = ts.u_id
-        LEFT JOIN t_device td ON td.u_id = tsd.device_id
         <if test="terms.size > 0">
             WHERE ts.name LIKE #{terms[0].value}
         </if>
@@ -82,7 +81,7 @@
     <select id="queryServerInfo" parameterType="Long" resultType="com.base.web.bean.Server">
         SELECT ts.note,GROUP_CONCAT(td.`code`) AS deviceList
         FROM t_server_device tsd,t_device td,t_server ts
-        WHERE tsd.device_id = td.u_id AND tsd.server_id = #{id}
+        WHERE tsd.device_id = td.u_id AND ts.u_id = tsd.server_id AND tsd.server_id = #{id}
     </select>
 
     <!--查询没设防的设备和已关联的设备-->

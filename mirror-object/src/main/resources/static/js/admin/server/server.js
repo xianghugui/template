@@ -1,5 +1,6 @@
 $(function () {
     //服务器列表
+    jQuery.support.cors = true;
     var serverList = $('#server_list').DataTable({
         "language": lang,
         "lengthChange": false,
@@ -16,7 +17,7 @@ $(function () {
             var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
             var searchName = $("#searchName").val().trim();
             if (searchName != "") {
-                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName+'%25';
+                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName + '%25';
             }
             $.ajax({
                 url: BASE_PATH + "server/selectAll",
@@ -64,9 +65,9 @@ $(function () {
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-add-device">添加设备</button>\n';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">添加设备</button>\n';
                     }
-                    buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-info">详情</button>\n';
+                    buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-server-info">详情</button>\n';
                     if (accessDelete) {
                         buttons += '\n<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
                     }
@@ -93,17 +94,28 @@ $(function () {
         $("#modal_server_add").modal('show');
     });
 
+    //验证ip地址
+    jQuery.validator.addMethod("ipValid", function (value, element) {
+        var ip = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
+        return ip.test(value) || this.optional(element);
+    }, "请输入正确的IP");
+
+    //验证端口
+    jQuery.validator.addMethod("portValid", function (value, element) {
+        var port = /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/;
+        return port.test(value) || this.optional(element);
+    }, "请输入正确的端口");
 
     $("#add_server_form").validate({
         rules: {
-            serverName: {required: true},
-            serverIP: {required: true},
+            serverName: {required: true, ipValid: true},
+            serverIP: {required: true, portValid: true},
             serverPort: {required: true}
         },
         messages: {
             serverName: {required: "服务器名称不能为空"},
-            serverIP: {required: "IP地址不能为空"},
-            serverPort: {required: "端口不能为空"}
+            serverIP: {required: "IP地址不能为空", ipValid: "请输入正确的IP"},
+            serverPort: {required: "端口不能为空", portValid: "请输入正确的端口号"}
         },
         submitHandler: function () {
             var btn = $('#submit-parent');
@@ -153,10 +165,10 @@ $(function () {
                 serverId: $("#add_server_device_form").data("id")
             };
 
-            if(noCheckArray !== null){
+            if (noCheckArray !== null) {
                 params.cancelDeviceIdList = noCheckArray;
             }
-            if(checkArray !== null && checkArray.length > 0){
+            if (checkArray !== null && checkArray.length > 0) {
                 params.deviceIdList = checkArray;
             }
 
@@ -175,23 +187,22 @@ $(function () {
         }
     });
 
-    //
-    $(".checkbox").off('change').on('change', function () {
-        var str ="";
-        if (event.target.dataset.type === "2") {
-            $("#noCheckbox label[data-id='"+event.target.dataset.id+"']").remove();
-            str = "<label class='checklabel' data-id='" + event.target.dataset.id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
-                "data-id='" + event.target.dataset.id + "' data-name='"+event.target.dataset.name+"' data-status = '" +
-                event.target.dataset.status + "' " +
-                "checked='checked' data-type='1'>" + event.target.dataset.name + "</label>";
+    //设置是否选中节点的区域
+    $(".checkbox").off('change', '.checkDevice').on('change', '.checkDevice', function () {
+        var _self = $(this);
+        var str = "";
+        if (_self.prop("checked")) {
+            str = "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                "value='" + _self.val() + "' data-status = '" +
+                _self.data("status") + "' checked='checked' data-id='" + _self.data("id") + "'>" + _self.val() + "</label>";
+            _self.parent().remove();
             $("#checkbox").append(str);
         }
         else {
-            $("#checkbox label[data-id='"+event.target.dataset.id+"']").remove();
-            str = "<label class='checklabel' data-id='" + event.target.dataset.id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
-                "data-id='" + event.target.dataset.id + "' data-name='"+event.target.dataset.name+"' data-status = '" +
-                event.target.dataset.status + "' " +
-                " data-type='2'>" + event.target.dataset.name + "</label>";
+            str = "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                "value='" + _self.val() + "' data-status = '" +
+                _self.data("status") + "' data-id='" + _self.data("id") + "'>" + _self.val() + "</label>";
+            _self.parent().remove();
             $("#noCheckbox").append(str);
         }
     });
@@ -199,30 +210,52 @@ $(function () {
     //全选
     $("#checkAll").off('change').on('change', function () {
         if ($(this).prop("checked")) {
-            $(".checkbox").attr("checked", true);
+            $(".checkDevice").each(function (i) {
+                if (!$(this).prop("checked")) {
+                    var _self = $(this);
+                    var str = "";
+                    str = "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                        "value='" + _self.val() + "' data-status = '" +
+                        _self.data("status") + "' data-id='" + _self.data("id") + "' checked='checked'>" + _self.val() + "</label>";
+                    _self.parent().remove();
+                    $("#checkbox").append(str);
+                }
+            });
+            $(".checkDevice").attr("checked", true);
         }
         else {
-            $(".checkbox").attr("checked", false);
+            $(".checkDevice").each(function (i) {
+                if ($(this).prop("checked")) {
+                    var _self = $(this);
+                    var str = "";
+                    str = "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                        "value='" + _self.val() + "' data-status = '" +
+                        _self.data("status") + "' data-id='" + _self.data("id") + "'>" + _self.val() + "</label>";
+                    _self.parent().remove();
+                    $("#noCheckbox").append(str);
+                }
+            });
+            $(".checkDevice").attr("checked", false);
         }
     });
 
 
-    //选中设备
+    //获取选中设备的设备id
     function getCheckAdIds() {
         var arrays = new Array();
         $("#checkbox input:checkbox[name=vehicle]").each(function (i) {
-            if($(this).data("status") === 0){
+            if ($(this).data("status") === 0) {
                 arrays.push($(this).data("id"));
             }
         });
         return arrays;
     }
 
-    //取消选中设备
+    //获取取消选中设备的设备id
     function cancelCheckAdIds() {
         var arrays = new Array();
         $("#noCheckbox input:checkbox[name=vehicle]").each(function (i) {
-            if($(this).data("status") === 1){
+            if ($(this).data("status") === 1) {
                 arrays.push($(this).data("id"));
             }
         });
@@ -243,42 +276,47 @@ $(function () {
     });
 
     //查看服务器详情
-    $("#server_list").off('click', '.btn-info').on('click', '.btn-info', function () {
+    $("#server_list").off('click', '.btn-server-info').on('click', '.btn-server-info', function () {
         $("#info-deviceInfo").html("");
         $("#info-note").html("")
         var id = $(this).data("id");
         Request.get('server/selectInfo/' + id, {}, function (e) {
-            if (e !== null) {
-                var deviceArray = e.deviceList.split(","),
-                    len = deviceArray.length,
-                    str = "";
-                for (var i = 0; i < len; i++) {
-                    str += "<label class=''><input type='checkbox' checked='checked' disabled>" + deviceArray[i] + "</label>";
+                if (e !== null) {
+                    if (e.deviceList !== "") {
+                        var deviceArray = e.deviceList.split(","),
+                            len = deviceArray.length,
+                            str = "";
+                        for (var i = 0; i < len; i++) {
+                            str += "<label class='checklabel'><input type='checkbox' checked='checked' disabled>" + deviceArray[i] + "</label>";
+                        }
+                    } else {
+                        str = "没有关联设备";
+                    }
+                    $("#info-deviceInfo").append(str);
+                    $("#info-note").append("备注：" + e.note);
                 }
-                $("#info-deviceInfo").append(str);
-                $("#info-note").append("备注:" + e.note);
             }
-        });
+        );
         $("#modal_server_info").modal('show');
     });
 
     //加载设备列表
     function loadDeviceList(id) {
-        Request.get('server/queryDevice/'+id, {}, function (e) {
+        Request.get('server/queryDevice/' + id, {}, function (e) {
             var checkList = e.data,
                 len = checkList.length,
                 checkStr = "",
                 noCheckStr = "";
             if (len > 0) {
                 for (var i = 0; i < len; i++) {
-                    if(checkList[i].status === 1) {
-                        checkStr += "<label class='checklabel' data-id='" + checkList[i].id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
-                            "data-id='" + checkList[i].id + "' data-name='"+checkList[i].code+"' data-status = '" + checkList[i].status + "' " +
-                            "checked='checked' data-type='1'>" + checkList[i].code + "</label>";
-                    }else{
-                        noCheckStr += "<label class='checklabel' data-id='" + checkList[i].id + "'><input class='checkbox' type='checkbox' name='vehicle' " +
-                            "data-id='" + checkList[i].id + "' data-name='"+checkList[i].code+"' data-status = '" + checkList[i].status + "' " +
-                            " data-type='2'>" + checkList[i].code + "</label>";
+                    if (checkList[i].status === 1) {
+                        checkStr += "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                            "data-id ='" + checkList[i].id + "' data-status = '" + checkList[i].status + "' " +
+                            " checked='checked' value='" + checkList[i].code + "'>" + checkList[i].code + "</label>";
+                    } else {
+                        noCheckStr += "<label class='checklabel'><input class='checkDevice' type='checkbox' name='vehicle' " +
+                            "data-id ='" + checkList[i].id + "' data-status = '" + checkList[i].status + "' " +
+                            "value='" + checkList[i].code + "'>" + checkList[i].code + "</input></label>";
                     }
                 }
                 $("#checkbox").append(checkStr);
@@ -286,8 +324,6 @@ $(function () {
             }
         })
     }
-
-
 });
 
 

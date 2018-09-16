@@ -1,6 +1,5 @@
 package com.base.web.controller;
 
-import com.base.web.bean.Camera;
 import com.base.web.bean.Server;
 import com.base.web.bean.ServerDevice;
 import com.base.web.bean.common.QueryParam;
@@ -11,11 +10,7 @@ import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/server")
@@ -39,6 +34,8 @@ public class ServerController extends GenericController<Server, Long>{
     @AccessLogger("添加服务器")
     @Authorize(action = "C")
     public ResponseMessage add(@RequestBody Server data) {
+        String message = data.validate();
+        if (message != null) return ResponseMessage.error(message);
         data.setCreateTime(new Date());
         return ResponseMessage.ok(serverService.insert(data));
     }
@@ -50,13 +47,6 @@ public class ServerController extends GenericController<Server, Long>{
         return ResponseMessage.ok(serverService.deleteServer(id));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.PUT)
-    @AccessLogger("修改节点")
-    @Authorize(action = "U")
-    public ResponseMessage update(@RequestBody Server data) {
-        return ResponseMessage.ok(serverService.update(data));
-    }
-
     @RequestMapping(value = "/selectInfo/{id}", method = RequestMethod.GET)
     @AccessLogger("查询服务器详情")
     @Authorize(action = "R")
@@ -65,7 +55,7 @@ public class ServerController extends GenericController<Server, Long>{
     }
 
     @RequestMapping(value = "/selectAll", method = RequestMethod.GET)
-    @AccessLogger("查询服务器列表")
+    @AccessLogger("分页查询服务器列表")
     @Authorize(action = "R")
     public ResponseMessage listServer(QueryParam param) {
         return ResponseMessage.ok(serverService.queryServer(param))

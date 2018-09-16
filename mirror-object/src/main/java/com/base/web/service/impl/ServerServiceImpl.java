@@ -14,6 +14,7 @@ import com.base.web.dao.GenericMapper;
 import com.base.web.service.ServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     }
 
     @Override
+    @Transactional
     public String addDevice(ServerDevice serverDevice) {
         Map map = new HashMap();
         //添加关联设备
@@ -91,10 +93,11 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     }
 
     @Override
+    @Transactional
     public String deleteServer(Long id) {
         serverMapper.delete(DeleteParam.build().where(Server.Property.id,id));
         Long[] list = serverDeviceMapper.queryByServerId(id);
-        if(list != null){
+        if(list != null && list.length > 0){
             Map map = new HashMap();
             serverDeviceMapper.delete(DeleteParam.build().where(ServerDevice.Property.serverId,id));
             map.put("status",0);
