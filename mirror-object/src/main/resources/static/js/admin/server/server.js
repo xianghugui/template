@@ -27,6 +27,7 @@ $(function () {
                 data: str,
                 dataType: "json",
                 crossDomain: true,
+                cache:false, //关闭缓存
                 success: function (result) {
                     var resultData = {};
                     resultData.draw = result.data.draw;
@@ -276,13 +277,15 @@ $(function () {
     //删除服务器
     $("#server_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
         var id = $(this).data("id");
-        Request.delete("server/deleteServer/" + id, {}, function (e) {
-            if (e.success) {
-                toastr.info("删除成功!");
-                serverList.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
+        confirm('警告', '真的要删除该服务器吗?', function () {
+            Request.delete("server/deleteServer/" + id, {}, function (e) {
+                if (e.success) {
+                    toastr.info("删除成功!");
+                    serverList.ajax.reload();
+                } else {
+                    toastr.error(e.message);
+                }
+            });
         });
     });
 
