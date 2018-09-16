@@ -33,7 +33,7 @@ $(document).ready(function () {
             parentColumn: 'parentId',
             type: "GET", //请求数据的ajax类型
             url: BASE_PATH + 'module',   //请求数据的ajax的url
-            ajaxParams: {}, //请求数据的ajax的data属性
+            ajaxParams: {"paging": "0"}, //请求数据的ajax的data属性
             expandColumn: null,//在哪一列上面显示展开按钮
             striped: true,   //是否各行渐变色
             bordered: true,  //是否显示边框
@@ -83,7 +83,7 @@ $(document).ready(function () {
                 console.log($(ele).val());
             });*/
 
-            params.modules = getCheckedActions('add_form');
+            params.modules = getCheckedActions('#add_form');
 
             // 发送新增请求
             Request.post("role/", JSON.stringify(params), function (e) {
