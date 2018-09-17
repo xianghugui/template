@@ -127,6 +127,7 @@ $(function () {
             "ordering": false,
             "autoWidth": false,
             "order": [],
+            "stripeClasses": [ 'col-md-3' ],
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
@@ -164,15 +165,36 @@ $(function () {
                     });
                 }
             },
-            columns: [
+            "columns": [
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div class='col-md-3'><image></image><div>2018-08-09 17:30</div></div>"
+                        var html = "<div><image class='img' src='img/login/photo.jpg'></image>" +
+                            "<div class='time'>2018-08-09 17:30</div></div>"
                         return html;
                     }
                 },
             ]
         });
     }
+
+    /**
+     * 时间选择控件
+     */
+    $('.form_datetime').datetimepicker({
+        format: 'yyyy-mm-dd hh:00',
+        language: 'zh-CN',
+        autoclose: true,
+        minView: 1,
+        todayBtn: "linked",
+
+    });
+
+    /**
+     * 搜索
+     */
+    $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
+        console.log($("#searchStart").val())
+        console.log($("#searchEnd").val())
+    });
 });
