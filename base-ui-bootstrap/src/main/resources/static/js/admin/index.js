@@ -2,12 +2,12 @@ var sidebar_menu_li = $(".sidebar-menu li.active");
 sidebar_menu_li.parent().show();
 sidebar_menu_li.parent().parent().addClass("menu-open");
 
-$('.sidebar-toggle').on('click', function(){
+$('.sidebar-toggle').on('click', function () {
     var flag = $('body').hasClass('sidebar-collapse');
     if (flag) {
-        $.cookie('sidebar', 'sidebar-collapse', { expires: 30, path: '/' });
+        $.cookie('sidebar', 'sidebar-collapse', {expires: 30, path: '/'});
     } else {
-        $.cookie('sidebar', '', { expires: 30, path: '/' });
+        $.cookie('sidebar', '', {expires: 30, path: '/'});
     }
 });
 (function () {
@@ -90,7 +90,7 @@ Date.prototype.format = function (fmt) { //author: meizz
 }
 
 
-;(function(){
+;(function () {
     var inited = false;
     //var dialogEle = $("#dialog-custom");
 
@@ -100,7 +100,7 @@ Date.prototype.format = function (fmt) { //author: meizz
             if (inited) {
                 return this;
             }
-            if (jQuery === undefined){
+            if (jQuery === undefined) {
                 console.error("Required jQuery support is not available");
             } else {
                 inited = true;
@@ -158,7 +158,6 @@ Date.prototype.format = function (fmt) { //author: meizz
 })();
 
 
-
 /**
  * 确认提示框
  * @param title
@@ -187,7 +186,7 @@ $(function () {
             console.log("success");
             toastr.info("您已成功登出账户，3秒后跳转到登录页", opts);
             setTimeout(function () {
-                window.location.href = BASE_PATH + "admin/login.html";
+                window.location.href = BASE_PATH + "/";
             }, 2000);
         });
     });
@@ -195,8 +194,8 @@ $(function () {
 
 
 function treeMenu(a) {
-    this.tree=a||[];
-    this.groups={};
+    this.tree = a || [];
+    this.groups = {};
     this.flag = false;
     this.count = 0;
 };
@@ -229,13 +228,13 @@ treeMenu.prototype = {
         }
         for (var i = 0; i < a.length; i++) {
             html += '' + (a[i].uri == "" ? '<li class="treeview">' : '<li>');
-            html += '<a href="' + (a[i].uri == "" ? "javascript:;" : a[i].uri )+'"><i class="fa fa-circle-o"></i> <span>'+a[i].name+'</span> <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>';
+            html += '<a href="' + (a[i].uri == "" ? "javascript:;" : a[i].uri) + '"><i class="fa fa-circle-o"></i> <span>' + a[i].name + '</span> <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>';
             html += this.getDom(this.groups[a[i].id]);
             html += '</li>\n';
             this.count++;
         }
         console.log("count:", this.count, " length:", this.tree.length);
-        html += this.count<this.tree.length ? '</ul>\n' : '';
+        html += this.count < this.tree.length ? '</ul>\n' : '';
         return html;
     }
 };

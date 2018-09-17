@@ -1,8 +1,6 @@
 $(function () {
-    //ie9兼容,开启跨域
-    jQuery.support.cors = true;
     //加载服务器列表
-    var serverList = $('#server_list').DataTable({
+    serverList = $('#server_list').DataTable({
         "language": lang,
         "lengthChange": false,
         "searching": false,
@@ -27,7 +25,6 @@ $(function () {
                 cache: false,
                 data: str,
                 dataType: "json",
-                crossDomain: true,
                 success: function (result) {
                     var resultData = {};
                     resultData.draw = result.data.draw;
