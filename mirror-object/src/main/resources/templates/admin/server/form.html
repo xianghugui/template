@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title text-center">添加服务器</h4>
+                <h4 class="modal-title text-center" id="server_title">添加服务器</h4>
             </div>
             <form name="add_organization_form" id="add_server_form" data-type="0" data-id="">
                 <div class="modal-body">
@@ -35,7 +35,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
-                        <button type="submit-parent" class="btn btn-primary">添加</button>
+                        <button type="submit-parent" class="btn btn-primary">保存</button>
                     </div>
                 </div>
             </form>
@@ -54,7 +54,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title text-center">添加设备</h4>
+                <h4 class="modal-title text-center">关联设备</h4>
             </div>
             <form name="add_organization_form" id="add_server_device_form" data-type="0" data-id="">
                 <div class="modal-body">
@@ -69,17 +69,19 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
+                            <label>未关联设备</label>
                             <div class="col-md-12 checkbox" id="noCheckbox">
                             </div>
                         </div>
                         <div class="col-md-12">
+                            <label>已关联设备</label>
                             <div class="col-md-12 checkbox" id="checkbox">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
-                        <button type="submit-parent" class="btn btn-primary">添加</button>
+                        <button type="submit-parent" class="btn btn-primary">保存</button>
                     </div>
                 </div>
             </form>
@@ -102,6 +104,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
+                        <label>已关联设备</label>
                         <div class="col-md-12 checkbox" id="info-deviceInfo">
                         </div>
                     </div>

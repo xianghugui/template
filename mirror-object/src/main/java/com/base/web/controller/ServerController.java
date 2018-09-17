@@ -36,6 +36,13 @@ public class ServerController extends GenericController<Server, Long>{
     public ResponseMessage add(@RequestBody Server data) {
         String message = data.validate();
         if (message != null) return ResponseMessage.error(message);
+        
+        Server server = serverService.createQuery()
+                .where(Server.Property.serverIp,data.getServerIp())
+                .and(Server.Property.serverPort,data.getServerPort()).single();
+        if(server != null){
+            return ResponseMessage.error("该ip地址的端口已被占用");
+        }
         data.setCreateTime(new Date());
         return ResponseMessage.ok(serverService.insert(data));
     }
@@ -45,6 +52,15 @@ public class ServerController extends GenericController<Server, Long>{
     @Authorize(action = "D")
     public ResponseMessage delete(@PathVariable("id") Long id) {
         return ResponseMessage.ok(serverService.deleteServer(id));
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @AccessLogger("编辑服务器")
+    @Authorize(action = "U")
+    public ResponseMessage update(@RequestBody Server data) {
+        String message = data.validate();
+        if (message != null) return ResponseMessage.error(message);
+        return ResponseMessage.ok(serverService.update(data));
     }
 
     @RequestMapping(value = "/selectInfo/{id}", method = RequestMethod.GET)

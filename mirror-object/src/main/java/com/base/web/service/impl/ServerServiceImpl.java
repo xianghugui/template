@@ -74,8 +74,6 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         if (total == 0) {
             pagerResult.setData(new ArrayList<>());
         } else {
-            //根据实际记录数量重新指定分页参数
-            param.rePaging(total);
             pagerResult.setData(serverMapper.queryServer(param));
         }
         return pagerResult;
