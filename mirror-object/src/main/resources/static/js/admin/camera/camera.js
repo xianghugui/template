@@ -116,7 +116,7 @@ $(function () {
                     var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
                     var searchIp = $("#searchIp").val().trim();
                     if (searchIp != "") {
-                        str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=' + searchIp + '&terms%5b0%5d.termType=eq&terms%5b0%5d.type=and';
+                        str += '&terms%5b0%5d.column=ip&terms%5b0%5d.value=%25' + searchIp + '%25&terms%5b0%5d.termType=like&terms%5b0%5d.type=and';
                     }
                     var searchName = $("#searchName").val().trim();
                     if (searchName != "") {
@@ -214,11 +214,14 @@ $(function () {
     $(".box-header").off('click', '.btn-search').on('click', '.btn-search', function () {
         if ($("#searchIp").val().trim() == "") {
             $("#searchIp").val("");
+        } else {
+            camera_list.search($("#searchIp").val().trim()).draw();
         }
         if ($("#searchName").val().trim() == "") {
             $("#searchName").val("");
+        } else {
+            camera_list.search($("#searchName").val().trim()).draw();
         }
-        camera_list.search($("#searchName").val().trim()).draw();
     });
 
     /* 数组转json

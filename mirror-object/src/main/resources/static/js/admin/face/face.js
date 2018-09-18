@@ -170,7 +170,7 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='img/login/photo.jpg'></image>" +
+                        var html = "<div><image class='img' src='" + BASE_PATH + "img/login/photo.jpg'></image>" +
                             "<div class='time'>2018-08-09 17:30</div></div>"
                         return html;
                     }

@@ -14,17 +14,16 @@ body{
     height: 660px;
 }
 .login-image{
-    width: 650px;
-    height: 550px;
-    background-image: url("../img/login/photo.jpg");
-    float: left;
+    width: 547px;
+    height: 469px;
+    margin: 50px 0px 0px 48px;
 }
 .login-logo{
-    width: 560px;
+    width: 100%;
     height: 110px;
-    background-image: url("../img/login/font.png");
-    background-repeat: no-repeat;
-    margin: 0 auto;
+    text-align: center;
+    font-size: 65px;
+    color: #fff;
 }
 .login-box-msg{
     font-family: "Microsoft YaHei UI";
@@ -35,17 +34,19 @@ body{
     margin-bottom: 70px;
 }
 #form1{
-    width: 450px;
-    height: 550px;
-    float: left;
-    background-color: #bbedf0;
+    width: 1024px;
+    height: 570px;
+    background-color: #fff;
+    border-radius: 20px;
+    overflow: hidden;
 }
 #loginForm {
-    width: 300px;
-    margin-left: 75px;
+    float: right;
+    width: 427px;
+    height: 570px;
     color: #007b82;
     padding: 0;
-    background-color: #bbedf0;
+    background-color: #fff;
 }
 #username, #password, .row, .btn{
     width: 300px;

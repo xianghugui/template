@@ -146,7 +146,7 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='img/login/photo.jpg'></image>" +
+                        var html = "<div><image class='img' src='" + BASE_PATH + "img/login/photo.jpg'></image>" +
                             "<div class='time'>2018-08-09 17:30</div></div>"
                         return html;
                     }
@@ -181,15 +181,19 @@ $(function () {
      * 上传图片
      */
     $("#img_input").on('change', function(e) {
-        var file = e.target.files[0];
-        if (!file.type.match('image.*')) {
-            return false;
-        }
+        // var file = e.target.files[0];
+        // if (!file.type.match('image.*')) {
+        //     return false;
+        // }
+        document.getElementById("img_input").select();
+        console.log(document.selection.createRange().text)
         var reader = new FileReader();
-        reader.readAsDataURL(file); // 读取文件
+        // reader.readAsDataURL(file); // 读取文件
         // 渲染文件
         reader.onload = function(arg) {
+            console.log(arg.target.result)
             $("#preview_img").attr("src", arg.target.result);
+            $("#preview_img").show();
         }
     });
 });
