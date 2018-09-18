@@ -10,7 +10,7 @@ $(document).ready(function () {
 
             $('#organization_tree').treeview({
                 data: rootNodes,
-                selectedBackColor: "#07100e",
+                // selectedBackColor: "#07100e",
                 onNodeSelected: function (event, data) {
 
                 }
