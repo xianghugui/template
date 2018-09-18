@@ -1,6 +1,7 @@
 $(function () {
-    //服务器列表
+    //ie9兼容,开启跨域
     jQuery.support.cors = true;
+    //加载服务器列表
     var serverList = $('#server_list').DataTable({
         "language": lang,
         "lengthChange": false,
@@ -65,7 +66,8 @@ $(function () {
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">添加设备</button>\n';
+                        buttons += '<button type="button" data-rowIndex="' + d.row + '" class="btn btn-info btn-xs btn-update">编辑</button>\n';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">关联设备</button>\n';
                     }
                     buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-server-info">详情</button>\n';
                     if (accessDelete) {
@@ -87,30 +89,33 @@ $(function () {
 
     //添加服务器
     $('.btn-add').off('click').on('click', function () {
+        $("#server_title").html("添加服务器");
         $("#server_name").val("");
         $("#server_ip").val("");
         $("#server_port").val("");
         $("#remark").val("");
+        $("#add_server_form").data("type", "0");
         $("#modal_server_add").modal('show');
     });
 
-    //验证ip地址
-    jQuery.validator.addMethod("ipValid", function (value, element) {
-        var ip = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
-        return ip.test(value) || this.optional(element);
-    }, "请输入正确的IP");
-
-    //验证端口
-    jQuery.validator.addMethod("portValid", function (value, element) {
-        var port = /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/;
-        return port.test(value) || this.optional(element);
-    }, "请输入正确的端口");
+    //编辑服务器
+    $("#server_list").off('click', '.btn-update').on('click', '.btn-update', function () {
+        $("#server_title").html("编辑服务器");
+        var rowIndex = $(this).data("rowIndex");
+        var data = serverList.rows(rowIndex).data()[0];
+        $("#server_name").val(data.name);
+        $("#server_ip").val(data.serverIp);
+        $("#server_port").val(data.serverPort);
+        $("#remark").val(data.note);
+        $("#add_server_form").data("type", "1").data("id", data.id);
+        $("#modal_server_add").modal('show');
+    });
 
     $("#add_server_form").validate({
         rules: {
-            serverName: {required: true, ipValid: true},
-            serverIP: {required: true, portValid: true},
-            serverPort: {required: true}
+            serverName: {required: true},
+            serverIP: {required: true, ipValid: true},
+            serverPort: {required: true, portValid: true}
         },
         messages: {
             serverName: {required: "服务器名称不能为空"},
@@ -121,7 +126,8 @@ $(function () {
             var btn = $('#submit-parent');
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
-
+            var flag = $("#add_server_form").data("type") == "0";
+            var req = Request.post;
             var params = {
                 name: $("#server_name").val(),
                 serverIp: $("#server_ip").val(),
@@ -129,7 +135,12 @@ $(function () {
                 note: $("#remark").val()
             };
 
-            Request.post("server/add", JSON.stringify(params), function (e) {
+            if (!flag) {
+                params.id = $("#add_server_form").data("id");
+                req = Request.put;
+            }
+
+            req("server/" + (flag ? "add" : "update"), JSON.stringify(params), function (e) {
                 if (e.success) {
                     toastr.info("保存完毕");
                     $("#modal_server_add").modal('hide');
@@ -324,6 +335,18 @@ $(function () {
             }
         })
     }
+
+    //验证ip地址
+    jQuery.validator.addMethod("ipValid", function (value, element) {
+        var ip = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
+        return ip.test(value) || this.optional(element);
+    }, "请输入正确的IP");
+
+    //验证端口
+    jQuery.validator.addMethod("portValid", function (value, element) {
+        var port = /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/;
+        return port.test(value) || this.optional(element);
+    }, "请输入正确的端口");
 });
 
 
