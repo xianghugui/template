@@ -18,7 +18,8 @@ $(function () {
             var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
             var searchName = $("#searchName").val().trim();
             if (searchName != "") {
-                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + searchName + '%25';
+                // encodeURI 中文转码
+                str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + encodeURI(searchName) + '%25';
             }
             $.ajax({
                 url: BASE_PATH + "server/selectAll",
@@ -276,13 +277,15 @@ $(function () {
     //删除服务器
     $("#server_list").off('click', '.btn-delete').on('click', '.btn-delete', function () {
         var id = $(this).data("id");
-        Request.delete("server/deleteServer/" + id, {}, function (e) {
-            if (e.success) {
-                toastr.info("删除成功!");
-                serverList.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
+        confirm('警告', '真的要删除该服务器吗?', function () {
+            Request.delete("server/deleteServer/" + id, {}, function (e) {
+                if (e.success) {
+                    toastr.info("删除成功!");
+                    serverList.ajax.reload();
+                } else {
+                    toastr.error(e.message);
+                }
+            });
         });
     });
 

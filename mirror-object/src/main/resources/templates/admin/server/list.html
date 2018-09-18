@@ -26,7 +26,7 @@
 
             <div class="box myanimation">
                 <div class="box-header with-border">
-                    <div class="form-group">
+                    <div class="form-inline">
                         <!-- 判断是否有新增权限 -->
                         <button th:if="${user.hasAccessModuleAction('server','C')}" type="button"
                                 class="btn btn-primary btn-add pull-left" data-toggle="modal">添加
@@ -34,7 +34,7 @@
                     </div>
                     <div class="form-inline pull-right">
                         <div class="form-group">
-                            <label for="searchName">服务器名称</label>
+                            <label for="searchName">服务器名称</label>&nbsp;&nbsp;
                             <input type="text" class="form-control" id="searchName" placeholder="请输入服务器名称">
                         </div>
                         <button type="submit" class="btn btn-default btn-search">搜索</button>

@@ -74,8 +74,8 @@ $(document).ready(function () {
                 id: $(form).find("#role_id").val(),
                 modules: [],
                 name: $(form).find("#role_name").val(),
-                remark: $(form).find("#role_info").val(),
-                type: ""
+                remark: $(form).find("#role_info").val()
+                // type: ""
             };
 /*
             $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
@@ -119,8 +119,8 @@ $(document).ready(function () {
                 id: $(form).find("#e_role_id").val(),
                 modules: [],
                 name: $(form).find("#e_role_name").val(),
-                remark: $(form).find("#e_role_info").val(),
-                type: ""
+                remark: $(form).find("#e_role_info").val()
+                // type: ""
             };
             /*
              $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
@@ -228,13 +228,13 @@ $(document).ready(function () {
         columns: [
             {"data": "id"},
             {"data": "name"},
-            {"data": "type"},
+            // {"data": "type"},
             {"data": "remark"}
         ],
         "aoColumnDefs": [
             {
                 "sClass":"center",
-                "aTargets":[4],
+                "aTargets":[3],
                 "mData":"id",
                 "mRender":function(a,b,c,d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
@@ -291,7 +291,7 @@ $(document).ready(function () {
                 $("form#edit_form").find("#e_role_id").val(e.data.id);
                 $("form#edit_form").find("#e_role_name").val(e.data.name);
                 $("form#edit_form").find("#e_role_info").val(e.data.remark);
-                $("form#edit_form").find("#e_role_type").val(e.data.type);
+                // $("form#edit_form").find("#e_role_type").val(e.data.type);
             }
         });
 

@@ -36,7 +36,7 @@ public class ServerController extends GenericController<Server, Long>{
     public ResponseMessage add(@RequestBody Server data) {
         String message = data.validate();
         if (message != null) return ResponseMessage.error(message);
-        
+
         Server server = serverService.createQuery()
                 .where(Server.Property.serverIp,data.getServerIp())
                 .and(Server.Property.serverPort,data.getServerPort()).single();
