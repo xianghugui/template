@@ -65,9 +65,9 @@
 <script th:src="@{/plugins/jquery-treegrid/js/jquery.treegrid.bootstrap3.js}"></script>
 <script th:src="@{/plugins/bootstrap-switch/js/bootstrap-switch.min.js}"></script>
 <script th:inline="javascript">
-    var accessCreate = [[${user.hasAccessModuleAction('module', 'C')}]];
-    var accessUpdate = [[${user.hasAccessModuleAction('module', 'U')}]];
-    var accessDelete = [[${user.hasAccessModuleAction('module', 'D')}]];
+    var accessCreate = [[${user.hasAccessModuleAction('organization', 'C')}]];
+    var accessUpdate = [[${user.hasAccessModuleAction('organization', 'U')}]];
+    var accessDelete = [[${user.hasAccessModuleAction('organization', 'D')}]];
 </script>
 <script th:src="@{/js/admin/organization/organization.js}"></script>
 </body>
