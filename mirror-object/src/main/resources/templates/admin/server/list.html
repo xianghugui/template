@@ -69,6 +69,7 @@
 <!-- ./wrapper -->
 <div th:include="admin/include/footer" th:remove="tag"></div>
 <script th:inline="javascript">
+    var accessCreate = [[${user.hasAccessModuleAction('user', 'C')}]];
     var accessUpdate = [[${user.hasAccessModuleAction('user', 'U')}]];
     var accessDelete = [[${user.hasAccessModuleAction('user', 'D')}]];
 </script>

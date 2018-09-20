@@ -63,9 +63,11 @@ $(function () {
                 "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
                     var buttons = '';
+                    if(accessCreate){
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">关联设备</button>\n';
+                    }
                     if (accessUpdate) {
                         buttons += '<button type="button" data-rowIndex="' + d.row + '" class="btn btn-info btn-xs btn-update">编辑</button>\n';
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">关联设备</button>\n';
                     }
                     buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-server-info">详情</button>\n';
                     if (accessDelete) {
