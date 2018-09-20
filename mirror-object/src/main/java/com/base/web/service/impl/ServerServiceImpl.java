@@ -35,6 +35,11 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         return serverMapper;
     }
 
+    /**
+     * 关联设备和取消关联设备
+     * @param serverDevice
+     * @return
+     */
     @Override
     @Transactional
     public String addDevice(ServerDevice serverDevice) {
@@ -46,26 +51,26 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 serverDevice.setId(GenericPo.createUID());
                 serverDeviceMapper.insert(InsertParam.build(serverDevice));
             }
-            map.put("status",1);
-            map.put("list",serverDevice.getDeviceIdList());
+            map.put("status", 1);
+            map.put("list", serverDevice.getDeviceIdList());
             serverMapper.updateCameraStatus(map);
         }
         //取消关联设备
         if (serverDevice.getCancelDeviceIdList() != null && serverDevice.getCancelDeviceIdList().length > 0) {
-            for (Long deviceId : serverDevice.getCancelDeviceIdList()) {
-                serverDevice.setDeviceId(deviceId);
-                serverDeviceMapper.delete(DeleteParam.build()
-                        .where(ServerDevice.Property.deviceId, serverDevice.getDeviceId())
-                        .and(ServerDevice.Property.serverId, serverDevice.getServerId()));
-            }
-            map.put("status",0);
-            map.put("list",serverDevice.getCancelDeviceIdList());
+            serverDeviceMapper.batchDeleteServerDevice(serverDevice);
+            map.put("status", 0);
+            map.put("list", serverDevice.getCancelDeviceIdList());
             serverMapper.updateCameraStatus(map);
         }
 
         return "关联成功";
     }
 
+    /**
+     * 分页查询服务器列表
+     * @param param
+     * @return
+     */
     @Override
     public PagerResult<Server> queryServer(QueryParam param) {
         PagerResult<Server> pagerResult = new PagerResult<>();
@@ -79,27 +84,42 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         return pagerResult;
     }
 
+    /**
+     * 查询服务器详情
+     * @param id
+     * @return
+     */
     @Override
     public Server queryServerInfo(Long id) {
         Server server = serverMapper.queryServerInfo(id);
         return server;
     }
 
+    /**
+     * 该服务器已关联和没关联的设备
+     * @param id
+     * @return
+     */
     @Override
     public List<Camera> queryCamera(Long id) {
         return serverMapper.queryCamera(id);
     }
 
+    /**
+     * 删除服务器
+     * @param id
+     * @return
+     */
     @Override
     @Transactional
     public String deleteServer(Long id) {
-        serverMapper.delete(DeleteParam.build().where(Server.Property.id,id));
+        serverMapper.delete(DeleteParam.build().where(Server.Property.id, id));
         Long[] list = serverDeviceMapper.queryByServerId(id);
-        if(list != null && list.length > 0){
+        if (list != null && list.length > 0) {
             Map map = new HashMap();
-            serverDeviceMapper.delete(DeleteParam.build().where(ServerDevice.Property.serverId,id));
-            map.put("status",0);
-            map.put("list",list);
+            serverDeviceMapper.delete(DeleteParam.build().where(ServerDevice.Property.serverId, id));
+            map.put("status", 0);
+            map.put("list", list);
             serverMapper.updateCameraStatus(map);
         }
         return "删除成功";

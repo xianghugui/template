@@ -99,7 +99,7 @@ public class OrganizationController extends GenericController<Organization, Long
     @Authorize(action = "R")
     public ResponseMessage listOrganization() {
         List<Organization> organizationList = organizationService.select();
-        return ResponseMessage.ok(organizationList).onlyData();
+        return ResponseMessage.ok(organizationList);
     }
 
     @RequestMapping(value = "/queryTree", method = RequestMethod.GET)

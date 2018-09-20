@@ -1,6 +1,5 @@
 package com.base.web.service.impl;
 
-import com.base.web.bean.Server;
 import com.base.web.bean.ServerDevice;
 import com.base.web.dao.GenericMapper;
 import com.base.web.dao.ServerDeviceMapper;

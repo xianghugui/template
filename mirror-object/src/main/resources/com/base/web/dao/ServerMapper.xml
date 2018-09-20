@@ -92,6 +92,7 @@
         WHERE td.u_id = tsd.device_id AND tsd.server_id = #{id}
     </select>
 
+    <!--更新设备状态-->
     <update id="updateCameraStatus" parameterType="java.util.HashMap">
         UPDATE t_device
         <trim prefix="SET" suffixOverrides=",">
