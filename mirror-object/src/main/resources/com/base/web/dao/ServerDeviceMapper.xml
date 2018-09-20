@@ -44,16 +44,17 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
-    <insert id="insertServerDevice" parameterType="com.base.web.bean.ServerDevice">
-        INSERT INTO t_server_device(u_id, device_id,server_id) values
-        <foreach collection="deviceIdList" index="index" item="item" separator=",">
-            (#{id},#{item},#{serverId})
-        </foreach>
-    </insert>
-
     <select id="queryByServerId" parameterType="Long" resultType="java.lang.Long">
         SELECT device_id FROM t_server_device WHERE server_id = #{id}
     </select>
+
+    <delete id="batchDeleteServerDevice" parameterType="com.base.web.bean.ServerDevice">
+        delete from t_server_device where server_id = #{serverId} and device_id in
+        <foreach collection="cancelDeviceIdList" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
 
 </mapper>
 

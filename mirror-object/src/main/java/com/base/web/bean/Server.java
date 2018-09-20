@@ -17,7 +17,7 @@ public class Server extends GenericPo<Long> {
     //服务器端口
     private Integer serverPort;
 
-    //拓展字段 设备列表
+    //拓展字段 关联设备列表
     private String deviceList;
 
     /**
