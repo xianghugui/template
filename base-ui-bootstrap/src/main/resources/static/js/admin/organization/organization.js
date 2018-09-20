@@ -7,7 +7,7 @@ $(document).ready(function () {
             if(e.success) {
                 organization_list = e;
                 var tree = organizationTree.init();
-                var rootNodes = tree.getRootNodes(e);
+                var rootNodes = tree.getRootNodes(e.data);
 
                 $('#organization_tree').treeview({
                     data: rootNodes,
