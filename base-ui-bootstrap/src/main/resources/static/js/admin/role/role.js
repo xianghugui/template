@@ -27,35 +27,6 @@ $(document).ready(function () {
         }
 
     });
-    $(".box-tools").on('click', '.btn-add', function () {
-        $('#modules_tb').empty().treegridData({
-            id: 'id',
-            parentColumn: 'parentId',
-            type: "GET", //请求数据的ajax类型
-            url: BASE_PATH + 'module',   //请求数据的ajax的url
-            ajaxParams: {}, //请求数据的ajax的data属性
-            expandColumn: null,//在哪一列上面显示展开按钮
-            striped: true,   //是否各行渐变色
-            bordered: true,  //是否显示边框
-            //expandAll: false,  //是否全部展开
-            columns: [
-                {
-                    title: 'ID',
-                    field: 'id'
-                },
-                {
-                    title: '模块名称',
-                    field: 'name'
-                },
-                {
-                    title: '权限',
-                    field: 'optional'
-                }
-            ]
-        });
-    });
-    // 事件绑定结束
-
     // 新增
     $("form#add_form").validate({
         rules: {
@@ -77,12 +48,6 @@ $(document).ready(function () {
                 remark: $(form).find("#role_info").val()
                 // type: ""
             };
-/*
-            $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
-                console.log($(ele).data("mid"));
-                console.log($(ele).val());
-            });*/
-
             params.modules = getCheckedActions('add_form');
 
             // 发送新增请求
@@ -122,11 +87,6 @@ $(document).ready(function () {
                 remark: $(form).find("#e_role_info").val()
                 // type: ""
             };
-            /*
-             $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
-             console.log($(ele).data("mid"));
-             console.log($(ele).val());
-             });*/
 
             params.modules = getCheckedActions('edit_form');
 
