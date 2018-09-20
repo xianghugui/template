@@ -38,7 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -111,12 +113,18 @@ public class AuthorizeController {
      */
     @RequestMapping(value = "/exit", method = RequestMethod.POST)
     @AccessLogger("登出")
-    public ResponseMessage exit(HttpSession session) {
+    public ResponseMessage exit(HttpSession session, HttpServletResponse response) {
         User user = WebUtil.getLoginUser();
         if (user != null) {
             httpSessionManager.removeUser(user.getId());
             //使用redis时,有时候removeUser会失效,removeSession总可以了吧
             httpSessionManager.removeSession(session.getId());
+
+            //删除Cookie
+            Cookie cookie = new Cookie("JSESSIONID",null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
         }
         return ResponseMessage.ok();
     }

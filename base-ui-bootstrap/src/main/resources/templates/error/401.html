@@ -46,7 +46,9 @@
 <script th:inline="javascript">
     $(function() {
         toastr.info("未登录，3 秒后回到登陆页");
-        setTimeout(function(){ location.href = 'admin/login.html'; }, 3 * 1000);
+        setTimeout(function(){
+            location.href = location.href.split(location.pathname)[0];
+        }, 3 * 1000);
     });
 </script>
 </body>

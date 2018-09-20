@@ -4,20 +4,20 @@ $(document).ready(function () {
 
     var initOrganizationTree = function () {
         Request.get("organization/organizationTree", function (e) {
-            organization_list = e;
-            var tree = organizationTree.init();
-            var rootNodes = tree.getRootNodes(e);
+            if(e.success) {
+                organization_list = e;
+                var tree = organizationTree.init();
+                var rootNodes = tree.getRootNodes(e);
 
-            $('#organization_tree').treeview({
-                data: rootNodes,
-                // selectedBackColor: "#07100e",
-                onNodeSelected: function (event, data) {
+                $('#organization_tree').treeview({
+                    data: rootNodes,
+                    // selectedBackColor: "#07100e",
+                    onNodeSelected: function (event, data) {
 
-                }
-            });
-
+                    }
+                });
+            }
             // $('#organization_tree').treeview('selectNode', [0]);
-
         });
     };
 
