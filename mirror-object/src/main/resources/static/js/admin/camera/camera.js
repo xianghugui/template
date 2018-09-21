@@ -15,7 +15,7 @@ $(function () {
         Request.get("organization/organizationTree", function (e) {
             organization_list = e;
             var tree = organizationTree.init();
-            var rootNodes = tree.getRootNodes(e);
+            var rootNodes = tree.getRootNodes(e.data);
 
             $('#area_tree').treeview({
                 data: rootNodes,
