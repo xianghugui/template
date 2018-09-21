@@ -7,6 +7,8 @@ $(function () {
      */
     var inited = false;
     var organization_list = [];
+    var pluginInstall = false;
+    var szIP = ""; //设备IP
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
@@ -19,10 +21,12 @@ $(function () {
                 levels: 3,
                 onNodeSelected: function (event, data) {
                     var selected = $('#area_tree').treeview('getSelected')[0];
-                    if (selected.level === 3) {
+                    if (selected.level === 3 && pluginInstall) {
                         Request.get("camera/" + selected.id, function (e) {
+                            clickLogout();
+                            clickLogin(e.data);
                             var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.port
-                                +"/MPEG-4/ch1/main/av_stream";
+                                + "/MPEG-4/ch1/main/av_stream";
                             $('#monitor_video').val(url);
                             $('#vlc').show();
                         });
@@ -94,9 +98,9 @@ $(function () {
                 }
             });
             if (level === 2) {
-                result = result.concat().sort(function(a, b) {
+                result = result.concat().sort(function (a, b) {
                     return a.id - b.id;
-                }).filter(function(item, index, array){
+                }).filter(function (item, index, array) {
                     return !index || item.id !== array[index - 1].id
                 });
             }
@@ -122,12 +126,47 @@ $(function () {
         }
     };
 
+    /**
+     * 实时预览
+     */
+    WebVideo();
 
+    function WebVideo() {
+        if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
+            alert("您还未安装过插件，请安装WebComponents.exe！");
+            return;
+        }
+        pluginInstall = true;
+        var width = $("#webVideo").width();
+        var height = width * 3 / 5;
+        $("#webVideo").css("height", height);
+        WebVideoCtrl.I_InitPlugin(width, height, {
+            bDebugModeJS: true
+        });
+        WebVideoCtrl.I_InsertOBJECTPlugin("webVideo");
+    }
+
+// 登录
+    function clickLogin(data) {
+        WebVideoCtrl.I_Login(data.ip, 1, data.port, data.account, data.password, {
+            success: function (xmlDoc) {
+                szIP = data.ip;
+                //预览
+                WebVideoCtrl.I_StartRealPlay(szIP, {});
+            },
+            error: function (e) {
+                console.log(e)
+                toastr.warning("请确认IP/端口/用户名/密码是否正确");
+            }
+        });
+    }
+
+// 退出
+    function clickLogout() {
+        if (szIP == "") {
+            return;
+        }
+        WebVideoCtrl.I_Logout(szIP);
+        szIP = "";
+    }
 });
-
-/**
- * 视频发生故障并且文件突然不可用时
- */
-function emptied() {
-    toastr.warning("请确认设备账号/密码/IP/端口是否正确");
-}
