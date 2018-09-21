@@ -20,10 +20,9 @@
             </div>
             <div class="col-md-9">
                 <div class="box">
-                    <!--<video class="col-md-12" id="monitor_video" autoplay controls src="" onemptied="emptied()" hidden></video>-->
-                    <object classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921" type='application/x-vlc-plugin' pluginspage="http://www.videolan.org/" id='vlc' events='false' width="720" height="410" hidden>
-                        <embed classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921" type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" name="vlc" width="720" height="410"/>
-                        <param id="monitor_video" name='mrl' value='rtsp://admin:12345@192.168.6.64:554/h264/ch1/main/av_stream' />
+                    <video class="col-md-12" id="monitor_video" autoplay controls src="" onemptied="emptied()" hidden></video>
+                    <object type='application/x-vlc-plugin' pluginspage="http://www.videolan.org/" id='vlc' events='false' width="720" height="410">
+                        <param name='mrl' value='rtsp://admin:12345@192.168.10.235:554/h264/ch1/main/av_stream' />
                         <param name='volume' value='50' />
                         <param name='autoplay' value='true' />
                         <param name='loop' value='false' />

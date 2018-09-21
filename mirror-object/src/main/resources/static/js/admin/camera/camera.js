@@ -13,19 +13,21 @@ $(function () {
 
     var initOrganizationTree = function () {
         Request.get("organization/organizationTree", function (e) {
-            organization_list = e;
-            var tree = organizationTree.init();
-            var rootNodes = tree.getRootNodes(e.data);
+            if(e.success) {
+                organization_list = e;
+                var tree = organizationTree.init();
+                var rootNodes = tree.getRootNodes(e.data);
 
-            $('#area_tree').treeview({
-                data: rootNodes,
-                levels: 3,
-                onNodeSelected: function (event, data) {
-                    camera_list.draw(false);
-                }
-            });
-            initTable();
-            $('#area_tree').treeview('selectNode', [0]);
+                $('#area_tree').treeview({
+                    data: rootNodes,
+                    levels: 3,
+                    onNodeSelected: function (event, data) {
+                        camera_list.draw(false);
+                    }
+                });
+                initTable();
+                $('#area_tree').treeview('selectNode', [0]);
+            }
         });
     };
 

@@ -4,6 +4,7 @@ $(function () {
         "language": lang,
         "lengthChange": false,
         "searching": false,
+        "ordering": true,
         "serverSide": true,
         "destroy": true,
         "info": true,
@@ -18,6 +19,9 @@ $(function () {
             if (searchName != "") {
                 // encodeURI 中文转码
                 str += '&terms%5b0%5d.column=name&terms%5b0%5d.value=%25' + encodeURI(searchName) + '%25';
+            }
+            if(data.order.length > 0) {
+                str += '&sorts%5b0%5d.order=' + data.order[0].dir;
             }
             $.ajax({
                 url: BASE_PATH + "server/selectAll",
@@ -48,8 +52,8 @@ $(function () {
                     return meta.row + 1;
                 }
             },
-            {"data": "name"},
-            {"data": "serverIp"},
+            {"data": "name", "orderable": false},
+            {"data": "serverIp", "orderable": false},
             {"data": "serverPort", "orderable": false},
             {"data": "deviceList", "orderable": false},
             {"data": "note", "searchable": false, "orderable": false, "className": "exclude"},
@@ -63,15 +67,15 @@ $(function () {
                 "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
                     var buttons = '';
-                    if(accessCreate){
-                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">关联设备</button>\n';
+                    if (accessCreate) {
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-info btn-xs btn-add-device">关联设备</button>';
                     }
                     if (accessUpdate) {
-                        buttons += '<button type="button" data-rowIndex="' + d.row + '" class="btn btn-info btn-xs btn-update">编辑</button>\n';
+                        buttons += '<button type="button" data-rowIndex="' + d.row + '" class="btn btn-info btn-xs btn-update">编辑</button>';
                     }
-                    buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-server-info">详情</button>\n';
+                    buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-server-info">详情</button>';
                     if (accessDelete) {
-                        buttons += '\n<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-delete">删除</button>';
                     }
                     return buttons;
 
@@ -313,7 +317,10 @@ $(function () {
         $("#modal_server_info").modal('show');
     });
 
-    //加载设备列表
+    /**
+     * 加载设备列表
+     * @param id 服务器ID
+     */
     function loadDeviceList(id) {
         Request.get('server/queryDevice/' + id, {}, function (e) {
             var checkList = e.data,

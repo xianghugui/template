@@ -23,8 +23,8 @@ $(function () {
                         Request.get("camera/" + selected.id, function (e) {
                             var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.port
                                 +"/MPEG-4/ch1/main/av_stream";
-                            $('#monitor_video').val(url);
-                            $('#vlc').show();
+                            $('#monitor_video').attr('src', url);
+                            $('#monitor_video').show();
                         });
                     }
                 }
