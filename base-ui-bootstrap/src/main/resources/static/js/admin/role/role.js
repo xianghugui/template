@@ -10,9 +10,9 @@ $(document).ready(function () {
     $("#role_list").off('click', '.btn-del').on('click', '.btn-del', function () {
         var that = $(this);
         var id = that.data('id');
-        if(id ==10011){
+        if (id == 10011) {
             toastr.error("管理员角色不允许删除！！！");
-        }else {
+        } else {
             confirm('删除提示', '真的要删除 ID:' + id + " 吗？", function () {
                 Request.delete('role/' + id, function (e) {
                     if (e.success) {
@@ -27,6 +27,35 @@ $(document).ready(function () {
         }
 
     });
+    $(".box-tools").on('click', '.btn-add', function () {
+        $('#modules_tb').empty().treegridData({
+            id: 'id',
+            parentColumn: 'parentId',
+            type: "GET", //请求数据的ajax类型
+            url: BASE_PATH + 'module',   //请求数据的ajax的url
+            ajaxParams: {"paging": "0"}, //请求数据的ajax的data属性
+            expandColumn: null,//在哪一列上面显示展开按钮
+            striped: true,   //是否各行渐变色
+            bordered: true,  //是否显示边框
+            //expandAll: false,  //是否全部展开
+            columns: [
+                {
+                    title: 'ID',
+                    field: 'id'
+                },
+                {
+                    title: '模块名称',
+                    field: 'name'
+                },
+                {
+                    title: '权限',
+                    field: 'optional'
+                }
+            ]
+        });
+    });
+    // 事件绑定结束
+
     // 新增
     $("form#add_form").validate({
         rules: {
@@ -39,7 +68,7 @@ $(document).ready(function () {
         },
         submitHandler: function (form) {
             var btn = $('button[type="submit"]');
-            btn.attr('disabled',"true");
+            btn.attr('disabled', "true");
 
             var params = {
                 id: $(form).find("#role_id").val(),
@@ -48,6 +77,12 @@ $(document).ready(function () {
                 remark: $(form).find("#role_info").val()
                 // type: ""
             };
+            /*
+                        $("form#add_form #modules_tb input[type='checkbox']:checked").each(function(index, ele) {
+                            console.log($(ele).data("mid"));
+                            console.log($(ele).val());
+                        });*/
+
             params.modules = getCheckedActions('add_form');
 
             // 发送新增请求
@@ -78,7 +113,7 @@ $(document).ready(function () {
         },
         submitHandler: function (form) {
             var btn = $('button[type="submit"]');
-            btn.attr('disabled',"true");
+            btn.attr('disabled', "true");
 
             var params = {
                 id: $(form).find("#e_role_id").val(),
@@ -110,7 +145,7 @@ $(document).ready(function () {
 
     function getCheckedActions(form_id) {
         var actions = {};
-        $("form#"+form_id+" input[type='checkbox']").each(function (i, e) {
+        $("form#" + form_id + " input[type='checkbox']").each(function (i, e) {
             var moduleId = $(e).data("mid");
             var action = $(e).val();
             if ($(e).prop("checked")) {
@@ -138,12 +173,12 @@ $(document).ready(function () {
         });
         $("form#edit_form input[type='checkbox']").each(function (i, e) {
             var moduleId = $(e).data("mid")
-            var action = $(e).val();
-            if (!actionsMap[moduleId])return;
-            if (actionsMap[moduleId].indexOf(action) != -1) {
-                $(e).prop("checked", "checked");
+            if (moduleId) {
+                var action = $(e).val();
+                if (actionsMap[moduleId] && actionsMap[moduleId].indexOf(action) != -1) {
+                    $(e).prop("checked", "checked");
+                }
             }
-
         });
     }
 
@@ -193,17 +228,17 @@ $(document).ready(function () {
         ],
         "aoColumnDefs": [
             {
-                "sClass":"center",
-                "aTargets":[3],
-                "mData":"id",
-                "mRender":function(a,b,c,d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
+                "sClass": "center",
+                "aTargets": [3],
+                "mData": "id",
+                "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                     // 修改 删除 权限判断
                     var buttons = '';
                     if (accessUpdate) {
-                        buttons += '<button type="button" data-id="'+a+'" class="btn btn-default btn-xs btn-edit">修改</button>\n';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-default btn-xs btn-edit">修改</button>\n';
                     }
                     if (accessDelete) {
-                        buttons += '<button type="button" data-id="'+a+'" class="btn btn-danger btn-xs btn-del">删除</button>';
+                        buttons += '<button type="button" data-id="' + a + '" class="btn btn-danger btn-xs btn-del">删除</button>';
                     }
                     return buttons;
 
@@ -243,11 +278,7 @@ $(document).ready(function () {
 
         Request.get("role/" + id, {}, function (e) {
             if (e.success) {
-
-                setTimeout(function () {
-                    setCheckedActions(e.data.modules)
-                }, 10);
-
+                setCheckedActions(e.data.modules)
                 $("form#edit_form").find("#e_role_id").val(e.data.id);
                 $("form#edit_form").find("#e_role_name").val(e.data.name);
                 $("form#edit_form").find("#e_role_info").val(e.data.remark);
