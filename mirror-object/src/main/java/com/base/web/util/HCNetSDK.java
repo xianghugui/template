@@ -27,11 +27,15 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary("hcnetsdk",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary("lib" + File.separator + "HCNetSDK",
             HCNetSDK.class);
     /***宏定义***/
     //常量
@@ -3399,7 +3403,11 @@ public static class NET_DVR_COMPRESSION_AUDIO extends Structure
 
 //用于接收报警信息的缓存区
 public static class RECV_ALARM extends Structure{
-    public byte[] RecvBuffer = new byte[400];//此处的400应不小于最大报警报文长度
+    public int dwSize;
+    public int dwFacePicLen;
+    public int dwBackgroundPicLen;
+    public ByteByReference pBuffer1;//此处的400应不小于最大报警报文长度
+    public ByteByReference pBuffer2;//此处的400应不小于最大报警报文长度
 }
 
 //云台花样扫描参数结构
@@ -3967,7 +3975,7 @@ public static class NET_DVR_ISP_CAMERAPARAMCFG extends Structure{
     }
 
    public static interface FMSGCallBack extends Callback {
-        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser);
+        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser) throws IOException;
     }
 
    public static interface FMessCallBack extends Callback {
