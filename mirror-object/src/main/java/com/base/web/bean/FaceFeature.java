@@ -1,13 +1,12 @@
 package com.base.web.bean;
 
 import com.base.web.bean.po.GenericPo;
-import oracle.sql.BLOB;
 
 public class FaceFeature extends GenericPo<Long> {
     //人脸图片关联ID
     private Long refId;
     //人脸特征值
-    private BLOB faceFeature;
+    private byte[] faceFeature;
 
     public Long getRefId() {
         return refId;
@@ -17,11 +16,11 @@ public class FaceFeature extends GenericPo<Long> {
         this.refId = refId;
     }
 
-    public BLOB getFaceFeature() {
+    public byte[] getFaceFeature() {
         return faceFeature;
     }
 
-    public void setFaceFeature(BLOB faceFeature) {
+    public void setFaceFeature(byte[] faceFeature) {
         this.faceFeature = faceFeature;
     }
 

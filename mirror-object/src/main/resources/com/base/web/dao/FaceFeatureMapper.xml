@@ -7,7 +7,7 @@
     <resultMap id="FaceFeatureResultMap" type="com.base.web.bean.FaceFeature">
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="refId" column="ref_id" javaType="Long" jdbcType="BIGINT"/>
-        <result property="faceFeature" column="face_feature" javaType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+        <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">

@@ -183,19 +183,22 @@ $(function () {
      * 上传图片
      */
     $("#img_input").on('change', function(e) {
-        // var file = e.target.files[0];
-        // if (!file.type.match('image.*')) {
-        //     return false;
-        // }
+        var file = e.target.files[0];
+        if (!file.type.match('image.*')) {
+            return false;
+        }
         document.getElementById("img_input").select();
-        console.log(document.selection.createRange().text)
+        // console.log(document.selection.createRange().text)
         var reader = new FileReader();
-        // reader.readAsDataURL(file); // 读取文件
+        reader.readAsDataURL(file); // 读取文件
         // 渲染文件
         reader.onload = function(arg) {
             console.log(arg.target.result)
-            $("#preview_img").attr("src", arg.target.result);
-            $("#preview_img").show();
+            // $("#preview_img").attr("src", arg.target.result);
+            // $("#preview_img").show();
+            Request.post('aims/uploadFaceImage',arg.target.result,function (e) {
+
+            })
         }
     });
 });

@@ -2,7 +2,7 @@
 <html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
 <head th:include="admin/include/head"></head>
 <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
-<link rel="stylesheet" th:href="@{/plugins/fileinput/fileinput.min.css}"/>
+<link rel="stylesheet" th:href="@{/plugins/fileinput/css/fileinput.css}"/>
 <style>
     .table-box {
         padding: 10px;
@@ -80,7 +80,7 @@
 <div th:include="admin/include/footer" th:remove="tag"></div>
 <script th:src="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.js}"></script>
 <script th:src="@{/plugins/datetimppicker/bootstrap-datetimepicker.zh-CN.js}"></script>
-<script th:src="@{/plugins/fileinput/fileinput.min.js}"></script>
+<script th:src="@{/plugins/fileinput/js/fileinput.js}"></script>
 <script th:inline="javascript">
     var accessUpdate = [[${user.hasAccessModuleAction('target', 'U')}]];
     var accessDelete = [[${user.hasAccessModuleAction('target', 'D')}]];
