@@ -45,5 +45,13 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
+    <select id="queryAllFaceImage" parameterType="Long" resultType="java.util.HashMap">
+        SELECT u_id AS id, resource_id AS resourceId,tr.create_time AS createTime FROM t_face_image tfi,t_resource tr
+        WHERE tfi.resource_id = tr.u_id
+        <if test="deviceId != null and deviceId != ''">
+            AND tfi.device_id = #{deviceId}
+        </if>
+    </select>
+
 </mapper>
 

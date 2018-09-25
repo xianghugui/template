@@ -11,7 +11,7 @@ $(function () {
 
     var initOrganizationTree = function () {
         Request.get("organization/organizationTree", function (e) {
-            if(e.success) {
+            if (e.success) {
                 organization_list = e;
                 var tree = organizationTree.init();
                 var rootNodes = tree.getRootNodes(e.data);
@@ -61,13 +61,13 @@ $(function () {
                         text: item.name,
                         nodes: []
                     };
-                    obj.nodes = that.getChildNodes(data, item,level);
+                    obj.nodes = that.getChildNodes(data, item, level);
                     result.push(obj);
                 }
             });
             return result;
         },
-        getChildNodes: function (data, parentNode,level) {
+        getChildNodes: function (data, parentNode, level) {
             var that = this;
             var result = [];
             level++;
@@ -81,7 +81,7 @@ $(function () {
                         nodes: null
                     };
                     result.push(obj);
-                    var childNodes = that.getChildNodes(data, item,level);
+                    var childNodes = that.getChildNodes(data, item, level);
                     if (childNodes != null && childNodes.length > 0) {
                         obj.nodes = childNodes;
                     }
@@ -106,7 +106,7 @@ $(function () {
             "ordering": false,
             "autoWidth": false,
             "order": [],
-            "stripeClasses": [ 'col-md-3' ],
+            "stripeClasses": ['col-md-3'],
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
@@ -182,25 +182,47 @@ $(function () {
     /**
      * 上传图片
      */
-    $("#img_input").on('change', function(e) {
-        var file = e.target.files[0];
-        if (!file.type.match('image.*')) {
-            return false;
-        }
-        document.getElementById("img_input").select();
-        // console.log(document.selection.createRange().text)
-        var reader = new FileReader();
-        reader.readAsDataURL(file); // 读取文件
-        // 渲染文件
-        reader.onload = function(arg) {
-            console.log(arg.target.result)
-            // $("#preview_img").attr("src", arg.target.result);
-            // $("#preview_img").show();
-            Request.post('aims/uploadFaceImage',arg.target.result,function (e) {
+    // $("#img_input").on('change', function (e) {
+    //     var file = e.target.files[0];
+    //     if (!file.type.match('image.*')) {
+    //         return false;
+    //     }
+    //     // document.getElementById("img_input").select();
+    //     // console.log(document.selection.createRange().text)
+    //     var reader = new FileReader();
+    //     reader.readAsDataURL(file); // 读取文件
+    //     // 渲染文件
+    //     reader.onload = function (arg) {
+    //         // console.log(arg.target.result)
+    //         $("#preview_img").attr("src", arg.target.result);
+    //         $("#preview_img").show();
+    //         var data = $('#img_input').files;
+    //         Request.post('aims/uploadFaceImage',data,function (e) {})
+    //     }
+    // });
 
-            })
-        }
-    });
+    var fileinputoption = {
+        required: true,
+        uploadUrl: Request.BASH_PATH + 'aims/uploadFaceImage',
+        dropZoneTitle: "拖拽文件到这里...",
+        language: 'zh', //设置语言
+        showUpload: false, //是否显示上传按钮
+        showRemove: false,
+        showCaption: false,//是否显示标题
+        showClose: false,
+        allowedPreviewTypes: ['image'],
+        allowedFileTypes: ['image'],
+        allowedFileExtensions: ['jpg', 'gif', 'png'],
+        maxFileCount: 1,
+        maxFileSize: 2000,
+        autoReplace: true,
+        validateInitialCount: false,
+        overwriteInitial: false,
+        initialPreviewAsData: false,
+        uploadAsync: true //同步上传
+    };
+
+    $('#img_input').fileinput(fileinputoption);
 });
 
 

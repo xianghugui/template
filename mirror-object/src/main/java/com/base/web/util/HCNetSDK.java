@@ -31,7 +31,7 @@ import java.io.IOException;
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "E:\\JAVA\\project\\template\\mirror-object\\target\\mirror-object\\WEB-INF\\classes\\win32-x86-64\\HCNetSDK.dll",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "D:\\IdeaProjects\\template\\mirror-object\\src\\main\\resources\\win32-x86-64\\HCNetSDK.dll",
             HCNetSDK.class);
     /***宏定义***/
     //常量
