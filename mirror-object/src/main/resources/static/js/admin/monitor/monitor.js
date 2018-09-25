@@ -98,9 +98,9 @@ $(function () {
                 }
             });
             if (level === 2) {
-                result = result.concat().sort(function (a, b) {
+                result = result.concat().sort(function(a, b) {
                     return a.id - b.id;
-                }).filter(function (item, index, array) {
+                }).filter(function(item, index, array){
                     return !index || item.id !== array[index - 1].id
                 });
             }

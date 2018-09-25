@@ -66,6 +66,9 @@
             WHERE ts.name LIKE #{terms[0].value}
         </if>
         GROUP BY ts.u_id
+        <if test="sorts.size > 0 and sorts[0].order =='desc'">
+            ORDER BY ts.create_time DESC
+        </if>
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
