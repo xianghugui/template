@@ -7,6 +7,9 @@ import com.base.web.service.FaceImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service("faceImageService")
 public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> implements FaceImageService {
     @Autowired
@@ -15,5 +18,10 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
     @Override
     protected GenericMapper<FaceImage, Long> getMapper() {
         return faceImageMapper;
+    }
+
+    @Override
+    public List<Map> queryAllFaceImage(Long deviceId){
+        return faceImageMapper.queryAllFaceImage(deviceId);
     }
 }

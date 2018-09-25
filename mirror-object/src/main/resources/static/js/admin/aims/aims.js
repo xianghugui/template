@@ -177,6 +177,7 @@ $(function () {
         console.log($("#maxSimilarity").val())
         console.log($("#searchStart").val())
         console.log($("#searchEnd").val())
+
     });
 
     /**
