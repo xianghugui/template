@@ -9,7 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.hsweb.commons.DateTimeUtils;
 import org.hsweb.commons.MD5;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -18,7 +18,7 @@ import java.util.Date;
 /**
  * 海康报警回调
  */
-@Component
+@Service
 public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
     @Autowired
@@ -40,11 +40,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser) throws IOException {
         if(pAlarmInfo.dwFacePicLen>0)
         {
-            //图片路劲
-            String fileBasePath = fileService.getFileBasePath();
             //文件存储的相对路径，以日期分隔，每天创建一个新的目录
             String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
-            String absPath = fileBasePath.concat(filePath);
+            String absPath = fileService.getFileBasePath().concat(filePath);
             File path = new File(absPath);
             if (!path.exists()) {
                 path.mkdirs();
@@ -62,15 +60,22 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 fout.write(bytes);
                 fout.close();
                 File newFile = new File(fileAbsName);
-                String md5;
                 FileInputStream inputStream = new FileInputStream(newFile);
-                md5 = DigestUtils.md5Hex(inputStream);
-                Resources resources = new Resources();
+                String md5 = DigestUtils.md5Hex(inputStream);
+                Resources resources = resourcesService.selectByMd5(md5);
+                if (resources != null) {
+                    newFile.delete();//文件已存在则删除临时文件不做处理
+                    return;
+                } else {
+                    System.out.println(newFile.renameTo(new File(absPath.concat("/").concat(md5))));
+                }
+                resources = new Resources();
                 resources.setType("file");
                 resources.setSize(pAlarmInfo.dwFacePicLen);
-                resources.setName(newName);
+                resources.setName(md5);
                 resources.setPath(filePath);
                 resources.setMd5(md5);
+                resources.setCreateTime(new Date());
                 resourcesService.insert(resources);
             }catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block

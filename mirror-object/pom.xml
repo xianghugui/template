@@ -22,14 +22,6 @@
         <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/*.so</exclude>
-                    <exclude>**/*.dll</exclude>
-                </excludes>
-            </resource>
-            <resource>
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.html</include>
@@ -92,18 +84,18 @@
     <dependencies>
         <!--人脸模块外部到入库-->
         <dependency>
-            <groupId>jna.jar</groupId>
-            <artifactId>jna.jar</artifactId>
+            <groupId>com.sun.jna</groupId>
+            <artifactId>jna</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/lib/jna.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/lib/jna.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>examples.jar</groupId>
-            <artifactId>examples.jar</artifactId>
+            <groupId>com.sun.jna</groupId>
+            <artifactId>examples</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/lib/examples.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/lib/examples.jar</systemPath>
         </dependency>
         <!--end-->
         <!--excel-->
