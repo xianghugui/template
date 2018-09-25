@@ -1,20 +1,26 @@
 package com.base.web.util;
 
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
-import javax.imageio.stream.FileImageOutputStream;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
-public class NetDvrInit {
+@Component
+public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
 
     static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
 
-    public static void main(String[] args) {
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        hCNetSDK.NET_DVR_Init();
+        hCNetSDK.NET_DVR_SetDVRMessageCallBack_V30(new FmsgCallBack(), null);
+
+        HCNetSDK.NET_DVR_DEVICEINFO_V30 struDeviceInfoV30 = new HCNetSDK.NET_DVR_DEVICEINFO_V30();
+        NativeLong id = hCNetSDK.NET_DVR_Login_V30("192.168.2.254", (short) 8000, "admin", "cdx123456", struDeviceInfoV30);
+        hCNetSDK.NET_DVR_SetupAlarmChan_V30(id);
+    }
+
+    public static void main(String[] arg) {
         hCNetSDK.NET_DVR_Init();
         hCNetSDK.NET_DVR_SetDVRMessageCallBack_V30(new FmsgCallBack(), null);
 
@@ -26,25 +32,6 @@ public class NetDvrInit {
             i++;
         }
     }
-
 }
 
-/**
- * 报警回调函数
- */
-class FmsgCallBack implements HCNetSDK.FMSGCallBack {
-    @Override
-    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser) throws IOException {
-        System.out.println("进来了");
-
-//        File file = new File("C:\\Users\\Geek\\Desktop\\1.jpg");
-//        FileImageOutputStream imageOutput = new FileImageOutputStream(file);
-//        imageOutput.write(pAlarmInfo.pBuffer1);//将byte写入硬盘
-//        try {
-//            imageOutput.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-}
 

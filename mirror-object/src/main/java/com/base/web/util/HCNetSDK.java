@@ -19,7 +19,6 @@ package com.base.web.util;
 import com.sun.jna.*;
 import com.sun.jna.examples.win32.GDI32.RECT;
 import com.sun.jna.examples.win32.W32API;
-import com.sun.jna.examples.win32.W32API.HANDLE;
 import com.sun.jna.examples.win32.W32API.HDC;
 import com.sun.jna.examples.win32.W32API.HWND;
 import com.sun.jna.ptr.ByteByReference;
@@ -27,15 +26,12 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
 
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary("lib" + File.separator + "HCNetSDK",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "E:\\JAVA\\project\\template\\mirror-object\\target\\mirror-object\\WEB-INF\\classes\\win32-x86-64\\HCNetSDK.dll",
             HCNetSDK.class);
     /***宏定义***/
     //常量
@@ -3401,13 +3397,45 @@ public static class NET_DVR_COMPRESSION_AUDIO extends Structure
 	public byte[] byres= new byte [7];//这里保留音频的压缩参数
 }
 
+public static class NET_VCA_TARGET_INFO extends Structure{
+    public int dwID;
+    public NET_VCA_RECT struRect;
+    public byte[] byRes= new byte[4];
+}
+public static class NET_VCA_HUMAN_FEATURE extends Structure{
+    public byte byAgeGroup;
+    public byte bySex;
+    public byte byEyeGlass;
+    public byte byAge;
+    public byte byAgeDeviation;
+    public byte[] byRes = new byte[11];
+}
+
 //用于接收报警信息的缓存区
 public static class RECV_ALARM extends Structure{
     public int dwSize;
+    public int dwRelativeTime;
+    public int dwAbsTime;
+    public int dwFacePicID;
+    public int dwFaceScore;
+    public NET_VCA_TARGET_INFO struTargetInfo;
+    public NET_VCA_RECT struRect;
+    public NET_VCA_DEV_INFO struDevInfo;
     public int dwFacePicLen;
     public int dwBackgroundPicLen;
-    public ByteByReference pBuffer1;//此处的400应不小于最大报警报文长度
-    public ByteByReference pBuffer2;//此处的400应不小于最大报警报文长度
+    public byte bySmart;
+    public byte byAlarmEndMark;
+    public byte byRepeatTimes;
+    public byte byUploadEventDataType;
+    public NET_VCA_HUMAN_FEATURE struFeature;
+    public float fStayDuration;
+    public char[] sStorageIP = new char[12];
+    public int wStoragePort;
+    public int wDevInfoIvmsChannelEx;
+    public byte[] byRes1 = new byte[15];
+    public byte byBrokenNetHttp;
+    public ByteByReference pBuffer1;
+    public ByteByReference pBuffer2;
 }
 
 //云台花样扫描参数结构
