@@ -14,9 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,10 @@ public class AimsController {
 
     private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST,consumes = "multipart/form-data")
+    @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST, consumes = "multipart/form-data")
     @AccessLogger("返回上传的人脸特征值")
     @Authorize(action = "C")
-    public ResponseMessage returnFaceFeature(@RequestParam("file") MultipartFile file)  throws IOException {
+    public ResponseMessage returnFaceFeature(@RequestParam("file") MultipartFile file) throws IOException {
         if (logger.isInfoEnabled())
             logger.info("start upload.");
         Byte[] uploadFaceFeature = null;
@@ -46,6 +47,25 @@ public class AimsController {
                 logger.info("start write file:{}", file.getOriginalFilename());
             //获取该图片的特征值
             uploadFaceFeature = new Byte[]{};
+            String fileUrl = "E:\\feceTest";
+            String fileName = "E:\\faceOut\\faceOut.json";
+            try {
+                String cmdStr_windows = "python E:\\IdeaProjects\\template\\mirror-object\\src\\main\\resources\\faceFeature\\mytest.py"+ " "
+                        + "E:\\feceTest"+" "+fileName;
+//                String[] args = new String[]{"python", "E:\\IdeaProjects\\template\\mirror-object\\src\\main\\resources\\faceFeature\\mytest.py", fileUrl};
+                Process proc = Runtime.getRuntime().exec(cmdStr_windows);// 执行py文件
+                BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                String line = null;
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
+                in.close();
+                proc.waitFor();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         } else {
             return ResponseMessage.error("图片为空或数据加载失败，请重试！");
@@ -56,11 +76,11 @@ public class AimsController {
     }
 
 
-    @RequestMapping(value = "/faceRecognize", method = RequestMethod.POST,consumes = "multipart/form-data")
+    @RequestMapping(value = "/faceRecognize", method = RequestMethod.POST, consumes = "multipart/form-data")
     @AccessLogger("上传图片")
     @Authorize(action = "R")
     public Map<String, Object> faceRecognize(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("deviceId")Long deviceId, HttpServletRequest req)  throws IOException {
+                                             @RequestParam("deviceId") Long deviceId, HttpServletRequest req) throws IOException {
         if (logger.isInfoEnabled())
             logger.info("start upload.");
         HashMap<String, Object> result = new HashMap<>();
@@ -70,10 +90,10 @@ public class AimsController {
             //获取数据库的特征值
             Byte[] uploadFaceFeature = new Byte[]{};
             List<Map> faceImageList;
-            if(uploadFaceFeature == null){
+            if (uploadFaceFeature == null) {
                 //上传文件没有检测到人脸直接返回空数组
-                faceImageList = null ;
-            }else {
+                faceImageList = null;
+            } else {
                 //获取数据库的特征值
                 faceImageList = faceImageService.queryAllFaceImage(deviceId);
                 for (int i = 0; i < faceImageList.size(); ) {
