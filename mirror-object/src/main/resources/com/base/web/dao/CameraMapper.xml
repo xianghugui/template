@@ -9,7 +9,7 @@
         <result property="code" column="code" javaType="String" jdbcType="VARCHAR"/>
         <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
         <result property="ip" column="ip" javaType="String" jdbcType="VARCHAR"/>
-        <result property="port" column="port" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="port" column="port" javaType="short" jdbcType="SMALLINT"/>
         <result property="aisle" column="aisle" javaType="Integer" jdbcType="TINYINT"/>
         <result property="organizationId" column="organization_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="address" column="address" javaType="String" jdbcType="VARCHAR"/>
@@ -18,6 +18,8 @@
         <result property="password" column="password" javaType="String" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result property="note" column="note" javaType="String" jdbcType="VARCHAR"/>
+        <result property="alarmHandleId" column="alarm_handle_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" javaType="Long" jdbcType="BIGINT"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">

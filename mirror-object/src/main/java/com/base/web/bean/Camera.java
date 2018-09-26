@@ -9,7 +9,7 @@ public class Camera extends GenericPo<Long> {
     private String code; //设备编号
     private String name;
     private String ip;
-    private Integer port;
+    private short port;
     private Integer aisle; //通道
     private Long organizationId;  //组织机构
     private String address;
@@ -18,6 +18,8 @@ public class Camera extends GenericPo<Long> {
     private String account;
     private String password;
     private Date createTime;
+    private Long alarmHandleId; //设置报警回调函数返回的id，用于撤防
+    private Long userId; //设备登陆时返回的ID，用于抓拍时获取u_id
 
     /**
      * 验证参数是否为空
@@ -25,10 +27,25 @@ public class Camera extends GenericPo<Long> {
      */
     public String validate() {
         if ("".equals(ip)) return "请输入IP";
-        if (port == null) return "请输入端口";
         if ("".equals(account)) return "请输入账号";
         if ("".equals(password)) return "请输入密码";
         return null;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getAlarmHandleId() {
+        return alarmHandleId;
+    }
+
+    public void setAlarmHandleId(Long alarmHandleId) {
+        this.alarmHandleId = alarmHandleId;
     }
 
     public Integer getAisle() {
@@ -55,11 +72,11 @@ public class Camera extends GenericPo<Long> {
         this.password = password;
     }
 
-    public Integer getPort() {
+    public short getPort() {
         return port;
     }
 
-    public void setPort(Integer port) {
+    public void setPort(short port) {
         this.port = port;
     }
 
@@ -140,5 +157,7 @@ public class Camera extends GenericPo<Long> {
         String AISLE = "aisle";
         String ACCOUNT = "account";
         String PASSWORD = "password";
+        String ALARMHANDLEID = "alarmHandleId";
+        String USERID = "userId";
     }
 }

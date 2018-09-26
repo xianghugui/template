@@ -8,6 +8,7 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
+import com.base.web.util.NetDvrInit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.Date;

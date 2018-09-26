@@ -3,15 +3,17 @@ package com.base.web.service.impl;
 import com.base.web.bean.Camera;
 import com.base.web.bean.Server;
 import com.base.web.bean.ServerDevice;
-import com.base.web.bean.common.DeleteParam;
-import com.base.web.bean.common.InsertParam;
-import com.base.web.bean.common.PagerResult;
-import com.base.web.bean.common.QueryParam;
+import com.base.web.bean.common.*;
 import com.base.web.bean.po.GenericPo;
+import com.base.web.dao.CameraMapper;
 import com.base.web.dao.ServerDeviceMapper;
 import com.base.web.dao.ServerMapper;
 import com.base.web.dao.GenericMapper;
+import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
+import com.base.web.util.NetDvrInit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,11 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     @Autowired
     private ServerDeviceMapper serverDeviceMapper;
 
+    @Autowired
+    private CameraService cameraService;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     protected GenericMapper<Server, Long> getMapper() {
         return serverMapper;
@@ -46,8 +53,27 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         Map map = new HashMap();
         //添加关联设备
         if (serverDevice.getDeviceIdList() != null && serverDevice.getDeviceIdList().length > 0) {
-            for (Long deviceId : serverDevice.getDeviceIdList()) {
-                serverDevice.setDeviceId(deviceId);
+            Camera camera = null;
+            Long[] deviceIds = serverDevice.getDeviceIdList();
+            for (int i = 0, length = deviceIds.length;  i < length; i++) {
+                camera = cameraService.selectByPk(deviceIds[i]);
+                //设置报警回调函数
+                Long userId = NetDvrInit.login(camera);
+                if (userId == -1L) {
+                    logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
+                            + "password:"+ camera.getPassword() + "登陆失败，错误码：" + NetDvrInit.getLastError());
+                    continue;
+                }
+                Long alarmHandleId = NetDvrInit.setupAlarmChan(userId);
+                if (alarmHandleId == -1L) {
+                    logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
+                            + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + NetDvrInit.getLastError());
+                    continue;
+                }
+                camera.setUserId(userId);
+                camera.setAlarmHandleId(alarmHandleId);
+                cameraService.update(camera);
+                serverDevice.setDeviceId(deviceIds[i]);
                 serverDevice.setId(GenericPo.createUID());
                 serverDeviceMapper.insert(InsertParam.build(serverDevice));
             }
@@ -57,6 +83,19 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         }
         //取消关联设备
         if (serverDevice.getCancelDeviceIdList() != null && serverDevice.getCancelDeviceIdList().length > 0) {
+            Long[] deviceIds = serverDevice.getCancelDeviceIdList();
+            Camera camera = null;
+            for (int i = 0; i < deviceIds.length; i++) {
+                camera = cameraService.selectByPk(deviceIds[i]);
+                if (!NetDvrInit.closeAlarmChan(camera.getAlarmHandleId())) {
+                    logger.error("摄像头ID:" + deviceIds[i] + "，报警撤防失败，错误码：" + NetDvrInit.getLastError());
+                    deviceIds[i] = -1L;
+                    continue;
+                }
+                if (!NetDvrInit.logout(camera.getUserId())) {
+                    logger.error("摄像头ID:" + deviceIds[i] + "，登出，错误码：" + NetDvrInit.getLastError());
+                }
+            }
             serverDeviceMapper.batchDeleteServerDevice(serverDevice);
             map.put("status", 0);
             map.put("list", serverDevice.getCancelDeviceIdList());
