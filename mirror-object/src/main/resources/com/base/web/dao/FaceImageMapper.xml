@@ -57,7 +57,7 @@
     <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
         SELECT COUNT(tfi.u_id) FROM t_face_image tfi
         <if test="terms.size >= 3">
-            AND tfi.device_id Like #{terms[3].value}
+            WHERE tfi.device_id Like #{terms[3].value}
         </if>
     </select>
 
