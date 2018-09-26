@@ -48,15 +48,21 @@
     <select id="queryAllFaceImage" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
         SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime FROM t_face_image tfi,t_resource tr
         WHERE tfi.resource_id = tr.u_id
-        <if test="terms.size >= 3">
+        <if test="terms.size >= 4 and terms[3] != null">
             AND tfi.device_id Like #{terms[3].value}
+        </if>
+        <if test="terms.size >= 5 and terms[4] != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
+        </if>
+        <if test="terms.size >= 6 and terms[5] != null">
+            AND tr.create_time  <![CDATA[ =< ]]> #{terms[5].value}
         </if>
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
     <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
         SELECT COUNT(tfi.u_id) FROM t_face_image tfi
-        <if test="terms.size >= 3">
+        <if test="terms.size >= 3 and terms[3] != null">
             WHERE tfi.device_id Like #{terms[3].value}
         </if>
     </select>

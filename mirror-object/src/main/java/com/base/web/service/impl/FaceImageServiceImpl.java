@@ -6,9 +6,11 @@ import com.base.web.bean.common.QueryParam;
 import com.base.web.dao.FaceImageMapper;
 import com.base.web.dao.GenericMapper;
 import com.base.web.service.FaceImageService;
+import com.base.web.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,7 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
     }
 
     @Override
-    public PagerResult<Map> queryAllFaceImage(QueryParam param){
+    public PagerResult<Map> queryAllFaceImage(QueryParam param, HttpServletRequest req){
         PagerResult<Map> pagerResult = new PagerResult<>();
         int total = faceImageMapper.queryFaceImageTotal(param);
         pagerResult.setTotal(total);
@@ -32,6 +34,10 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
             pagerResult.setData(new ArrayList<>());
         } else {
             pagerResult.setData(faceImageMapper.queryAllFaceImage(param));
+            for (int k = 0; k < pagerResult.getData().size(); k++) {
+                pagerResult.getData().get(k).put("imageUrl",
+                        ResourceUtil.resourceBuildPath(req, pagerResult.getData().get(k).get("resourceId").toString()));
+            }
         }
         return pagerResult;
     }

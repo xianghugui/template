@@ -3,6 +3,7 @@ package com.base.web.controller;
 
 import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
+import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
@@ -29,16 +30,32 @@ import java.util.Map;
 @RequestMapping(value = "/aims")
 @AccessLogger("目标查询")
 @Authorize(module = "aims")
-public class AimsController {
+public class AimsController extends GenericController<FaceImage, Long>{
     @Autowired
     private FaceFeatureService faceFeatureService;
 
     @Autowired
     private FaceImageService faceImageService;
 
+    @Override
+    protected FaceImageService getService() {
+        return faceImageService;
+    }
+
     private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
+
+    @RequestMapping(value = "/select", method = RequestMethod.GET)
+    @AccessLogger("查询")
+    @Authorize(action = "R")
+    public ResponseMessage select(QueryParam param, HttpServletRequest req) {
+        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
+        return ResponseMessage.ok(faceImageList)
+                .include(getPOType(), param.getIncludes())
+                .exclude(getPOType(), param.getExcludes())
+                .onlyData();
+    }
 
     @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST, consumes = "multipart/form-data")
     @AccessLogger("返回上传的人脸特征值")
@@ -72,23 +89,24 @@ public class AimsController {
     }
 
 
-    @RequestMapping(value = "/faceRecognize", method = RequestMethod.POST, consumes = "multipart/form-data")
+    @RequestMapping(value = "/faceRecognize/{uploadFaceFeature}", method = RequestMethod.POST)
     @AccessLogger("人脸检测")
     @Authorize(action = "R")
-    public ResponseMessage faceRecognize(@RequestParam("uploadFaceFeature") byte[] uploadFaceFeature,
+    public ResponseMessage faceRecognize(@PathVariable("uploadFaceFeature") String file,
                                          QueryParam param, HttpServletRequest req) throws IOException {
-        FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
-        //获取数据库的特征值
         List<Map> faceImageList;
         //获取数据库全部图片
         faceImageList = null;
-        if (uploadFaceFeature == null) {
+        if (file.equals("undefined")) {
             //上传文件没有检测到人脸直接返回空数组
-            for (int k = 0; k < faceImageList.size(); k++) {
-                faceImageList.get(k).put("imageUrl",
-                        ResourceUtil.resourceBuildPath(req, faceImageList.get(k).get("resourceId").toString()));
-            }
+            return ResponseMessage.ok(faceImageService.queryAllFaceImage(param,req))
+                    .include(getPOType(), param.getIncludes())
+                    .exclude(getPOType(), param.getExcludes())
+                    .onlyData();
         } else {
+            FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
+            byte[] uploadFaceFeature = file.getBytes();
+            //获取数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前视频对应图片包含的所有人脸特征值
                 List<FaceFeature> faceFeatureList = faceFeatureService.createQuery()

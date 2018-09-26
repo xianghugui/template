@@ -14,7 +14,7 @@ public class ResourceUtil {
 
     public static String resourceBuildPath(HttpServletRequest req, String md5) {
         StringBuffer sb = new StringBuffer();
-        sb.append(WebUtil.getBasePath(req)).append("file/image/").append(md5).append(".jpg");
+        sb.append(WebUtil.getBasePath(req)).append("file/image/").append(md5);
         return sb.toString();
     }
 

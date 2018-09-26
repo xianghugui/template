@@ -143,6 +143,13 @@ $(function () {
                     }
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
+
+                    if($('#searchStart').val() !== ""){
+                        str += '&terms%5b4%5d.name=searchStart&terms%5b4%5d.value='+$('#searchStart').val();
+                    }
+                    if($('#searchEnd').val() !== ""){
+                        str += '&terms%5b5%5d.name=searchEnd&terms%5b5%5d.value='+$('#searchEnd').val();
+                    }
                     $.ajax({
                         url: BASE_PATH + "camera/select",
                         type: "GET",
@@ -197,5 +204,6 @@ $(function () {
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         console.log($("#searchStart").val())
         console.log($("#searchEnd").val())
+        initTable();
     });
 });

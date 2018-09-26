@@ -20,7 +20,8 @@ $(function () {
                     data: rootNodes,
                     levels: 3,
                     onNodeSelected: function (event, data) {
-
+                        initFileInput();
+                        initTable();
                     }
                 });
                 $('#area_tree').treeview('selectNode', [0]);
@@ -94,7 +95,7 @@ $(function () {
     /**
      * dataTable
      */
-    function initTable() {
+    function initTable(uploadFaceFeature) {
         target_list = $('#target_list').DataTable({
             "language": lang,
             "lengthChange": false,
@@ -122,8 +123,8 @@ $(function () {
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
                     $.ajax({
-                        url: BASE_PATH + "aims/faceRecognize",
-                        type: "POST",
+                        url: BASE_PATH + "aims/select",
+                        type: "GET",
                         data: str,
                         cache: false,
                         dataType: "json",
@@ -148,8 +149,8 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='" + BASE_PATH + "img/login/photo.jpg'></image>" +
-                            "<div class='time'>2018-08-09 17:30</div></div>"
+                        var html = "<div><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='time'>"+data.createTime+"</div></div>"
                         return html;
                     }
                 },
@@ -180,50 +181,71 @@ $(function () {
 
     });
 
+    function initFileInput(){
+        //初始化图片上传控件
+        $("input#img_input").fileinput('destroy');
+        delete fileinputoption.initialPreview;
+        delete fileinputoption.initialPreviewConfig;
+        $("input#img_input").fileinput(fileinputoption);
+        $("#img_input").fileinput('refresh').fileinput('enable');
+    }
+
     /**
      * 上传图片
      */
-    // $("#img_input").on('change', function (e) {
-    //     var file = e.target.files[0];
-    //     if (!file.type.match('image.*')) {
-    //         return false;
-    //     }
-    //     // document.getElementById("img_input").select();
-    //     // console.log(document.selection.createRange().text)
-    //     var reader = new FileReader();
-    //     reader.readAsDataURL(file); // 读取文件
-    //     // 渲染文件
-    //     reader.onload = function (arg) {
-    //         // console.log(arg.target.result)
-    //         $("#preview_img").attr("src", arg.target.result);
-    //         $("#preview_img").show();
-    //         var data = $('#img_input').files;
-    //         Request.post('aims/uploadFaceImage',data,function (e) {})
-    //     }
-    // });
+        // $("#img_input").on('change', function (e) {
+        //     var file = e.target.files[0];
+        //     if (!file.type.match('image.*')) {
+        //         return false;
+        //     }
+        //     // document.getElementById("img_input").select();
+        //     // console.log(document.selection.createRange().text)
+        //     var reader = new FileReader();
+        //     reader.readAsDataURL(file); // 读取文件
+        //     // 渲染文件
+        //     reader.onload = function (arg) {
+        //         // console.log(arg.target.result)
+        //         $("#preview_img").attr("src", arg.target.result);
+        //         $("#preview_img").show();
+        //         var data = $('#img_input').files;
+        //         $.ajax({
+        //             url: '/upload',
+        //             type: 'POST',
+        //             cache: false,
+        //             data: new FormData($('#uploadForm')[0]),
+        //             processData: false,
+        //             contentType: false
+        //         }).done(function(res) {
+        //         }).fail(function(res) {});
+        //     }
+        // });
 
     var fileinputoption = {
-        required: true,
-        uploadUrl: Request.BASH_PATH + 'aims/uploadFaceImage',
-        dropZoneTitle: "拖拽文件到这里...",
-        language: 'zh', //设置语言
-        showUpload: false, //是否显示上传按钮
-        showRemove: false,
-        showCaption: false,//是否显示标题
-        showClose: false,
-        allowedPreviewTypes: ['image'],
-        allowedFileTypes: ['image'],
-        allowedFileExtensions: ['jpg', 'gif', 'png'],
-        maxFileCount: 1,
-        maxFileSize: 2000,
-        autoReplace: true,
-        validateInitialCount: false,
-        overwriteInitial: false,
-        initialPreviewAsData: false,
-        uploadAsync: true //同步上传
-    };
+            required: true,
+            uploadUrl: Request.BASH_PATH + 'aims/uploadFaceImage',
+            dropZoneTitle: "上传图片",
+            language: 'zh', //设置语言
+            showUpload: false, //是否显示上传按钮
+            showRemove: false,
+            showCaption: false,//是否显示标题
+            showClose: false,
+            allowedPreviewTypes: ['image'],
+            allowedFileTypes: ['image'],
+            allowedFileExtensions: ['jpg', 'gif', 'png'],
+            maxFileCount: 1,
+            maxFileSize: 2000,
+            autoReplace: true,
+            validateInitialCount: false,
+            overwriteInitial: false,
+            initialPreviewAsData: false,
+            uploadAsync: true //同步上传
+        };
 
     $('#img_input').fileinput(fileinputoption);
+
+    $("#img_input").on("filebatchselected", function (event, files) {
+        console.log(files);
+    });
 });
 
 

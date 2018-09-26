@@ -51,11 +51,7 @@ public class CameraController extends GenericController<Camera, Long> {
     @AccessLogger("查询")
     @Authorize(action = "R")
     public ResponseMessage select(QueryParam param, HttpServletRequest req) {
-        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param);
-        for (int k = 0; k < faceImageList.getData().size(); k++) {
-            faceImageList.getData().get(k).put("imageUrl",
-                    ResourceUtil.resourceBuildPath(req, faceImageList.getData().get(k).get("resourceId").toString()));
-        }
+        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
         return ResponseMessage.ok(faceImageList)
                 .include(getPOType(), param.getIncludes())
                 .exclude(getPOType(), param.getExcludes())
