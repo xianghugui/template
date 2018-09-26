@@ -45,11 +45,19 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
-    <select id="queryAllFaceImage" parameterType="Long" resultType="java.util.HashMap">
-        SELECT u_id AS id, resource_id AS resourceId,tr.create_time AS createTime FROM t_face_image tfi,t_resource tr
+    <select id="queryAllFaceImage" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime FROM t_face_image tfi,t_resource tr
         WHERE tfi.resource_id = tr.u_id
-        <if test="deviceId != null and deviceId != ''">
-            AND tfi.device_id = #{deviceId}
+        <if test="terms.size >= 3">
+            AND tfi.device_id Like #{terms[3].value}
+        </if>
+        LIMIT #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        SELECT COUNT(tfi.u_id) FROM t_face_image tfi
+        <if test="terms.size >= 3">
+            AND tfi.device_id Like #{terms[3].value}
         </if>
     </select>
 

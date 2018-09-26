@@ -122,8 +122,8 @@ $(function () {
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
                     $.ajax({
-                        url: BASE_PATH + "camera",
-                        type: "GET",
+                        url: BASE_PATH + "aims/faceRecognize",
+                        type: "POST",
                         data: str,
                         cache: false,
                         dataType: "json",

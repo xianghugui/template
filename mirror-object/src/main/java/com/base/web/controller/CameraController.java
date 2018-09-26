@@ -1,19 +1,22 @@
 package com.base.web.controller;
 
 import com.base.web.bean.Camera;
+import com.base.web.bean.common.PagerResult;
+import com.base.web.bean.common.QueryParam;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.CameraService;
+import com.base.web.service.FaceImageService;
+import com.base.web.util.ResourceUtil;
 import oracle.jdbc.proxy.annotation.Post;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/camera")
@@ -23,6 +26,9 @@ public class CameraController extends GenericController<Camera, Long> {
 
     @Autowired
     private CameraService cameraService;
+
+    @Autowired
+    private FaceImageService faceImageService;
 
     @PostMapping
     @AccessLogger("新增")
@@ -39,5 +45,20 @@ public class CameraController extends GenericController<Camera, Long> {
     @Override
     protected CameraService getService() {
         return cameraService;
+    }
+
+    @RequestMapping(value = "/select", method = RequestMethod.GET)
+    @AccessLogger("查询")
+    @Authorize(action = "R")
+    public ResponseMessage select(QueryParam param, HttpServletRequest req) {
+        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param);
+        for (int k = 0; k < faceImageList.getData().size(); k++) {
+            faceImageList.getData().get(k).put("imageUrl",
+                    ResourceUtil.resourceBuildPath(req, faceImageList.getData().get(k).get("resourceId").toString()));
+        }
+        return ResponseMessage.ok(faceImageList)
+                .include(getPOType(), param.getIncludes())
+                .exclude(getPOType(), param.getExcludes())
+                .onlyData();
     }
 }

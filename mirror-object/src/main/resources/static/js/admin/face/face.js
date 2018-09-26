@@ -19,7 +19,7 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
-
+                    initTable();
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
@@ -144,7 +144,7 @@ $(function () {
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
                     $.ajax({
-                        url: BASE_PATH + "camera",
+                        url: BASE_PATH + "camera/select",
                         type: "GET",
                         data: str,
                         cache: false,
@@ -170,8 +170,8 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='" + BASE_PATH + "img/login/photo.jpg'></image>" +
-                            "<div class='time'>2018-08-09 17:30</div></div>"
+                        var html = "<div><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='time'>"+data.createTime+"</div></div>"
                         return html;
                     }
                 },
