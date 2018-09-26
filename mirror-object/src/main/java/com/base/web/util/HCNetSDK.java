@@ -31,7 +31,7 @@ import java.io.IOException;
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "D:\\IdeaProjects\\template\\mirror-object\\src\\main\\resources\\win32-x86-64\\HCNetSDK.dll",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "E:\\JAVA\\project\\template\\mirror-object\\src\\main\\resources\\win32-x86-64\\HCNetSDK.dll",
             HCNetSDK.class);
     /***宏定义***/
     //常量
@@ -3215,7 +3215,7 @@ public static class NET_DVR_ALARMER extends Structure
    public   byte byLinkPortValid;               /* login端口是否有效 0-无效，1-有效 */
    public    byte byDeviceIPValid;               /* 设备IP是否有效 0-无效，1-有效 */
    public   byte bySocketIPValid;               /* socket ip是否有效 0-无效，1-有效 */
-   public   NativeLong lUserID;                       /* NET_DVR_Login()返回值, 布防时有效 */
+   public   Long lUserID;                       /* NET_DVR_Login()返回值, 布防时有效 */
    public   byte[] sSerialNumber = new byte[SERIALNO_LEN];	/* 序列号 */
    public  int dwDeviceVersion;			    /* 版本信息 高16位表示主版本，低16位表示次版本*/
    public   byte[] sDeviceName = new byte[NAME_LEN];		    /* 设备名字 */
@@ -4113,9 +4113,9 @@ public static class NET_DVR_ISP_CAMERAPARAMCFG extends Structure{
  NativeLong  NET_DVR_StartListen_V30(String sLocalIP, short wLocalPort, FMSGCallBack DataCallback, Pointer pUserData);
  boolean  NET_DVR_StopListen_V30(NativeLong lListenHandle);
  NativeLong  NET_DVR_Login(String sDVRIP, short wDVRPort, String sUserName, String sPassword, NET_DVR_DEVICEINFO lpDeviceInfo);
- NativeLong  NET_DVR_Login_V30(String sDVRIP, short wDVRPort, String sUserName, String sPassword, NET_DVR_DEVICEINFO_V30 lpDeviceInfo);
+ Long  NET_DVR_Login_V30(String sDVRIP, short wDVRPort, String sUserName, String sPassword, NET_DVR_DEVICEINFO_V30 lpDeviceInfo);
  NativeLong NET_DVR_Login_V40(Pointer pLoginInfo, Pointer lpDeviceInfo);
- boolean  NET_DVR_Logout(NativeLong lUserID);
+ boolean  NET_DVR_Logout(Long lUserID);
  boolean  NET_DVR_Logout_V30(NativeLong lUserID);
  int  NET_DVR_GetLastError();
  String   NET_DVR_GetErrorMsg(NativeLongByReference pErrorNo);
@@ -4219,8 +4219,8 @@ public static class NET_DVR_ISP_CAMERAPARAMCFG extends Structure{
 //报警
  NativeLong  NET_DVR_SetupAlarmChan(NativeLong lUserID);
  boolean  NET_DVR_CloseAlarmChan(NativeLong lAlarmHandle);
- NativeLong  NET_DVR_SetupAlarmChan_V30(NativeLong lUserID);
- boolean  NET_DVR_CloseAlarmChan_V30(NativeLong lAlarmHandle);
+ Long  NET_DVR_SetupAlarmChan_V30(Long lUserID);
+ boolean  NET_DVR_CloseAlarmChan_V30(Long lAlarmHandle);
 //语音对讲
  NativeLong  NET_DVR_StartVoiceCom(NativeLong lUserID, FVoiceDataCallBack fVoiceDataCallBack, int dwUser);
  NativeLong  NET_DVR_StartVoiceCom_V30(NativeLong lUserID, int dwVoiceChan, boolean bNeedCBNoEncData, FVoiceDataCallBack_V30 fVoiceDataCallBack, Pointer pUser);
