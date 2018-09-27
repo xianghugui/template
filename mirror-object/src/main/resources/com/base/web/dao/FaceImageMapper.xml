@@ -16,7 +16,7 @@
         <bind name="tableName" value="'t_face_image'"/>
     </sql>
 
-    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam">
         <include refid="config"/>
         <include refid="BasicMapper.buildInsertSql"/>
     </insert>
@@ -49,18 +49,17 @@
         SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime
         FROM t_face_image tfi,t_resource tr, t_device td
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
-        <choose>
-            <when test="terms.size >= 4 and terms[3] != null">
-                AND td.organization_id Like #{terms[3].value}
-            </when>
-            <otherwise>
-                AND tfi.device_id = #{terms[6].value}
-            </otherwise>
-        </choose>
-        <if test="terms.size >= 5 and terms[4] != null">
+
+        <if test="terms.size >= 3 and terms[3].value != null">
+            AND td.organization_id Like #{terms[3].value}
+        </if>
+        <if test="terms.size >= 7 and terms[6].value != null">
+            AND tfi.device_id = #{terms[6].value}
+        </if>
+        <if test="terms.size >= 5 and terms[4].value != null">
             AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
         </if>
-        <if test="terms.size >= 6 and terms[5] != null">
+        <if test="terms.size >= 6 and terms[5].value != null">
             AND tr.create_time  <![CDATA[ =< ]]> #{terms[5].value}
         </if>
         LIMIT #{pageIndex},#{pageSize}
@@ -69,14 +68,12 @@
     <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
         SELECT COUNT(tfi.u_id) FROM t_face_image tfi, t_device td
         WHERE td.u_id = tfi.device_id
-        <choose>
-            <when test="terms.size >= 4 and terms[3] != null">
-                AND td.organization_id Like #{terms[3].value}
-            </when>
-            <otherwise>
-                AND tfi.device_id = #{terms[6].value}
-            </otherwise>
-        </choose>
+        <if test="terms.size >= 3 and terms[3].value != null">
+            AND td.organization_id Like #{terms[3].value}
+        </if>
+        <if test="terms.size >= 7 and terms[6].value != null">
+            AND tfi.device_id = #{terms[6].value}
+        </if>
     </select>
 
 </mapper>

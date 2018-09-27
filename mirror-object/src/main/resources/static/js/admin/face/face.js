@@ -121,7 +121,7 @@ $(function () {
             "language": lang,
             "lengthChange": false,
             "searching": false,
-            "pageLength": 8,
+            "pageLength": 16,
             "serverSide": true,
             "destroy": true,
             "info": true,

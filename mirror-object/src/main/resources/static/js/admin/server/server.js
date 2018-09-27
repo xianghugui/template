@@ -127,7 +127,7 @@ $(function () {
             serverPort: {required: "端口不能为空", portValid: "请输入正确的端口号"}
         },
         submitHandler: function () {
-            var btn = $('#submit-parent');
+            var btn = $('.submit-parent');
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
             var flag = $("#add_server_form").data("type") == "0";
@@ -172,7 +172,7 @@ $(function () {
         submitHandler: function () {
             var checkArray = getCheckAdIds(),
                 noCheckArray = cancelCheckAdIds();
-            var btn = $('#submit-parent');
+            var btn = $('.submit-parent');
             btn.attr('disabled', "true");
             btn.html("保存中..请稍后");
 

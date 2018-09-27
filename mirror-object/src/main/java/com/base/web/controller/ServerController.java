@@ -7,6 +7,7 @@ import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.CameraService;
+import com.base.web.service.ServerDeviceService;
 import com.base.web.service.ServerService;
 import com.base.web.util.NetDvrInit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ServerController extends GenericController<Server, Long>{
 
     @Autowired
     private CameraService cameraService;
+
+    @Autowired
+    private ServerDeviceService serverDeviceService;
 
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -92,6 +96,10 @@ public class ServerController extends GenericController<Server, Long>{
     @AccessLogger("服务器关联设备")
     @Authorize(action = "C")
     public ResponseMessage addDevice(@RequestBody ServerDevice data) {
+        if(data.getDeviceIdList() != null && serverDeviceService.createQuery().where(ServerDevice.Property.serverId,data.getServerId())
+                .and(ServerDevice.Property.deviceId,data.getDeviceIdList()[0]).single() != null){
+            return ResponseMessage.error("设备已关联");
+        }
         return ResponseMessage.ok(serverService.addDevice(data));
     }
 
