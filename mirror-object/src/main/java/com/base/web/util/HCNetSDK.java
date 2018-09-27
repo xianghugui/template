@@ -31,8 +31,10 @@ import java.io.IOException;
 
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
+    String path = HCNetSDK.class.getResource("/").getPath().replaceAll("%20"," ")
+            .replaceFirst("/","").replace("/",File.separator) + "win" + File.separator + "hcnetsdk";
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( HCNetSDK.class.getResource("/").getPath().replaceAll("%20"," ").replaceFirst("/","").replace("/",File.separator)+"win32-x86" + File.separator + "HCNetSDK",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( Platform.isWindows() ? path : "hcnetsdk",
             HCNetSDK.class);
     /***宏定义***/
     //常量
