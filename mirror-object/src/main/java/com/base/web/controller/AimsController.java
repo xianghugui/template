@@ -67,12 +67,8 @@ public class AimsController extends GenericController<FaceImage, Long>{
             currentImagePath = System.getProperty("user.dir") + File.separator
                     + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
         } else {
-            currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/" + file.getOriginalFilename();
+            currentImagePath = "/data/apache-tomcat-8.5.34/bin/upload/face/" + file.getOriginalFilename();
         }
-        //用户拍照的特征值
-        File faceFile = new File(currentImagePath);
-        file.transferTo(faceFile);
-
         if (logger.isInfoEnabled())
             logger.info("start upload.");
         byte[] uploadFaceFeature = null;
@@ -80,7 +76,7 @@ public class AimsController extends GenericController<FaceImage, Long>{
             if (logger.isInfoEnabled())
                 logger.info("start write file:{}", file.getOriginalFilename());
             //获取该图片的特征值
-            uploadFaceFeature = faceFeatureUtil.returnFaceFeature(faceFile);
+            uploadFaceFeature = faceFeatureUtil.returnFaceFeature(currentImagePath);
         } else {
             return ResponseMessage.error("图片为空或数据加载失败，请重试！");
         }

@@ -140,6 +140,8 @@ $(function () {
                         str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
                     } else if (organization.level == 2) {
                         str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
+                    } else if(organization.level == 3){
+                        str += '&terms%5b6%5d.column=deviceId&terms%5b6%5d.value=' + organization.id ;
                     }
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
