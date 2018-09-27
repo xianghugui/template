@@ -9,7 +9,8 @@ public class Camera extends GenericPo<Long> {
     private String code; //设备编号
     private String name;
     private String ip;
-    private short port;
+    private short port; //服务端口
+    private short httpPort; //http端口
     private Integer aisle; //通道
     private Long organizationId;  //组织机构
     private String address;
@@ -38,6 +39,14 @@ public class Camera extends GenericPo<Long> {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public short getHttpPort() {
+        return httpPort;
+    }
+
+    public void setHttpPort(short httpPort) {
+        this.httpPort = httpPort;
     }
 
     public Long getAlarmHandleId() {
@@ -148,6 +157,7 @@ public class Camera extends GenericPo<Long> {
         String CODE = "code";
         String NAME = "name";
         String PORT = "port";
+        String HTTPPORT = "httpPort";
         String IP = "ip";
         String ORGANIZATIONID = "organizationId";
         String ADDRESS = "address";

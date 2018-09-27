@@ -15,9 +15,9 @@ import org.hsweb.commons.MD5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -48,8 +48,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * @throws IOException
      */
     @Override
-    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser) {
-        if(pAlarmInfo.dwFacePicLen > 150000)
+    @Transient
+    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo, int dwBufLen, Pointer pUser) {
+        if(pAlarmInfo.dwFacePicLen > 0)
         {
             //创建临时文件
             String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
@@ -115,4 +116,5 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         }
 
     }
+
 }

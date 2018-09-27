@@ -171,6 +171,7 @@ $(function () {
                 {"data": "code", "className": "exclude", "orderable": false},
                 {"data": "ip", "orderable": false},
                 {"data": "port", "className": "exclude", "orderable": false},
+                {"data": "httpPort", "className": "exclude", "orderable": false},
                 {"data": "note", "className": "exclude", "orderable": false},
                 {"data": "account", "className": "exclude", "orderable": false},
                 {"data": "password", "className": "exclude", "orderable": false},
@@ -257,6 +258,7 @@ $(function () {
             name: {required: true},
             ip: {required: true, ipValid: true},
             port: {required: true, digits: true},
+            httpPort: {required: true, digits: true},
             note: {required: true,},
             account: {required: true},
             password: {required: true}
@@ -265,7 +267,8 @@ $(function () {
             code: {required: "请输入设备编号"},
             name: {required: "请输入设备名称"},
             ip: {required: "请输入设备IP", ipValid: "请输入正确的IP"},
-            port: {required: "请输入端口", digits: "请输入正确的端口号"},
+            port: {required: "请输入服务端口", digits: "请输入正确的服务端口"},
+            httpPort: {required: "请输入Http端口", digits: "请输入正确的Http端口"},
             note: {required: "请输入备注"},
             account: {required: "请输入账号"},
             password: {required: "请输入密码"}

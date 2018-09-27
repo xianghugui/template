@@ -25,7 +25,7 @@ $(function () {
                         Request.get("camera/" + selected.id, function (e) {
                             clickLogout();
                             clickLogin(e.data);
-                            var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.port
+                            var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.httpPort
                                 + "/MPEG-4/ch1/main/av_stream";
                             $('#monitor_video').val(url);
                             $('#vlc').show();
@@ -148,7 +148,7 @@ $(function () {
 
 // 登录
     function clickLogin(data) {
-        WebVideoCtrl.I_Login(data.ip, 1, data.port, data.account, data.password, {
+        WebVideoCtrl.I_Login(data.ip, 1, data.httpPort, data.account, data.password, {
             success: function (xmlDoc) {
                 szIP = data.ip;
                 //预览

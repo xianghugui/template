@@ -26,12 +26,13 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 
+import java.io.File;
 import java.io.IOException;
 
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( "E:\\JAVA\\project\\template\\mirror-object\\src\\main\\resources\\win32-x86-64\\HCNetSDK.dll",
+    HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary( HCNetSDK.class.getResource("/").getPath().replaceAll("%20"," ").replaceFirst("/","").replace("/",File.separator)+"win32-x86" + File.separator + "HCNetSDK",
             HCNetSDK.class);
     /***宏定义***/
     //常量
@@ -3411,8 +3412,8 @@ public static class NET_VCA_HUMAN_FEATURE extends Structure{
     public byte[] byRes = new byte[11];
 }
 
-//用于接收报警信息的缓存区
-public static class RECV_ALARM extends Structure{
+//人脸抓拍结果结构体
+public static class NET_VCA_FACESNAP_RESULT extends Structure{
     public int dwSize;
     public int dwRelativeTime;
     public int dwAbsTime;
@@ -3437,7 +3438,10 @@ public static class RECV_ALARM extends Structure{
     public ByteByReference pBuffer1;
     public ByteByReference pBuffer2;
 }
-
+//用于接收报警信息的缓存区
+public static class RECV_ALARM extends Structure{
+  public byte[] RecvBuffer = new byte[400];//此处的400应不小于最大报警报文长度
+}
 //云台花样扫描参数结构
 public static class NET_DVR_PTZ_PATTERN extends Structure{
 	  public int   dwSize;
@@ -4003,7 +4007,7 @@ public static class NET_DVR_ISP_CAMERAPARAMCFG extends Structure{
     }
 
    public static interface FMSGCallBack extends Callback {
-        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, HCNetSDK.RECV_ALARM pAlarmInfo, int dwBufLen, Pointer pUser) throws IOException;
+        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, NET_VCA_FACESNAP_RESULT pAlarmInfo, int dwBufLen, Pointer pUser) throws IOException;
     }
 
    public static interface FMessCallBack extends Callback {
