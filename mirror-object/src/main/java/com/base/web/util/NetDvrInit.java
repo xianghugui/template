@@ -2,6 +2,7 @@ package com.base.web.util;
 
 import com.base.web.bean.Camera;
 import com.base.web.service.CameraService;
+import com.sun.jna.NativeLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                             + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + getLastError());
                     continue;
                 }
+                System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
                 camera.setUserId(userId);
                 camera.setAlarmHandleId(alarmHandleId);
                 cameraService.update(camera);
@@ -67,7 +69,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
      */
     public static Long login(Camera camera){
         return hCNetSDK.NET_DVR_Login_V30(camera.getIp(), camera.getPort(),
-                camera.getAccount(), camera.getPassword(), struDeviceInfoV30);
+                camera.getAccount(), camera.getPassword(), struDeviceInfoV30).longValue();
     }
 
     /**
@@ -76,7 +78,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
      * @return
      */
     public static Boolean logout(Long userId){
-        return hCNetSDK.NET_DVR_Logout(userId);
+        return hCNetSDK.NET_DVR_Logout(new NativeLong(userId));
     }
 
     /**
@@ -85,7 +87,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
      * @return
      */
     public static Long setupAlarmChan(Long userId) {
-        return hCNetSDK.NET_DVR_SetupAlarmChan_V30(userId);
+        return hCNetSDK.NET_DVR_SetupAlarmChan_V30(new NativeLong(userId)).longValue();
     }
 
     /**
@@ -94,7 +96,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
      * @return
      */
     public static Boolean closeAlarmChan(Long alarmHandleId) {
-        return hCNetSDK.NET_DVR_CloseAlarmChan_V30(alarmHandleId);
+        return hCNetSDK.NET_DVR_CloseAlarmChan_V30(new NativeLong(alarmHandleId));
     }
 
     /**

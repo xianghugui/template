@@ -62,6 +62,7 @@
         <if test="terms.size >= 6 and terms[5].value != null">
             AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
         </if>
+        ORDER BY tfi.create_time DESC
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
@@ -73,6 +74,12 @@
         </if>
         <if test="terms.size >= 7 and terms[6].value != null">
             AND tfi.device_id = #{terms[6].value}
+        </if>
+        <if test="terms.size >= 5 and terms[4].value != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
+        </if>
+        <if test="terms.size >= 6 and terms[5].value != null">
+            AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
         </if>
     </select>
 

@@ -182,7 +182,7 @@ $(function () {
             "aoColumnDefs": [
                 {
                     "sClass": "center",
-                    "aTargets": [10],
+                    "aTargets": [11],
                     "mData": "id",
                     "mRender": function (a, b, c, d) {//a表示statCleanRevampId对应的值，c表示当前记录行对象
                         // 修改 删除 权限判断
@@ -204,7 +204,7 @@ $(function () {
                 if (status == 1) {
                     html = '<text aria-hidden="true" style="color: #0099FF"  data-state = "' + status + '">已布防</text>';
                 }
-                $('td:eq(8)', nRow).html(html);
+                $('td:eq(9)', nRow).html(html);
                 return nRow;
             }
 
@@ -310,7 +310,7 @@ $(function () {
                 Request.put(api, dataJson, function (e) {
                     $('button[type="submit"]').attr('disabled', false);
                     if (e.success) {
-                        toastr.info("修改设备成功");
+                        toastr.info(e.data);
                         $("#modal-add").modal('hide');
                         camera_list.draw(false);
 
@@ -350,6 +350,7 @@ $(function () {
                 $("input#name").val(data.name);
                 $("input#ip").val(data.ip);
                 $("input#port").val(data.port);
+                $("input#httpPort").val(data.httpPort);
                 $("input#note").val(data.note);
                 $("input#account").val(data.account);
                 $("input#password").val(data.password);
