@@ -41,21 +41,23 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
             for (Camera camera : cameras) {
                 //登陆
                 Long userId = login(camera);
-                if (userId == -1L) {
+                if (userId == 0xFFFFFFFF || userId == 0xFFFFFFFFL) {
                     logger.error("启动项目时，IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "登陆失败，错误码：" + getLastError());
                     continue;
+                } else {
+                    camera.setUserId(userId);
                 }
                 //报警布防
                 Long alarmHandleId = setupAlarmChan(userId);
-                if (alarmHandleId == -1L) {
+                if (alarmHandleId == 0xFFFFFFFF || alarmHandleId == 0xFFFFFFFFL) {
                     logger.error("启动项目时，IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + getLastError());
                     continue;
+                } else {
+                    camera.setAlarmHandleId(alarmHandleId);
                 }
                 System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
-                camera.setUserId(userId);
-                camera.setAlarmHandleId(alarmHandleId);
                 cameraService.update(camera);
             }
         }

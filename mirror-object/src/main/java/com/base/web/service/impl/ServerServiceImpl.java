@@ -59,19 +59,21 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 camera = cameraService.selectByPk(deviceIds[i]);
                 //设置报警回调函数
                 Long userId = NetDvrInit.login(camera);
-                if (userId == -1L) {
+                if (userId == 0xFFFFFFFF || userId == 0xFFFFFFFFL) {
                     logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "登陆失败，错误码：" + NetDvrInit.getLastError());
                     continue;
+                } else {
+                    camera.setUserId(userId);
                 }
                 Long alarmHandleId = NetDvrInit.setupAlarmChan(userId);
-                if (alarmHandleId == -1L) {
+                if (alarmHandleId == 0xFFFFFFFF || alarmHandleId == 0xFFFFFFFFL) {
                     logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + NetDvrInit.getLastError());
                     continue;
+                } else {
+                    camera.setAlarmHandleId(alarmHandleId);
                 }
-                camera.setUserId(userId);
-                camera.setAlarmHandleId(alarmHandleId);
                 cameraService.update(camera);
                 serverDevice.setDeviceId(deviceIds[i]);
                 serverDevice.setId(GenericPo.createUID());
@@ -87,6 +89,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
             Camera camera = null;
             for (int i = 0; i < deviceIds.length; i++) {
                 camera = cameraService.selectByPk(deviceIds[i]);
+                NetDvrInit.login(camera);
                 if (!NetDvrInit.closeAlarmChan(camera.getAlarmHandleId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，报警撤防失败，错误码：" + NetDvrInit.getLastError());
                     deviceIds[i] = -1L;

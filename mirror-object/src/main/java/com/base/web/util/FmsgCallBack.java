@@ -116,7 +116,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             short port = strFaceSnapInfo.struDevInfo.wPort;
             Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
                     .and(Camera.Property.PORT, port).single();
-            faceImage.setDeviceId(camera.getId());
+            if (camera != null) {
+                faceImage.setDeviceId(camera.getId());
+            }
             faceImage.setCreateTime(date);
             faceImageService.insert(faceImage);
         }
