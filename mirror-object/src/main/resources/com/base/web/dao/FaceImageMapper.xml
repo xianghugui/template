@@ -60,7 +60,7 @@
             AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
         </if>
         <if test="terms.size >= 6 and terms[5].value != null">
-            AND tr.create_time  <![CDATA[ =< ]]> #{terms[5].value}
+            AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
         </if>
         LIMIT #{pageIndex},#{pageSize}
     </select>

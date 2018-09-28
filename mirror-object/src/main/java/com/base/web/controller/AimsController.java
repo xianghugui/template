@@ -57,7 +57,7 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 .onlyData();
     }
 
-    @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST, consumes = "multipart/form-data")
+    @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST)
     @AccessLogger("返回上传的人脸特征值")
     @Authorize(action = "C")
     public ResponseMessage returnFaceFeature(@RequestParam("file") MultipartFile file) throws IOException {

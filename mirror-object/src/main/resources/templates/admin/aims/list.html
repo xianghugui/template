@@ -41,9 +41,9 @@
             <div class="col-md-9">
                 <div class="box table-box">
                     <div class="form-group pull-left">
-                        <form id="uploadForm" enctype="multipart/form-data">
+                        <form id="uploadForm">
+                            <input id="img_input" type="file" name="file" accept="image/*" style="display: none;"/>
                             <label for="img_input" class="btn btn-primary btn-add">上传</label>
-                            <input id="file" type="file" name="file" accept="image/*" style="display: none;"/>
                         </form>
                     </div>
                     <div class="form-inline pull-right">
@@ -66,10 +66,8 @@
                         <button type="submit" class="btn btn-default btn-search">搜索</button>
                     </div>
                     <div class="clearfix"></div>
-                    <!--<div class="col-md-4 col-md-offset-4 img-box">-->
-                    <div class="col-md-12 img-box">
-                        <!--<img id="preview_img" class="img" style="display: none;"/>-->
-                        <input id="img_input" type="file" name="file" class="file-loading" />
+                    <div class="col-md-4 col-md-offset-4 img-box">
+                        <img id="preview_img" class="img" style="display: none;"/>
                     </div>
                     <table class="box-body col-md-12" id="target_list"></table>
                 </div>
