@@ -20,7 +20,7 @@ $(function () {
                     data: rootNodes,
                     levels: 3,
                     onNodeSelected: function (event, data) {
-                        $("#preview_img").
+                        $("#preview_img").hide();
                         initTable();
                     }
                 });
