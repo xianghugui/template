@@ -106,9 +106,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     return;
                 } else {
                     File newFile = new File(absPath.concat("/").concat(md5));
+                    map = faceFeatureUtil.returnFaceFeature(oldFile);
                     oldFile.renameTo(newFile);
                     //获取特征值
-                    map = faceFeatureUtil.returnFaceFeature(newFile);
                 }
 
             }catch (FileNotFoundException e) {
