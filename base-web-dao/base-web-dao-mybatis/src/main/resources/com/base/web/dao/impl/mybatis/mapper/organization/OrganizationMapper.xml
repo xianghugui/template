@@ -58,4 +58,13 @@
         s_organization so
         LEFT JOIN t_device td ON so.u_id = td.organization_id
     </select>
+
+    <select id="listCameraByAreaId" parameterType="Long" resultType="java.util.HashMap">
+        SELECT u_id, ip, http_port 'httpPort', account, `password`
+        FROM t_device WHERE organization_id LIKE CONCAT(#{areaId},'%')
+    </select>
+
+    <select id="listCameraByAreaIdTotal" parameterType="Long" resultType="int">
+        SELECT COUNT(u_id) FROM t_device WHERE organization_id LIKE CONCAT(#{areaId},'%')
+    </select>
 </mapper>

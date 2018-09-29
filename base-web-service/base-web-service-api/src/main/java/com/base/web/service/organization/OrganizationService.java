@@ -2,6 +2,7 @@ package com.base.web.service.organization;
 
 import com.base.web.bean.po.organization.Organization;
 import com.base.web.service.GenericService;
+import javafx.scene.Camera;
 
 import java.util.List;
 import java.util.Map;
@@ -18,5 +19,13 @@ public interface OrganizationService extends GenericService<Organization, Long> 
      * @return
      */
     List<Map> queryTree();
+
+    /**
+     * 根据区域ID查询摄像头
+     * @param areaId
+     * @return
+     */
+    List<Map> listCameraByAreaId(Long areaId);
+    List<Map> listCameraByAreaIdTotal(Long areaId);
 
 }

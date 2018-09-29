@@ -1,40 +1,27 @@
 $(function () {
-
-
     /**
      * 初始化组织树
      * @type {boolean}
      */
     var inited = false;
-    var organization_list = [];
     var pluginInstall = false; //是否安装过插件
-    var szIP = ""; //设备IP
+    var szIP = []; //设备IP
+    var monitor_list = null;
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
-            organization_list = e;
             var tree = organizationTree.init();
             var rootNodes = tree.getRootNodes(e);
-
             $('#area_tree').treeview({
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
-                    var selected = $('#area_tree').treeview('getSelected')[0];
                     if (pluginInstall) {
-                        if (selected.level === 3) {
-                            Request.get("camera/" + selected.id, function (e) {
-                                clickLogout();
-                                clickLogin(e.data);
-                                var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.httpPort
-                                    + "/MPEG-4/ch1/main/av_stream";
-                                $('#monitor_video').val(url);
-                                $('#vlc').show();
-                            });
-                        }
+                        monitor_list.ajax.reload();
                     }
                 }
             });
+            initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
     };
@@ -127,6 +114,94 @@ $(function () {
             return result;
         }
     };
+    function initTable() {
+        var langStr = lang;
+        langStr.sLengthMenu = "_MENU_画面"
+        langStr.sInfo = "当前显示第 _START_ 至 _END_ 画面，共 _TOTAL_ 画面"
+        monitor_list = $('#monitor_table').DataTable({
+            "language": langStr,
+            "lengthMenu": [ 1, 4, 9, 16],
+            "pageLength": 16,
+            "lengthChange": true,
+            "paging": true,
+            "ordering": false,
+            "searching": false,
+            "destroy": true,
+            "deferRender": true,
+            "info": true,
+            "autoWidth": false,
+            "ajax": function (data, callback, settings) {
+                var organization = $('#area_tree').treeview('getSelected')[0];
+                if (typeof organization !== "undefined") {
+                    var areaId = organization.id;
+                    if (organization.level == 0) {
+                        areaId /= 1000000;
+                    } else if (organization.level == 1) {
+                        areaId /= 1000;
+                    }
+                    if (organization.level === 3) {
+                        Request.get("camera/" + areaId, function (result) {
+                            var resultData = {};
+                            resultData.draw = result.data.draw;
+                            resultData.recordsTotal = 1;
+                            resultData.recordsFiltered = 1;
+                            resultData.data = [result.data];
+                            if (resultData.data == null) {
+                                resultData.data = [];
+                            }
+                            callback(resultData);
+                        });
+                    } else {
+                        $.ajax({
+                            url: BASE_PATH + "organization/" + areaId + "/camera",
+                            type: "GET",
+                            cache: false,
+                            dataType: "json",
+                            success: function (result) {
+                                var resultData = {};
+                                resultData.draw = result.data.data.draw;
+                                resultData.recordsTotal = result.data.total;
+                                resultData.recordsFiltered = result.data.total;
+                                resultData.data = result.data.data;
+                                if (resultData.data == null) {
+                                    resultData.data = [];
+                                }
+                                callback(resultData);
+                            },
+                            error: function () {
+                                toastr.warning("请求列表数据失败, 请重试");
+                            }
+                        });
+                    }
+                }
+            },
+            "columns": [
+                {
+                    "data": "ip",
+                    render: function (data, type, row, meta) {
+                        return "";
+                    }
+                },
+            ],
+            "preDrawCallback": function( settings ) {
+                for(var i = 0; i < szIP.length; i++){
+                    WebVideoCtrl.I_Stop(i);
+                    WebVideoCtrl.I_Logout(szIP[i]);
+                }
+                szIP = [];
+                var organization = $('#area_tree').treeview('getSelected')[0];
+                if (typeof organization !== "undefined" && organization.level == 3) {
+                        WebVideoCtrl.I_ChangeWndNum(1);
+                        return;
+                }
+                WebVideoCtrl.I_ChangeWndNum(Math.sqrt(settings._iDisplayLength));
+            },
+            "rowCallback": function(ro, data, displayNum, displayIndex, dataIndex ) {
+                szIP.push(data.ip)
+                clickLogin(data, displayNum)
+            }
+        });
+    }
 
     /**
      * 实时预览
@@ -135,8 +210,8 @@ $(function () {
 
     function WebVideo() {
         if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
-            alert("您还未安装过插件，请安装WebComponents.exe！");
-            Request.get("WebComponents/WebComponents.exe", {}, function () {});
+            alert("您还未安装过插件，请安装WebComponentsKit.exe！");
+            Request.get("WebComponents/WebComponentsKit.exe", {}, function () {});
             return;
         }
         pluginInstall = true;
@@ -144,32 +219,24 @@ $(function () {
         var height = width * 3 / 5;
         $("#webVideo").css("height", height);
         WebVideoCtrl.I_InitPlugin(width, height, {
+            bWndFull: true,
             iWndowType: 4
         });
         WebVideoCtrl.I_InsertOBJECTPlugin("webVideo");
     }
 
-// 登录
-    function clickLogin(data) {
+// 登录以及预览
+    function clickLogin(data, index) {
         WebVideoCtrl.I_Login(data.ip, 1, data.httpPort, data.account, data.password, {
             success: function (xmlDoc) {
-                szIP = data.ip;
-                //预览
-                WebVideoCtrl.I_StartRealPlay(szIP, {});
+                WebVideoCtrl.I_StartRealPlay(data.ip, {
+                    iWndIndex: index
+                });
             },
             error: function (e) {
-                console.log(e)
                 toastr.warning("请确认IP/端口/用户名/密码是否正确");
             }
         });
     }
 
-// 退出
-    function clickLogout() {
-        if (szIP == "") {
-            return;
-        }
-        WebVideoCtrl.I_Logout(szIP);
-        szIP = "";
-    }
 });
