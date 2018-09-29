@@ -16,16 +16,20 @@
 
 package com.base.web.controller.organization;
 
+import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.po.organization.Organization;
 import com.base.web.controller.GenericController;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.organization.OrganizationService;
+import javafx.scene.Camera;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -108,5 +112,15 @@ public class OrganizationController extends GenericController<Organization, Long
     public ResponseMessage queryTree() {
         List<Map> organizationList = organizationService.queryTree();
         return ResponseMessage.ok(organizationList).onlyData();
+    }
+
+    @GetMapping(value = "/{areaId}/camera")
+    @AccessLogger("根据区域ID查询摄像头")
+    @Authorize(action = "R")
+    public ResponseMessage listCamera(@PathVariable("areaId") Long areaId) {
+        Map map = new HashMap();
+        map.put("total",organizationService.listCameraByAreaIdTotal(areaId));
+        map.put("data",organizationService.listCameraByAreaId(areaId));
+        return ResponseMessage.ok(map);
     }
 }

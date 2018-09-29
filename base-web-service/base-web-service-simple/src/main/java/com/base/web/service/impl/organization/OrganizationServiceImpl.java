@@ -4,6 +4,7 @@ import com.base.web.bean.po.organization.Organization;
 import com.base.web.dao.organization.OrganizationMapper;
 import com.base.web.service.impl.AbstractServiceImpl;
 import com.base.web.service.organization.OrganizationService;
+import javafx.scene.Camera;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -31,5 +32,15 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<Organization, L
     @Override
     public List<Map> queryTree() {
         return organizationMapper.queryTree();
+    }
+
+    @Override
+    public List<Map> listCameraByAreaId(Long areaId) {
+        return organizationMapper.listCameraByAreaId(areaId);
+    }
+
+    @Override
+    public List<Map> listCameraByAreaIdTotal(Long areaId) {
+        return organizationMapper.listCameraByAreaIdTotal(areaId);
     }
 }
