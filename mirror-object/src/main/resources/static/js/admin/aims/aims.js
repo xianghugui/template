@@ -122,12 +122,18 @@ $(function () {
                     }
                     //按时间排序
                     str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
+                    var myform = new FormData();
+                    myform.append('file', $('#uploadForm')[0]);
+                    myform.append('param',str);
+
                     $.ajax({
-                        url: BASE_PATH + "aims/select",
-                        type: "GET",
-                        data: str,
-                        cache: false,
-                        dataType: "json",
+                        url: BASE_PATH + "aims/faceRecognize",
+                        type: "POST",
+                        data: myform,
+                        dataType: "formData",
+                        cache: false,//上传文件无需缓存
+                        processData: false,//用于对data参数进行序列化处理 这里必须false
+                        contentType: false, //必须
                         success: function (result) {
                             var resultData = {};
                             resultData.draw = result.data.draw;
@@ -185,6 +191,10 @@ $(function () {
      * 上传图片
      */
         $("#img_input").on('change', function (e) {
+            if($("#searchStart").val() === "" || $("#searchEnd").val() === ""){
+                toastr.warning("请先选择检索时间后, 再检索人脸");
+                return;
+            }
             var file = e.target.files[0];
             if (!file.type.match('image.*')) {
                 return false;
@@ -195,12 +205,11 @@ $(function () {
             reader.onload = function (arg) {
                 $("#preview_img").attr("src", arg.target.result);
                 $("#preview_img").show();
-                var data = new FormData($('#uploadForm')[0]);
                 $.ajax({
                     url: 'aims/faceRecognize',
                     type: 'POST',
                     cache: false,
-                    data: data,
+                    data: myform,
                     processData: false,
                     contentType: false
                 }).done(function(res) {
