@@ -176,12 +176,14 @@ public class FaceFeatureUtil {
     }
 
     //提供特征值获取分数
-    public float compareFaceSimilarity(Pointer hFREngine, AFR_FSDK_FACEMODEL faceFeatureA, AFR_FSDK_FACEMODEL faceFeatureB) {
+    public float compareFaceSimilarity(byte[] faceFeatureA,byte[] faceFeatureB) throws Exception {
+        AFR_FSDK_FACEMODEL faceA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureA);
+        AFR_FSDK_FACEMODEL faceB = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureB);
         // calc similarity between faceA and faceB
         FloatByReference fSimilScore = new FloatByReference(0.0f);
-        NativeLong ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_FacePairMatching(hFREngine, faceFeatureA, faceFeatureB, fSimilScore);
-        faceFeatureA.freeUnmanaged();
-        faceFeatureB.freeUnmanaged();
+        NativeLong ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_FacePairMatching(hFREngine, faceA, faceB, fSimilScore);
+        faceA.freeUnmanaged();
+        faceB.freeUnmanaged();
         if (ret.longValue() != 0) {
             return 0.0f;
         }

@@ -197,7 +197,7 @@ $(function () {
                 $("#preview_img").show();
                 var data = new FormData($('#uploadForm')[0]);
                 $.ajax({
-                    url: 'aims/uploadFaceImage',
+                    url: 'aims/faceRecognize',
                     type: 'POST',
                     cache: false,
                     data: data,

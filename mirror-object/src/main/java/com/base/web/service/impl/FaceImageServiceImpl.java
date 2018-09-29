@@ -41,4 +41,9 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
         }
         return pagerResult;
     }
+
+    @Override
+    public List<Map> queryAllFaceFeature(QueryParam param){
+        return faceImageMapper.queryAllFaceFeature(param);
+    }
 }

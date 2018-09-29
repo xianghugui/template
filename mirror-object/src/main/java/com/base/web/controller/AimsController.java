@@ -37,6 +37,9 @@ public class AimsController extends GenericController<FaceImage, Long>{
     @Autowired
     private FaceImageService faceImageService;
 
+    @Autowired
+    private FaceFeatureUtil faceFeatureUtil;
+
     @Override
     protected FaceImageService getService() {
         return faceImageService;
@@ -57,39 +60,12 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 .onlyData();
     }
 
-    @RequestMapping(value = "/uploadFaceImage", method = RequestMethod.POST)
-    @AccessLogger("返回上传的人脸特征值")
-    @Authorize(action = "C")
-    public ResponseMessage returnFaceFeature(@RequestParam("file") MultipartFile file) throws IOException {
-        FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
-        String currentImagePath;
-        if (isWin) {
-            currentImagePath = System.getProperty("user.dir") + File.separator
-                    + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
-        } else {
-            currentImagePath = "/data/apache-tomcat-8.5.34/bin/upload/face/" + file.getOriginalFilename();
-        }
-        if (logger.isInfoEnabled())
-            logger.info("start upload.");
-        byte[] uploadFaceFeature = null;
-        if (!file.isEmpty()) {
-            if (logger.isInfoEnabled())
-                logger.info("start write file:{}", file.getOriginalFilename());
-            //获取该图片的特征值
-//            uploadFaceFeature = faceFeatureUtil.returnFaceFeature(currentImagePath);
-        } else {
-            return ResponseMessage.error("图片为空或数据加载失败，请重试！");
-        }
-        //响应上传成功的资源信息
-        return ResponseMessage.ok(uploadFaceFeature);
-    }
 
-
-    @RequestMapping(value = "/faceRecognize/{uploadFaceFeature}", method = RequestMethod.POST)
+    @RequestMapping(value = "/faceRecognize", method = RequestMethod.POST)
     @AccessLogger("人脸检测")
     @Authorize(action = "R")
-    public ResponseMessage faceRecognize(@PathVariable("uploadFaceFeature") String file,
-                                         QueryParam param, HttpServletRequest req) throws IOException {
+    public ResponseMessage faceRecognize(MultipartFile file,
+                                         QueryParam param, HttpServletRequest req) throws Exception {
         List<Map> faceImageList;
         //获取数据库全部图片
         faceImageList = null;
@@ -100,7 +76,22 @@ public class AimsController extends GenericController<FaceImage, Long>{
                     .exclude(getPOType(), param.getExcludes())
                     .onlyData();
         } else {
-            FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
+            String currentImagePath;
+            if (isWin) {
+                currentImagePath = System.getProperty("user.dir") + File.separator
+                        + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
+            } else {
+                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/" + file.getOriginalFilename();
+            }
+            File faceFile = new File(currentImagePath);
+            file.transferTo(faceFile);
+            Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
+            byte[] uploadFace = new byte[]{};
+            if(map.size() > 0){
+                //插入人脸特征值
+                uploadFace = map.get(0);
+            }
+            faceImageList = faceImageService.queryAllFaceFeature(param);
             byte[] uploadFaceFeature = file.getBytes();
             //获取数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
@@ -113,14 +104,14 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
-//                        if (faceFeatureUtil.faceRecognize(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature()) > 0) {
-//                            faceImageList.get(i).put("imageUrl",
-//                                    ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-//                            i++;
-//                            continue;
-//                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
-//                            faceImageList.remove(i);
-//                        }
+                        if (faceFeatureUtil.compareFaceSimilarity(uploadFace,faceFeatureList.get(k).getFaceFeature()) > 0) {
+                            faceImageList.get(i).put("imageUrl",
+                                    ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
+                            i++;
+                            continue;
+                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
+                            faceImageList.remove(i);
+                        }
                     }
                 }
             }

@@ -17,4 +17,6 @@ public interface FaceImageMapper extends GenericMapper<FaceImage, Long>{
     List<Map> queryAllFaceImage(QueryParam param);
 
     int queryFaceImageTotal(QueryParam param);
+
+    List<Map> queryAllFaceFeature(QueryParam param);
 }
