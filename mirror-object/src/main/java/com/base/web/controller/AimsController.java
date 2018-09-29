@@ -76,7 +76,7 @@ public class AimsController extends GenericController<FaceImage, Long>{
             if (logger.isInfoEnabled())
                 logger.info("start write file:{}", file.getOriginalFilename());
             //获取该图片的特征值
-            uploadFaceFeature = faceFeatureUtil.returnFaceFeature(currentImagePath);
+//            uploadFaceFeature = faceFeatureUtil.returnFaceFeature(currentImagePath);
         } else {
             return ResponseMessage.error("图片为空或数据加载失败，请重试！");
         }
@@ -113,14 +113,14 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
-                        if (faceFeatureUtil.faceRecognize(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature()) > 0) {
-                            faceImageList.get(i).put("imageUrl",
-                                    ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            i++;
-                            continue;
-                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
-                            faceImageList.remove(i);
-                        }
+//                        if (faceFeatureUtil.faceRecognize(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature()) > 0) {
+//                            faceImageList.get(i).put("imageUrl",
+//                                    ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
+//                            i++;
+//                            continue;
+//                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
+//                            faceImageList.remove(i);
+//                        }
                     }
                 }
             }

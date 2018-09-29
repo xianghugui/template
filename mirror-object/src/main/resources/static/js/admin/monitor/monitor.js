@@ -7,7 +7,7 @@ $(function () {
      */
     var inited = false;
     var organization_list = [];
-    var pluginInstall = false;
+    var pluginInstall = false; //是否安装过插件
     var szIP = ""; //设备IP
 
     var initOrganizationTree = function () {
@@ -21,15 +21,17 @@ $(function () {
                 levels: 3,
                 onNodeSelected: function (event, data) {
                     var selected = $('#area_tree').treeview('getSelected')[0];
-                    if (selected.level === 3 && pluginInstall) {
-                        Request.get("camera/" + selected.id, function (e) {
-                            clickLogout();
-                            clickLogin(e.data);
-                            var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.httpPort
-                                + "/MPEG-4/ch1/main/av_stream";
-                            $('#monitor_video').val(url);
-                            $('#vlc').show();
-                        });
+                    if (pluginInstall) {
+                        if (selected.level === 3) {
+                            Request.get("camera/" + selected.id, function (e) {
+                                clickLogout();
+                                clickLogin(e.data);
+                                var url = "rtsp://" + e.data.account + ":" + e.data.password + "@" + e.data.ip + ":" + e.data.httpPort
+                                    + "/MPEG-4/ch1/main/av_stream";
+                                $('#monitor_video').val(url);
+                                $('#vlc').show();
+                            });
+                        }
                     }
                 }
             });
@@ -134,6 +136,7 @@ $(function () {
     function WebVideo() {
         if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
             alert("您还未安装过插件，请安装WebComponents.exe！");
+            Request.get("WebComponents/WebComponents.exe", {}, function () {});
             return;
         }
         pluginInstall = true;
@@ -141,7 +144,7 @@ $(function () {
         var height = width * 3 / 5;
         $("#webVideo").css("height", height);
         WebVideoCtrl.I_InitPlugin(width, height, {
-            bDebugModeJS: true
+            iWndowType: 4
         });
         WebVideoCtrl.I_InsertOBJECTPlugin("webVideo");
     }
