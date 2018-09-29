@@ -1,9 +1,10 @@
 package com.afdUtils;
 
-import com.dev.jna.Library;
-import com.dev.jna.Native;
-import com.dev.jna.Platform;
-import com.dev.jna.Pointer;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
 
 public interface CLibrary extends Library {
     CLibrary INSTANCE = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "msvcrt" : "c"),CLibrary.class);

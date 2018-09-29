@@ -1,11 +1,12 @@
 package com.afdUtils;
 
-import com.dev.jna.Library;
-import com.dev.jna.NativeLong;
-import com.dev.jna.Platform;
-import com.dev.jna.Pointer;
-import com.dev.jna.ptr.FloatByReference;
-import com.dev.jna.ptr.PointerByReference;
+
+import com.sun.jna.Library;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 public interface AFR_FSDKLibrary extends Library {
     AFR_FSDKLibrary INSTANCE = (AFR_FSDKLibrary)LoadUtils.loadLibrary(Platform.isWindows()?"libarcsoft_fsdk_face_recognition.dll":"libarcsoft_fsdk_face_recognition.so",AFR_FSDKLibrary.class);

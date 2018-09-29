@@ -1,7 +1,7 @@
 package com.afdUtils;
 
-import com.dev.jna.Pointer;
-import com.dev.jna.Structure;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 
 import java.util.Arrays;
 import java.util.List;

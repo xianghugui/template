@@ -5,10 +5,10 @@ logging:
 base:
     dynamic-datasource: #动态数据源配置
 
-          url: jdbc:mysql://192.168.1.121:3306/zxwl_monitor_2018?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+          url: jdbc:mysql://localhost:3306/zxwl_monitor_2018?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
           type: mysql
           username: root
-          password: asd123456
+          password: root
           icatch:
             max-actives: 100
             output-dir: ./data/apache-tomcat-8.5.31/webapps/ROOT/tmp/atomikos

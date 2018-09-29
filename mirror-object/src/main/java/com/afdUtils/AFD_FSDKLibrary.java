@@ -1,10 +1,11 @@
 package com.afdUtils;
 
-import com.dev.jna.Library;
-import com.dev.jna.NativeLong;
-import com.dev.jna.Platform;
-import com.dev.jna.Pointer;
-import com.dev.jna.ptr.PointerByReference;
+
+import com.sun.jna.Library;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
 
 public interface AFD_FSDKLibrary extends Library {
     

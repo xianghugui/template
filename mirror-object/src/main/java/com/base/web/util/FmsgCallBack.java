@@ -1,9 +1,13 @@
 package com.base.web.util;
 
 import com.base.web.bean.Camera;
+import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
+import com.base.web.bean.po.GenericPo;
 import com.base.web.bean.po.resource.Resources;
+import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.service.CameraService;
+import com.base.web.service.FaceFeatureService;
 import com.base.web.service.FaceImageService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
@@ -19,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 海康报警回调
@@ -38,6 +44,11 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private CameraService cameraService;
 
+    @Autowired
+    private FaceFeatureService faceFeatureService;
+
+    @Autowired
+    private FaceFeatureUtil faceFeatureUtil;
     /**
      * 检测到人脸保存图片
      * @param lCommand
@@ -55,6 +66,8 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         Pointer pFaceSnapInfo = strFaceSnapInfo.getPointer();
         pFaceSnapInfo.write(0, pAlarmInfo.getByteArray(0, strFaceSnapInfo.size()), 0, strFaceSnapInfo.size());
         strFaceSnapInfo.read();
+
+        Map<Integer, byte[]> map = new HashMap<>();
         if(strFaceSnapInfo.dwBackgroundPicLen > 0)
         {
             //创建临时文件
@@ -81,19 +94,23 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 fout.write(bytes);
                 fout.close();
                 //根据MD5值命名
-                File newFile = new File(fileAbsName);
-                FileInputStream inputStream = new FileInputStream(newFile);
+                File oldFile = new File(fileAbsName);
+                FileInputStream inputStream = new FileInputStream(oldFile);
                 md5 = DigestUtils.md5Hex(inputStream);
                 if (inputStream != null) {
                     inputStream.close();
                 }
                 resources = resourcesService.selectByMd5(md5);
                 if (resources != null) {
-                    newFile.delete();
+                    oldFile.delete();
                     return;
                 } else {
-                    newFile.renameTo(new File(absPath.concat("/").concat(md5)));
+                    File newFile = new File(absPath.concat("/").concat(md5));
+                    oldFile.renameTo(newFile);
+                    //获取特征值
+                    map = faceFeatureUtil.returnFaceFeature(newFile);
                 }
+
             }catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -121,6 +138,17 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             }
             faceImage.setCreateTime(date);
             faceImageService.insert(faceImage);
+
+            if(map.size() > 0){
+                //插入人脸特征值
+                for (byte[] faceFeature : map.values()) {
+                    FaceFeature faceFeature1 = new FaceFeature();
+                    faceFeature1.setId(GenericPo.createUID());
+                    faceFeature1.setFaceImageId(id);
+                    faceFeature1.setFaceFeature(faceFeature);
+                    faceFeatureService.insert(faceFeature1);
+                }
+            }
         }
 
     }

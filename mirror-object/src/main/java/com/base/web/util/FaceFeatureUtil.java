@@ -3,14 +3,18 @@ package com.base.web.util;
 import com.afdUtils.*;
 import com.afdUtils.utils.BufferInfo;
 import com.afdUtils.utils.ImageLoader;
-import com.dev.jna.Memory;
-import com.dev.jna.NativeLong;
-import com.dev.jna.Pointer;
-import com.dev.jna.ptr.FloatByReference;
-import com.dev.jna.ptr.PointerByReference;
+import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.PointerByReference;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+@Service(value = "faceFeatureUtil")
 public class FaceFeatureUtil {
 
 
@@ -56,6 +60,26 @@ public class FaceFeatureUtil {
             throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
+    }
+
+    /**
+     * 返回人脸特征值
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public Map returnFaceFeature(File file){
+        Map<Integer, byte[]> map = new HashMap();
+        for (int j = 0; j < extractFace(file).length; j++) {
+            if (extractFace(file)[j] != null) {
+                try {
+                    map.put(j, extractFace(file)[j].toByteArray());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return map;
     }
 
     /**

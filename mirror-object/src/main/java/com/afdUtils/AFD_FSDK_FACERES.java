@@ -1,8 +1,8 @@
 package com.afdUtils;
 
-import com.dev.jna.Pointer;
-import com.dev.jna.Structure;
-import com.dev.jna.ptr.IntByReference;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.ptr.IntByReference;
 
 import java.util.Arrays;
 import java.util.List;

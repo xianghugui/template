@@ -1,6 +1,6 @@
 package com.afdUtils;
 
-import com.dev.jna.Native;
+import com.sun.jna.Native;
 
 public class LoadUtils {
 //    public static <T> T loadOSLibrary(String dirPath,String libname, Class<T> interfaceClass) {
