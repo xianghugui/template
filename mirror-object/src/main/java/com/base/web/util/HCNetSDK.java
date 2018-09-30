@@ -23,7 +23,8 @@ import java.util.List;
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
 
-    HCNetSDK INSTANCE = Native.loadLibrary("HCNetSDK", HCNetSDK.class);
+    //linux下的etc/ld.so.conf添加/data/apache-tomcat-8.5.31/webapps/ROOT/WEB-INF/classes/linux-x86-64/HCNetSDKCom/,然后执行ldconfig
+    HCNetSDK INSTANCE = Native.loadLibrary("hcnetsdk", HCNetSDK.class);
     /***宏定义***/
     //常量
 
