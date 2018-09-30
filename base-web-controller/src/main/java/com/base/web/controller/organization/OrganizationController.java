@@ -118,9 +118,6 @@ public class OrganizationController extends GenericController<Organization, Long
     @AccessLogger("根据区域ID查询摄像头")
     @Authorize(action = "R")
     public ResponseMessage listCamera(@PathVariable("areaId") Long areaId) {
-        Map map = new HashMap();
-        map.put("total",organizationService.listCameraByAreaIdTotal(areaId));
-        map.put("data",organizationService.listCameraByAreaId(areaId));
-        return ResponseMessage.ok(map);
+        return ResponseMessage.ok(organizationService.listCameraByAreaId(areaId));
     }
 }

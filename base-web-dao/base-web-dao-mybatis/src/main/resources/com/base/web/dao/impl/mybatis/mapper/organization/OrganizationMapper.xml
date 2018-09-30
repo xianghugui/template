@@ -63,8 +63,4 @@
         SELECT u_id, ip, http_port 'httpPort', account, `password`
         FROM t_device WHERE organization_id LIKE CONCAT(#{areaId},'%')
     </select>
-
-    <select id="listCameraByAreaIdTotal" parameterType="Long" resultType="int">
-        SELECT COUNT(u_id) FROM t_device WHERE organization_id LIKE CONCAT(#{areaId},'%')
-    </select>
 </mapper>
