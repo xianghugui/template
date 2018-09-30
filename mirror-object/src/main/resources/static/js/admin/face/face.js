@@ -179,8 +179,8 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='time'>"+data.createTime+"</div></div>"
+                        var html = "<div class='img-show-box'><div><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='time'>"+data.createTime+"</div></div></div>"
                         return html;
                     }
                 },

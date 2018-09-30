@@ -8,6 +8,7 @@ $(function () {
     var inited = false;
     var organization_list = [];
     var target_list = null;
+    var uploadId = null;
 
     var initOrganizationTree = function () {
         Request.get("organization/organizationTree", function (e) {
@@ -101,7 +102,8 @@ $(function () {
             "lengthChange": false,
             "searching": false,
             "pageLength": 8,
-            "serverSide": true,
+            "paging": true,
+            "serverSide": false,
             "destroy": true,
             "info": true,
             "ordering": false,
@@ -111,34 +113,57 @@ $(function () {
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
-                    var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+                    var param = {}
+                    var str = "";
                     //区域树条件
                     if (organization.level == 0) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
-                    } else if (organization.level == 1) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
-                    } else if (organization.level == 2) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
-                    }
-                    //按时间排序
-                    str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
-                    var myform = new FormData();
-                    myform.append('file', $('#uploadForm')[0]);
-                    myform.append('param',str);
 
+                        param.organizationId = (organization.id / 1000000);
+                    } else if (organization.level == 1) {
+                        param.organizationId = (organization.id / 1000);
+                    } else if (organization.level == 2) {
+                        param.organizationId = (organization.id);
+                    } else if (organization.level == 3) {
+                        param.deviceId = (organization.id);
+                    }
+
+                    if ($('#searchStart').val() !== "") {
+                        param.searchStart = $('#searchStart').val();
+                    }
+                    if ($('#searchEnd').val() !== "") {
+                        param.searchEnd = $('#searchEnd').val();
+                    }
+
+                    if ($("#minSimilarity").val() !== "") {
+                        var minSimilarity = $("#minSimilarity").val();
+                        if (!checkNumber(minSimilarity)) {
+                            toastr.warning("请输入1~100的数字");
+                            return false;
+                        }
+                        param.minSimilarity = minSimilarity;
+                    }
+
+                    if ($("#maxSimilarity").val() !== "") {
+                        var minSimilarity = $("#minSimilarity").val();
+                        if (!checkNumber(minSimilarity)) {
+                            toastr.warning("请输入1~100的数字");
+                            return false;
+                        }
+                        param.maxSimilarity = $("#maxSimilarity").val();
+                        param.maxSimilarity = maxSimilarity;
+                    }
+                    if (uploadId !== null) {
+                        param.uploadId = uploadId;
+                    }
                     $.ajax({
                         url: BASE_PATH + "aims/faceRecognize",
-                        type: "POST",
-                        data: myform,
-                        dataType: "formData",
-                        cache: false,//上传文件无需缓存
-                        processData: false,//用于对data参数进行序列化处理 这里必须false
-                        contentType: false, //必须
+                        type: "GET",
+                        data: param,
                         success: function (result) {
                             var resultData = {};
                             resultData.draw = result.data.draw;
-                            resultData.recordsTotal = result.total;
-                            resultData.recordsFiltered = result.total;
+                            resultData.recordsTotal = result.data.length;
+                            resultData.recordsFiltered = result.data.length;
                             resultData.data = result.data;
                             if (resultData.data == null) {
                                 resultData.data = [];
@@ -155,8 +180,8 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='time'>"+data.createTime+"</div></div>"
+                        var html = "<div class='img-show-box'><div><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='time'>" + data.createTime + "</div></div></div>"
                         return html;
                     }
                 },
@@ -172,50 +197,70 @@ $(function () {
         language: 'zh-CN',
         autoclose: true,
         minView: 1,
-        todayBtn: "linked",
-
+        todayBtn: "linked"
     });
 
     /**
      * 搜索
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
-        console.log($("#minSimilarity").val())
-        console.log($("#maxSimilarity").val())
-        console.log($("#searchStart").val())
-        console.log($("#searchEnd").val())
-
+        initTable();
     });
 
     /**
      * 上传图片
      */
-        $("#img_input").on('change', function (e) {
-            if($("#searchStart").val() === "" || $("#searchEnd").val() === ""){
-                toastr.warning("请先选择检索时间后, 再检索人脸");
-                return;
+    $("#img_input").on('change', function (e) {
+        console.log(e);
+        var fileEle = $("#img_input")[0];
+        var file = null;
+        if(fileEle.files){
+            file = e.target.files[0];
+        }else{
+            // var fso = new ActiveXObject("Scripting.FileSystemObject");
+            fileEle.select();
+            fileEle.blur();
+            var filePath = document.selection.createRange().text;
+            if(fso.FileExists(filePath)){
+                file = fso.GetFile(filePath);
+                console.log(file);
             }
-            var file = e.target.files[0];
-            if (!file.type.match('image.*')) {
-                return false;
-            }
-            var reader = new FileReader();
-            reader.readAsDataURL(file); // 读取文件
-            // 渲染文件
-            reader.onload = function (arg) {
-                $("#preview_img").attr("src", arg.target.result);
-                $("#preview_img").show();
-                $.ajax({
-                    url: 'aims/faceRecognize',
-                    type: 'POST',
-                    cache: false,
-                    data: myform,
-                    processData: false,
-                    contentType: false
-                }).done(function(res) {
-                }).fail(function(res) {});
-            }
-        });
+        }
+
+        if (!file.type.match('image.*')) {
+            return false;
+        }
+        var reader = new FileReader();
+        reader.readAsDataURL(file); // 读取文件
+        // 渲染文件
+        reader.onload = function (arg) {
+            $("#preview_img").attr("src", arg.target.result);
+            $("#preview_img").show();
+            $.ajax({
+                url: 'aims/upload',
+                type: 'POST',
+                cache: false,
+                data: new FormData($('#uploadForm')[0]),
+                processData: false,
+                contentType: false
+            }).done(function (res) {
+                uploadId = res.data;
+            }).fail(function (res) {
+            });
+        }
+    });
+
+    //验证字符串是否是数字
+    function checkNumber(theObj) {
+        var reg = /^[0-9]+.?[0-9]*$/;
+        if (!reg.test(theObj)) {
+            return false;
+        }
+        if(0 > theObj || theObj > 100){
+            return false;
+        }
+        return true;
+    }
 });
 
 

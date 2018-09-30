@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.base.web.dao.UploadFeatureMapper">
+    <resultMap id="UploadFeatureResultMap" type="com.base.web.bean.UploadFeature">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+    </resultMap>
+    <!--用于动态生成sql所需的配置-->
+    <sql id="config">
+        <bind name="resultMapId" value="'UploadFeatureResultMap'"/>
+        <bind name="tableName" value="'t_upload_feature'"/>
+    </sql>
+
+    <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
+        <include refid="config"/>
+        <include refid="BasicMapper.buildInsertSql"/>
+    </insert>
+
+    <delete id="delete" parameterType="com.base.web.bean.common.DeleteParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildDeleteSql"/>
+    </delete>
+
+    <update id="update" parameterType="com.base.web.bean.common.UpdateParam">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildUpdateSql"/>
+    </update>
+
+    <select id="selectByPk" parameterType="Long" resultMap="UploadFeatureResultMap">
+        select * from t_upload_feature where u_id=#{u_id}
+    </select>
+
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="UploadFeatureResultMap">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildSelectSql"/>
+    </select>
+
+    <select id="total" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
+        <include refid="config"/>
+        <include refid="BasicMapper.buildTotalSql"/>
+    </select>
+
+</mapper>
+

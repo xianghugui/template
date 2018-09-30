@@ -1,6 +1,7 @@
 package com.base.web.service.impl;
 
 import com.base.web.bean.FaceImage;
+import com.base.web.bean.UploadValue;
 import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.dao.FaceImageMapper;
@@ -43,7 +44,7 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
     }
 
     @Override
-    public List<Map> queryAllFaceFeature(QueryParam param){
-        return faceImageMapper.queryAllFaceFeature(param);
+    public List<Map> queryAllFaceFeature(UploadValue uploadValue){
+        return faceImageMapper.queryAllFaceFeature(uploadValue);
     }
 }

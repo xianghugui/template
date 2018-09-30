@@ -141,35 +141,19 @@ public class FaceFeatureUtil {
 
         AFD_FSDK_FACERES faceRes = new AFD_FSDK_FACERES(ppFaceRes.getValue());
         if (faceRes.nFace > 0) {
-//            faceInfo = new FaceInfo[faceRes.nFace];
-            faceInfo = new FaceInfo[1];
+            faceInfo = new FaceInfo[faceRes.nFace];
             int area;
             for (int i = 0; i < faceRes.nFace; i++) {
                 MRECT rect = new MRECT(new Pointer(Pointer.nativeValue(faceRes.rcFace.getPointer()) + faceRes.rcFace.size() * i));
                 int orient = faceRes.lfaceOrient.getPointer().getInt(i * 4);
                 area = (rect.right - rect.left) * (rect.bottom - rect.top);
-                if (i == 0) {
-                    faceInfo[0] = new FaceInfo();
-                    faceInfo[0].left = rect.left;
-                    faceInfo[0].top = rect.top;
-                    faceInfo[0].right = rect.right;
-                    faceInfo[0].bottom = rect.bottom;
-                    faceInfo[0].orient = orient;
-                    faceInfo[0].area = area;
-                }
-                else{
-                    if(faceInfo[0].area < area){
-                        faceInfo[0].left = rect.left;
-                        faceInfo[0].top = rect.top;
-                        faceInfo[0].right = rect.right;
-                        faceInfo[0].bottom = rect.bottom;
-                        faceInfo[0].orient = orient;
-                        faceInfo[0].area = area;
-                    }
-                    else{
-                        continue;
-                    }
-                }
+                faceInfo[i] = new FaceInfo();
+                faceInfo[i].left = rect.left;
+                faceInfo[i].top = rect.top;
+                faceInfo[i].right = rect.right;
+                faceInfo[i].bottom = rect.bottom;
+                faceInfo[i].orient = orient;
+                faceInfo[i].area = area;
             }
         }
         return faceInfo;

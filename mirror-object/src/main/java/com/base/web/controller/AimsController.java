@@ -3,13 +3,17 @@ package com.base.web.controller;
 
 import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
+import com.base.web.bean.UploadFeature;
+import com.base.web.bean.UploadValue;
 import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
+import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.FaceFeatureService;
 import com.base.web.service.FaceImageService;
+import com.base.web.service.UploadFeatureService;
 import com.base.web.util.FaceFeatureUtil;
 import com.base.web.util.ResourceUtil;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,9 @@ public class AimsController extends GenericController<FaceImage, Long>{
     @Autowired
     private FaceFeatureUtil faceFeatureUtil;
 
+    @Autowired
+    private UploadFeatureService uploadFeatureService;
+
     @Override
     protected FaceImageService getService() {
         return faceImageService;
@@ -60,21 +67,13 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 .onlyData();
     }
 
-
-    @RequestMapping(value = "/faceRecognize", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @AccessLogger("人脸检测")
-    @Authorize(action = "R")
-    public ResponseMessage faceRecognize(MultipartFile file,
-                                         QueryParam param, HttpServletRequest req) throws Exception {
-        List<Map> faceImageList;
-        //获取数据库全部图片
-        faceImageList = null;
-        if (file.equals("undefined")) {
+    @Authorize(action = "C")
+    public ResponseMessage faceRecognize(MultipartFile file)throws Exception {
+        if (file == null) {
             //上传文件没有检测到人脸直接返回空数组
-            return ResponseMessage.ok(faceImageService.queryAllFaceImage(param,req))
-                    .include(getPOType(), param.getIncludes())
-                    .exclude(getPOType(), param.getExcludes())
-                    .onlyData();
+            return null;
         } else {
             String currentImagePath;
             if (isWin) {
@@ -88,11 +87,39 @@ public class AimsController extends GenericController<FaceImage, Long>{
             Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
             byte[] uploadFace = new byte[]{};
             if(map.size() > 0){
+                UploadFeature uploadFeature = new UploadFeature();
+                uploadFeature.setFaceFeature(map.get(0));
+                uploadFeature.setId(GenericPo.createUID());
                 //插入人脸特征值
-                uploadFace = map.get(0);
+                return ResponseMessage.ok(uploadFeatureService.insert(uploadFeature));
             }
-            faceImageList = faceImageService.queryAllFaceFeature(param);
-            byte[] uploadFaceFeature = file.getBytes();
+        }
+        return ResponseMessage.ok("没有获取到特征值");
+    }
+
+
+    @RequestMapping(value = "/faceRecognize", method = RequestMethod.GET)
+    @AccessLogger("人脸检测")
+    @Authorize(action = "R")
+    public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws Exception {
+        List<Map> faceImageList;
+        String organizationId = uploadValue.getOrganizationId();
+        if(organizationId != null){
+            uploadValue.setOrganizationId(organizationId+"%");
+        }
+        if (uploadValue.getUploadId() == null) {
+            //上传文件没有检测到人脸直接返回空数组
+            faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
+            for(Map map:faceImageList){
+                map.put("imageUrl",
+                        ResourceUtil.resourceBuildPath(req, map.get("resourceId").toString()));
+            }
+            return ResponseMessage.ok(faceImageList);
+        } else {
+            byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
+            //获取数据库全部图片
+            faceImageList = null;
+            faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
             //获取数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前视频对应图片包含的所有人脸特征值
@@ -104,11 +131,19 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
-                        if (faceFeatureUtil.compareFaceSimilarity(uploadFace,faceFeatureList.get(k).getFaceFeature()) > 0) {
+                        Float  similarity= faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature,faceFeatureList.get(k).getFaceFeature());
+                        if (similarity > 0) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            i++;
-                            continue;
+                            if(uploadValue.getMinSimilarity() != null && uploadValue.getMinSimilarity() > similarity){
+                                faceImageList.remove(i);
+                            }
+                            else if(uploadValue.getMaxSimilarity() != null && uploadValue.getMaxSimilarity() < similarity){
+                                faceImageList.remove(i);
+                            } else{
+                                i++;
+                                continue;
+                            }
                         } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
                             faceImageList.remove(i);
                         }
@@ -116,6 +151,7 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 }
             }
         }
+
         //响应上传成功的资源信息
         return ResponseMessage.ok(faceImageList);
     }

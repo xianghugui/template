@@ -83,21 +83,21 @@
         </if>
     </select>
 
-    <select id="queryAllFaceFeature" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
+    <select id="queryAllFaceFeature" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
         SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime
         FROM t_face_image tfi,t_resource tr, t_device td
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
-        <if test="terms.size >= 3 and terms[3].value != null">
-            AND td.organization_id Like #{terms[3].value}
+        <if test="organizationId != null">
+            AND td.organization_id Like #{organizationId}
         </if>
-        <if test="terms.size >= 7 and terms[6].value != null">
-            AND tfi.device_id = #{terms[6].value}
+        <if test="deviceId != null">
+            AND tfi.device_id = #{deviceId}
         </if>
-        <if test="terms.size >= 5 and terms[4].value != null">
-            AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
+        <if test="searchStart != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{searchStart}
         </if>
-        <if test="terms.size >= 6 and terms[5].value != null">
-            AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
+        <if test="searchEnd">
+            AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
         </if>
     </select>
 

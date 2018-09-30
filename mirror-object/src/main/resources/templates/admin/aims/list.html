@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
 <head th:include="admin/include/head"></head>
-<meta http-equiv="Content-Type" content="multipart/form-data;charset=utf-8" />
+<meta http-equiv="Content-Type" content="multipart/form-data;charset=utf-8"/>
 <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
 <link rel="stylesheet" th:href="@{/plugins/fileinput/css/fileinput.css}"/>
 <style>
@@ -14,11 +14,31 @@
     }
 
     .time {
-        font-size: 16px;
+        font-size: 12px;
+        padding-left: 5px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        color: #524e4e;
     }
 
-    .img-box{
+    .img-box {
         margin-top: 10px;
+    }
+
+    .preview_img {
+        width: 220px;
+        height: auto;
+        border: 1px solid #cecece;
+        border-radius: 5px;
+        box-shadow: 1px 1px 2px 1px #cecece;
+        margin-bottom: 20px;
+    }
+
+    .img-show-box {
+        border: 1px solid #cecece;
+        border-radius: 5px;
+        box-shadow: 1px 1px 2px 1px #cecece;
+        margin-bottom: 20px;
     }
 </style>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -57,17 +77,19 @@
                         </div>
                         <div class="form-group">
                             <label for="searchStart">开始时间</label>
-                            <input id="searchStart" size="16" type="text" readonly class="form-control form_datetime" style="width: 150px">
+                            <input id="searchStart" size="16" type="text" readonly class="form-control form_datetime"
+                                   style="width: 150px">
                         </div>
                         <div class="form-group">
                             <label for="searchEnd">结束时间</label>
-                            <input id="searchEnd" size="16" type="text" readonly class="form-control form_datetime" style="width: 150px">
+                            <input id="searchEnd" size="16" type="text" readonly class="form-control form_datetime"
+                                   style="width: 150px">
                         </div>
                         <button type="submit" class="btn btn-default btn-search">搜索</button>
                     </div>
                     <div class="clearfix"></div>
-                    <div class="col-md-4 col-md-offset-4 img-box">
-                        <img id="preview_img" class="img" style="display: none;"/>
+                    <div class="col-md-4 col-md-offset-5 img-box">
+                        <img id="preview_img" class="preview_img" style="display: none;"/>
                     </div>
                     <table class="box-body col-md-12" id="target_list"></table>
                 </div>
