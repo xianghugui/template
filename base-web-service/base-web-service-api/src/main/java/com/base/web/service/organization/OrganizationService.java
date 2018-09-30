@@ -26,6 +26,5 @@ public interface OrganizationService extends GenericService<Organization, Long> 
      * @return
      */
     List<Map> listCameraByAreaId(Long areaId);
-    List<Map> listCameraByAreaIdTotal(Long areaId);
 
 }

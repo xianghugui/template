@@ -159,10 +159,10 @@ $(function () {
                             dataType: "json",
                             success: function (result) {
                                 var resultData = {};
-                                resultData.draw = result.data.data.draw;
-                                resultData.recordsTotal = result.data.total;
-                                resultData.recordsFiltered = result.data.total;
-                                resultData.data = result.data.data;
+                                resultData.draw = result.data.draw;
+                                resultData.recordsTotal = result.data.length;
+                                resultData.recordsFiltered = result.data.length;
+                                resultData.data = result.data;
                                 if (resultData.data == null) {
                                     resultData.data = [];
                                 }

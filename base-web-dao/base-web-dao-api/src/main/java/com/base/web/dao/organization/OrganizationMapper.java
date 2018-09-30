@@ -32,5 +32,4 @@ public interface OrganizationMapper extends GenericMapper<Organization,Long> {
      * @return
      */
     List<Map> listCameraByAreaId(Long areaId);
-    List<Map> listCameraByAreaIdTotal(Long areaId);
 }

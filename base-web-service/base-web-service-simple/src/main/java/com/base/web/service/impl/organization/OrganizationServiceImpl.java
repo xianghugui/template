@@ -39,8 +39,4 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<Organization, L
         return organizationMapper.listCameraByAreaId(areaId);
     }
 
-    @Override
-    public List<Map> listCameraByAreaIdTotal(Long areaId) {
-        return organizationMapper.listCameraByAreaIdTotal(areaId);
-    }
 }
