@@ -67,10 +67,10 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 .onlyData();
     }
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
     @AccessLogger("人脸检测")
     @Authorize(action = "C")
-    public ResponseMessage faceRecognize(MultipartFile file)throws Exception {
+    public ResponseMessage faceRecognize(@RequestParam("localfile") MultipartFile file)throws Exception {
         if (file == null) {
             //上传文件没有检测到人脸直接返回空数组
             return null;
@@ -94,7 +94,7 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 return ResponseMessage.ok(uploadFeatureService.insert(uploadFeature));
             }
         }
-        return ResponseMessage.ok("没有获取到特征值");
+        return ResponseMessage.error("没有获取到特征值");
     }
 
 

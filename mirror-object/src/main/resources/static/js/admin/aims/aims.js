@@ -207,48 +207,33 @@ $(function () {
         initTable();
     });
 
-    /**
-     * 上传图片
-     */
-    $("#img_input").on('change', function (e) {
-        console.log(e);
-        var fileEle = $("#img_input")[0];
-        var file = null;
-        if(fileEle.files){
-            file = e.target.files[0];
-        }else{
-            // var fso = new ActiveXObject("Scripting.FileSystemObject");
-            fileEle.select();
-            fileEle.blur();
-            var filePath = document.selection.createRange().text;
-            if(fso.FileExists(filePath)){
-                file = fso.GetFile(filePath);
-                console.log(file);
-            }
-        }
-
-        if (!file.type.match('image.*')) {
-            return false;
-        }
-        var reader = new FileReader();
-        reader.readAsDataURL(file); // 读取文件
-        // 渲染文件
-        reader.onload = function (arg) {
-            $("#preview_img").attr("src", arg.target.result);
-            $("#preview_img").show();
-            $.ajax({
-                url: 'aims/upload',
-                type: 'POST',
-                cache: false,
-                data: new FormData($('#uploadForm')[0]),
-                processData: false,
-                contentType: false
-            }).done(function (res) {
-                uploadId = res.data;
-            }).fail(function (res) {
-            });
-        }
-    });
+    // /**
+    //  * 上传图片
+    //  */
+    // $("#img_input").on('change', function (e) {
+    //     // var file = $('#preview_size_fake');
+    //     // var reader = new FileReader();
+    //     // reader.readAsDataURL(file); // 读取文件
+    //     // // 渲染文件
+    //     // reader.onload = function (arg) {
+    //         // $("#preview_img").attr("src", arg.target.result);
+    //         // $("#preview_img").show();
+    //         $.ajax({
+    //             url: 'aims/upload',
+    //             type: 'POST',
+    //             cache: false,
+    //             data: new FormData($('#uploadForm')[0]),
+    //             processData: false,
+    //             contentType: false,
+    //             success:function (res) {
+    //                 uploadId = res.data;
+    //             },
+    //             error:function (res) {
+    //                 toastr.warning("请求列表数据失败, 请重试");
+    //             }
+    //         });
+    //     };
+    // });
 
     //验证字符串是否是数字
     function checkNumber(theObj) {
