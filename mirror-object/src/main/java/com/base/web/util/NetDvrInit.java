@@ -1,7 +1,9 @@
 package com.base.web.util;
 
 import com.base.web.bean.Camera;
+import com.base.web.bean.ServerDevice;
 import com.base.web.service.CameraService;
+import com.base.web.service.ServerDeviceService;
 import com.sun.jna.NativeLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,9 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
     private CameraService cameraService;
+
+    @Autowired
+    private ServerDeviceService serverDeviceService;
 
     static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
 
@@ -51,6 +56,10 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                 //报警布防
                 Long alarmHandleId = setupAlarmChan(userId);
                 if (alarmHandleId == 0xFFFFFFFF || alarmHandleId == 0xFFFFFFFFL) {
+                    //布防失败，解除关联
+                    camera.setStatus(0);
+                    cameraService.update(camera);
+                    serverDeviceService.createDelete().where(ServerDevice.Property.deviceId, camera.getId()).exec();
                     logger.error("启动项目时，IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + getLastError());
                     continue;

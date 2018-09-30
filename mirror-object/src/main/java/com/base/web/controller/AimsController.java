@@ -52,8 +52,6 @@ public class AimsController extends GenericController<FaceImage, Long>{
         return faceImageService;
     }
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
     @RequestMapping(value = "/select", method = RequestMethod.GET)
@@ -85,7 +83,6 @@ public class AimsController extends GenericController<FaceImage, Long>{
             File faceFile = new File(currentImagePath);
             file.transferTo(faceFile);
             Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
-            byte[] uploadFace = new byte[]{};
             if(map.size() > 0){
                 UploadFeature uploadFeature = new UploadFeature();
                 uploadFeature.setFaceFeature(map.get(0));
@@ -118,7 +115,6 @@ public class AimsController extends GenericController<FaceImage, Long>{
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             //获取数据库全部图片
-            faceImageList = null;
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
             //获取数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
