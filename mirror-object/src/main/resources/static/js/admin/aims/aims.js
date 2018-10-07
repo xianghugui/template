@@ -21,7 +21,8 @@ $(function () {
                     data: rootNodes,
                     levels: 3,
                     onNodeSelected: function (event, data) {
-                        $("#preview_img").hide();
+                        $("#preview").hide();
+                        uploadId = null;
                         initTable();
                     }
                 });
@@ -96,7 +97,7 @@ $(function () {
     /**
      * dataTable
      */
-    function initTable(uploadFaceFeature) {
+    function initTable() {
         target_list = $('#target_list').DataTable({
             "language": lang,
             "lengthChange": false,
@@ -235,13 +236,45 @@ $(function () {
     //     };
     // });
 
+
+    $("#file_upload").change(function () {
+        var $file = $(this);
+        var fileObj = $file[0];
+        var windowURL = window.URL || window.webkitURL;
+        var dataURL;
+        var $img = $("#preview");
+        if (fileObj && fileObj.files && fileObj.files[0]) {
+            dataURL = windowURL.createObjectURL(fileObj.files[0]);
+            $img.attr('src', dataURL);
+        } else {
+            //在IE下
+            dataURL = $file.val();
+            var imgObj = document.getElementById("preview");
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+        }
+
+        $("#preview").show();
+
+        var options = {
+            url : "/aims/upload",
+            success : function(res) {
+                uploadId = res.data;
+            },
+            resetForm : true
+        };
+        $("#uploadForm").ajaxSubmit(options);
+
+    });
+
+
     //验证字符串是否是数字
     function checkNumber(theObj) {
         var reg = /^[0-9]+.?[0-9]*$/;
         if (!reg.test(theObj)) {
             return false;
         }
-        if(0 > theObj || theObj > 100){
+        if (0 > theObj || theObj > 100) {
             return false;
         }
         return true;

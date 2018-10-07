@@ -16,6 +16,7 @@ import com.base.web.service.FaceImageService;
 import com.base.web.service.UploadFeatureService;
 import com.base.web.util.FaceFeatureUtil;
 import com.base.web.util.ResourceUtil;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ import java.util.Map;
 @RequestMapping(value = "/aims")
 @AccessLogger("目标查询")
 @Authorize(module = "aims")
-public class AimsController extends GenericController<FaceImage, Long>{
+public class AimsController extends GenericController<FaceImage, Long> {
     @Autowired
     private FaceFeatureService faceFeatureService;
 
@@ -54,21 +55,10 @@ public class AimsController extends GenericController<FaceImage, Long>{
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
-    @RequestMapping(value = "/select", method = RequestMethod.GET)
-    @AccessLogger("查询")
-    @Authorize(action = "R")
-    public ResponseMessage select(QueryParam param, HttpServletRequest req) {
-        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
-        return ResponseMessage.ok(faceImageList)
-                .include(getPOType(), param.getIncludes())
-                .exclude(getPOType(), param.getExcludes())
-                .onlyData();
-    }
-
-    @RequestMapping(value = "/upload", method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @AccessLogger("人脸检测")
     @Authorize(action = "C")
-    public ResponseMessage faceRecognize(@RequestParam("localfile") MultipartFile file)throws Exception {
+    public ResponseMessage faceRecognize(@RequestParam("file") MultipartFile file) throws Exception {
         if (file == null) {
             //上传文件没有检测到人脸直接返回空数组
             return null;
@@ -76,14 +66,18 @@ public class AimsController extends GenericController<FaceImage, Long>{
             String currentImagePath;
             if (isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
-                        + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
+                        + "upload" + File.separator + "face" + File.separator + "test."+file.getOriginalFilename().split("[.]")[1];
             } else {
-                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/" + file.getOriginalFilename();
+                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/test." + file.getOriginalFilename().split("[.]")[1];
             }
+
             File faceFile = new File(currentImagePath);
             file.transferTo(faceFile);
+            //获取人脸特征值
             Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
-            if(map.size() > 0){
+            faceFile.delete();
+
+            if (map.size() > 0) {
                 UploadFeature uploadFeature = new UploadFeature();
                 uploadFeature.setFaceFeature(map.get(0));
                 uploadFeature.setId(GenericPo.createUID());
@@ -101,13 +95,13 @@ public class AimsController extends GenericController<FaceImage, Long>{
     public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws Exception {
         List<Map> faceImageList;
         String organizationId = uploadValue.getOrganizationId();
-        if(organizationId != null){
-            uploadValue.setOrganizationId(organizationId+"%");
+        if (organizationId != null) {
+            uploadValue.setOrganizationId(organizationId + "%");
         }
         if (uploadValue.getUploadId() == null) {
             //上传文件没有检测到人脸直接返回空数组
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
-            for(Map map:faceImageList){
+            for (Map map : faceImageList) {
                 map.put("imageUrl",
                         ResourceUtil.resourceBuildPath(req, map.get("resourceId").toString()));
             }
@@ -127,16 +121,15 @@ public class AimsController extends GenericController<FaceImage, Long>{
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
-                        Float  similarity= faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature,faceFeatureList.get(k).getFaceFeature());
+                        Float similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
                         if (similarity > 0) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            if(uploadValue.getMinSimilarity() != null && uploadValue.getMinSimilarity() > similarity){
+                            if (uploadValue.getMinSimilarity() != null && uploadValue.getMinSimilarity() > similarity) {
                                 faceImageList.remove(i);
-                            }
-                            else if(uploadValue.getMaxSimilarity() != null && uploadValue.getMaxSimilarity() < similarity){
+                            } else if (uploadValue.getMaxSimilarity() != null && uploadValue.getMaxSimilarity() < similarity) {
                                 faceImageList.remove(i);
-                            } else{
+                            } else {
                                 i++;
                                 continue;
                             }
