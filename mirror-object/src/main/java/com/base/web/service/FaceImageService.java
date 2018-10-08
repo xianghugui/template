@@ -14,7 +14,7 @@ public interface FaceImageService extends GenericService<FaceImage, Long>{
     List<Map> queryAllFaceFeature(UploadValue uploadValue);
 
     /**
-     * 分页查询人脸图片
+     * 查询人脸图片
      * @param uploadValue
      * @return
      */

@@ -50,6 +50,17 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
+    @RequestMapping(value = "/select", method = RequestMethod.GET)
+    @AccessLogger("查询")
+    @Authorize(action = "R")
+    public ResponseMessage select(QueryParam param, HttpServletRequest req) {
+        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
+        return ResponseMessage.ok(faceImageList)
+                .include(getPOType(), param.getIncludes())
+                .exclude(getPOType(), param.getExcludes())
+                .onlyData();
+    }
+
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
     @Authorize(action = "C")

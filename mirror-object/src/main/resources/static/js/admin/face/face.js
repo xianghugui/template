@@ -153,7 +153,7 @@ $(function () {
                         param.searchEnd = $('#searchEnd').val();
                     }
                     $.ajax({
-                        url: BASE_PATH + "aims/faceimage",
+                        url: BASE_PATH + "aims/select",
                         type: "GET",
                         data: param,
                         cache: false,
@@ -199,6 +199,35 @@ $(function () {
         todayBtn: "linked",
 
     });
+
+    /**
+     * 设置默认时间
+     */
+    function getNowFormatDate() {
+        var date = new Date();
+        var seperator1 = "-";
+        var seperator2 = ":";
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        var searchStart = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + "00" + seperator2 + "00" + seperator2 + "00";
+
+        var searchEnd = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + date.getHours() + seperator2 + date.getMinutes()
+            + seperator2 + date.getSeconds();
+
+        $('#searchStart').val(searchStart);
+        $('#searchEnd').val(searchEnd);
+        $('#minSimilarity').val(40);
+    }
+
+    getNowFormatDate();
 
     /**
      * 搜索
