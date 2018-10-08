@@ -131,14 +131,17 @@ $(function () {
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
-                    var param = {}
-                    //区域树条件
+                    var param = {
+                        pageIndex: settings._iDisplayStart,
+                        pageSize: settings._iDisplayLength
+                    }
                     if (organization.level == 0) {
+
                         param.organizationId = (organization.id / 1000000);
                     } else if (organization.level == 1) {
                         param.organizationId = (organization.id / 1000);
                     } else if (organization.level == 2) {
-                        param.organizationId = (organization.id);
+                        paramorganizationId = (organization.id);
                     } else if (organization.level == 3) {
                         param.deviceId = (organization.id);
                     }
@@ -150,17 +153,17 @@ $(function () {
                         param.searchEnd = $('#searchEnd').val();
                     }
                     $.ajax({
-                        url: BASE_PATH + "aims/faceRecognize",
+                        url: BASE_PATH + "aims/faceimage",
                         type: "GET",
                         data: param,
                         cache: false,
                         dataType: "json",
                         success: function (result) {
                             var resultData = {};
-                            resultData.draw = result.data.draw;
-                            resultData.recordsTotal = result.data.length;
-                            resultData.recordsFiltered = result.data.length;
-                            resultData.data = result.data;
+                            resultData.draw = result.data.data.draw;
+                            resultData.recordsTotal = result.data.total;
+                            resultData.recordsFiltered = result.data.total;
+                            resultData.data = result.data.data;
                             if (resultData.data == null) {
                                 resultData.data = [];
                             }
@@ -177,8 +180,7 @@ $(function () {
                     "data": null,
                     render: function (data, type, row, meta) {
                         var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='img-content'><div>" + data.name + "</div>" +
-                            "<div>" + data.createTime + "</div></div></div>"
+                            "<div class='img-content'><div>"+data.name+"</div><div>"+data.createTime+"</div></div></div>"
                         return html;
                     }
                 },
