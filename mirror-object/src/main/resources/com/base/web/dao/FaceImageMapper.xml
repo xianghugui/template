@@ -101,6 +101,41 @@
         </if>
         ORDER BY tr.create_time DESC
     </select>
-
+    <select id="listFaceImage" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
+        FROM t_face_image tfi,t_resource tr, t_device td
+        WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
+        <if test="organizationId != null">
+            AND td.organization_id Like CONCAT(#{organizationId},'%')
+        </if>
+        <if test="deviceId != null">
+            AND tfi.device_id = #{deviceId}
+        </if>
+        <if test="searchStart != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{searchStart}
+        </if>
+        <if test="searchEnd">
+            AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
+        </if>
+        ORDER BY tr.create_time DESC
+        LIMIT #{pageIndex},#{pageSize}
+    </select>
+    <select id="listFaceImageTotal" parameterType="com.base.web.bean.UploadValue" resultType="int">
+        SELECT COUNT(tfi.u_id)
+        FROM t_face_image tfi,t_resource tr, t_device td
+        WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
+        <if test="organizationId != null">
+            AND td.organization_id Like CONCAT(#{organizationId},'%')
+        </if>
+        <if test="deviceId != null">
+            AND tfi.device_id = #{deviceId}
+        </if>
+        <if test="searchStart != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{searchStart}
+        </if>
+        <if test="searchEnd">
+            AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
+        </if>
+    </select>
 </mapper>
 

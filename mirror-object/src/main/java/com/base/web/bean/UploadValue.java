@@ -19,7 +19,26 @@ public class UploadValue {
     private String searchEnd;
     //最小相识度
     private Float minSimilarity;
-    //最大相识度
+
+    private int pageIndex;
+
+    private int pageSize;
+
+    public int getPageIndex() {
+        return pageIndex;
+    }
+
+    public void setPageIndex(int pageIndex) {
+        this.pageIndex = pageIndex;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 
     public Long getUploadId() {
         return uploadId;

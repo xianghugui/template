@@ -47,4 +47,21 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
     public List<Map> queryAllFaceFeature(UploadValue uploadValue){
         return faceImageMapper.queryAllFaceFeature(uploadValue);
     }
+
+    @Override
+    public PagerResult<Map> listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
+        PagerResult<Map> pagerResult = new PagerResult<>();
+        int total = faceImageMapper.listFaceImageTotal(uploadValue);
+        pagerResult.setTotal(total);
+        if (total == 0) {
+            pagerResult.setData(new ArrayList<>());
+        } else {
+            pagerResult.setData(faceImageMapper.listFaceImage(uploadValue));
+            for (int k = 0; k < pagerResult.getData().size(); k++) {
+                pagerResult.getData().get(k).put("imageUrl",
+                        ResourceUtil.resourceBuildPath(req, pagerResult.getData().get(k).get("resourceId").toString()));
+            }
+        }
+        return pagerResult;
+    }
 }

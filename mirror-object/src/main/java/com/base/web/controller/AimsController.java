@@ -5,6 +5,8 @@ import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
 import com.base.web.bean.UploadFeature;
 import com.base.web.bean.UploadValue;
+import com.base.web.bean.common.PagerResult;
+import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
@@ -133,6 +135,14 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         //响应上传成功的资源信息
         return ResponseMessage.ok(faceImageList);
+    }
+
+
+    @RequestMapping(value = "/faceimage", method = RequestMethod.GET)
+    @AccessLogger("人脸检索")
+    @Authorize(action = "R")
+    public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req){
+        return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
     }
 
 }

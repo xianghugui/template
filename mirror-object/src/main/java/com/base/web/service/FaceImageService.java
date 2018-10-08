@@ -12,4 +12,11 @@ import java.util.Map;
 public interface FaceImageService extends GenericService<FaceImage, Long>{
     PagerResult<Map> queryAllFaceImage(QueryParam param, HttpServletRequest req);
     List<Map> queryAllFaceFeature(UploadValue uploadValue);
+
+    /**
+     * 分页查询人脸图片
+     * @param uploadValue
+     * @return
+     */
+    PagerResult<Map> listFaceImage(UploadValue uploadValue, HttpServletRequest req);
 }
