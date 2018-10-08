@@ -19,10 +19,12 @@ import com.base.web.util.ResourceUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -55,10 +57,10 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
     @Authorize(action = "C")
-    public ResponseMessage faceRecognize(@RequestParam("file") MultipartFile file) throws Exception {
+    public String faceRecognize(@RequestParam("file") MultipartFile file) throws Exception {
         if (file == null) {
             //上传文件没有检测到人脸直接返回空数组
             return null;
@@ -82,10 +84,10 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 uploadFeature.setFaceFeature(map.get(0));
                 uploadFeature.setId(GenericPo.createUID());
                 //插入人脸特征值
-                return ResponseMessage.ok(uploadFeatureService.insert(uploadFeature));
+                return uploadFeatureService.insert(uploadFeature).toString();
             }
         }
-        return ResponseMessage.error("没有获取到特征值");
+        return "没有获取到特征值";
     }
 
 

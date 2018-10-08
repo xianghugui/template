@@ -160,6 +160,7 @@ $(function () {
                         url: BASE_PATH + "aims/faceRecognize",
                         type: "GET",
                         data: param,
+                        cache: false,
                         success: function (result) {
                             var resultData = {};
                             resultData.draw = result.data.draw;
@@ -259,7 +260,7 @@ $(function () {
         var options = {
             url : "/aims/upload",
             success : function(res) {
-                uploadId = res.data;
+                uploadId = res;
             },
             resetForm : true
         };

@@ -74,14 +74,12 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
+                camera.setStatus(1);
                 cameraService.update(camera);
                 serverDevice.setDeviceId(deviceIds[i]);
                 serverDevice.setId(GenericPo.createUID());
                 serverDeviceMapper.insert(InsertParam.build(serverDevice));
             }
-            map.put("status", 1);
-            map.put("list", serverDevice.getDeviceIdList());
-            serverMapper.updateCameraStatus(map);
         }
         //取消关联设备
         if (serverDevice.getCancelDeviceIdList() != null && serverDevice.getCancelDeviceIdList().length > 0) {
