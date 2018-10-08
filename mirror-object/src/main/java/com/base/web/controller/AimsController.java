@@ -59,9 +59,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
             String currentImagePath;
             if (isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
-                        + "upload" + File.separator + "face" + File.separator + "test." + file.getOriginalFilename().split("[.]")[1];
+                        + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
             } else {
-                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/test." + file.getOriginalFilename().split("[.]")[1];
+                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/" + file.getOriginalFilename();
             }
             //创建临时目录
             File faceFile = new File(currentImagePath);
@@ -117,18 +117,12 @@ public class AimsController extends GenericController<FaceImage, Long> {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
                         Float similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
-                        if (similarity > 40) {
+                        if (similarity > uploadValue.getMinSimilarity()) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-
                             faceImageList.get(i).put("similarity", similarity);
-                            if (uploadValue.getMinSimilarity() != null && uploadValue.getMinSimilarity() > similarity) {
-                                faceImageList.remove(i);
-                            }
-                            else {
                                 i++;
                                 continue;
-                            }
                         } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
                             faceImageList.remove(i);
                         }

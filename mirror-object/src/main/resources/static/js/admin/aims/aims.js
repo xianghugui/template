@@ -89,9 +89,9 @@ $(function () {
                     }
                 }
             });
-            return result.concat().sort(function(a, b) {
+            return result.concat().sort(function (a, b) {
                 return a.id - b.id;
-            }).filter(function(item, index, array){
+            }).filter(function (item, index, array) {
                 return !index || item.id !== array[index - 1].id
             });
         },
@@ -158,7 +158,7 @@ $(function () {
                     if ($("#minSimilarity").val() !== "") {
                         var minSimilarity = $("#minSimilarity").val();
                         if (!checkNumber(minSimilarity)) {
-                            toastr.warning("请输入大于40的相识度");
+                            toastr.warning("请输入0~100的相识度");
                             return false;
                         }
                         param.minSimilarity = minSimilarity;
@@ -195,7 +195,11 @@ $(function () {
                     render: function (data, type, row, meta) {
                         var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
                             "<div class='img-content'><div>" + data.name + "</div>" +
-                            "<div>" + data.createTime + "</div></div></div>"
+                            "<div>" + data.createTime;
+                        if (data.similarity != null) {
+                            html+="<span class='similarity-box'>" + data.similarity.toFixed(2)*100 + "%</span>";
+                        }
+                        html += "</div></div></div>";
                         return html;
                     }
                 },
@@ -240,6 +244,7 @@ $(function () {
         $('#searchEnd').val(searchEnd);
         $('#minSimilarity').val(40);
     }
+
     getNowFormatDate();
 
 
@@ -264,10 +269,13 @@ $(function () {
             dataURL = windowURL.createObjectURL(fileObj.files[0]);
             $img.attr('src', dataURL);
         } else {
-            //在IE下
-            dataURL = $file.val();
+            //在IE9下,获取图片绝对路径
             var imgObj = document.getElementById("preview");
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=ture,sizingMethod=scale)";
+            var file = document.getElementById("file_upload");
+            file.select();
+            file.blur();
+            var dataURL = document.selection.createRange().text;
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=crop)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
         }
 
@@ -291,7 +299,7 @@ $(function () {
         if (!reg.test(theObj)) {
             return false;
         }
-        if (40 > theObj || theObj > 100) {
+        if (0 > theObj || theObj > 100) {
             return false;
         }
         return true;
