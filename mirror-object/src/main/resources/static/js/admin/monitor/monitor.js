@@ -211,7 +211,7 @@ $(function () {
     function WebVideo() {
         if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
             alert("您还未安装过插件，请安装WebComponentsKit.exe！");
-            window.open(Request.BASH_PATH + "WebComponents/WebComponentsKit.exe")
+            window.open(Request.BASH_PATH + "webcomponents/WebComponentsKit.exe")
             return;
         }
         pluginInstall = true;

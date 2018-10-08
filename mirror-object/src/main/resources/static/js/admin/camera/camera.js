@@ -217,11 +217,13 @@ $(function () {
     $(".box-header").off('click', '.btn-search').on('click', '.btn-search', function () {
         if ($("#searchIp").val().trim() == "") {
             $("#searchIp").val("");
+            camera_list.search("").draw();
         } else {
             camera_list.search($("#searchIp").val().trim()).draw();
         }
         if ($("#searchName").val().trim() == "") {
             $("#searchName").val("");
+            camera_list.search("").draw();
         } else {
             camera_list.search($("#searchName").val().trim()).draw();
         }
@@ -384,6 +386,7 @@ $(function () {
         $("input#code").val("");
         $("input#name").val("");
         $("input#ip").val("");
+        $("input#httpPort").val("");
         $("input#port").val("");
         $("input#note").val("");
         $("input#account").val("");
