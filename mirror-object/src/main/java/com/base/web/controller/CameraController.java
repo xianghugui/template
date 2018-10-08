@@ -67,9 +67,6 @@ public class CameraController extends GenericController<Camera, Long> {
         //如果有关联服务器重新布防，没有就直接更新
         ServerDevice serverDevice = serverDeviceService.createQuery().where(ServerDevice.Property.deviceId, id).single();
         if (serverDevice != null) {
-            //报警撤防，登出
-            NetDvrInit.closeAlarmChan(oldCamera.getAlarmHandleId());
-            NetDvrInit.logout(oldCamera.getUserId());
             Long userId = NetDvrInit.login(camera);
             //登陆
             if (userId == 0xFFFFFFFF || userId == 0xFFFFFFFFL) {
@@ -83,11 +80,15 @@ public class CameraController extends GenericController<Camera, Long> {
             if (alarmHandleId == 0xFFFFFFFF || userId == 0xFFFFFFFFL) {
                 logger.error("修改摄像头时，IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                         + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + NetDvrInit.getLastError());
+
                 return ResponseMessage.error("报警布防失败(请检查IP/端口/用户名/密码是否错误)，错误码:" + NetDvrInit.getLastError());
             } else {
                 camera.setAlarmHandleId(alarmHandleId);
             }
         }
+        //报警撤防，登出
+        NetDvrInit.closeAlarmChan(oldCamera.getAlarmHandleId());
+        NetDvrInit.logout(oldCamera.getUserId());
         camera.setId(id);
         getService().update(camera);
         return ResponseMessage.ok("修改成功");
