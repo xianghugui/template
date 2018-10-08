@@ -135,7 +135,7 @@ public class FaceFeatureUtil {
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
-            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
+//            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
             return faceInfo;
         }
 
@@ -171,8 +171,8 @@ public class FaceFeatureUtil {
         if (ret.longValue() != 0) {
             return 0.0f;
         }
-        System.out.println("人脸相似度为：");
-        System.out.println(fSimilScore.getValue());
+//        System.out.println("人脸相似度为：");
+//        System.out.println(fSimilScore.getValue());
         return fSimilScore.getValue();
     }
 

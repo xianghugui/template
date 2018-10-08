@@ -5,8 +5,6 @@ import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
 import com.base.web.bean.UploadFeature;
 import com.base.web.bean.UploadValue;
-import com.base.web.bean.common.PagerResult;
-import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
@@ -16,20 +14,13 @@ import com.base.web.service.FaceImageService;
 import com.base.web.service.UploadFeatureService;
 import com.base.web.util.FaceFeatureUtil;
 import com.base.web.util.ResourceUtil;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,14 +63,16 @@ public class AimsController extends GenericController<FaceImage, Long> {
             } else {
                 currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/test." + file.getOriginalFilename().split("[.]")[1];
             }
-
+            //创建临时目录
             File faceFile = new File(currentImagePath);
             file.transferTo(faceFile);
+
             //获取人脸特征值
             Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
+            //删除图片
             faceFile.delete();
 
-            if (map.size() > 0) {
+            if (map.size() == 1) {
                 UploadFeature uploadFeature = new UploadFeature();
                 uploadFeature.setFaceFeature(map.get(0));
                 uploadFeature.setId(GenericPo.createUID());
@@ -101,7 +94,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             uploadValue.setOrganizationId(organizationId + "%");
         }
         if (uploadValue.getUploadId() == null) {
-            //上传文件没有检测到人脸直接返回空数组
+            //上传文件没有检测到人脸直接返回全部人脸
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
             for (Map map : faceImageList) {
                 map.put("imageUrl",

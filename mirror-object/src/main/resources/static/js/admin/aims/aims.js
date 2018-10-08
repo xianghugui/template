@@ -11,24 +11,21 @@ $(function () {
     var uploadId = null;
 
     var initOrganizationTree = function () {
-        Request.get("organization/organizationTree", function (e) {
-            if (e.success) {
-                organization_list = e;
-                var tree = organizationTree.init();
-                var rootNodes = tree.getRootNodes(e.data);
+        Request.get("organization/queryTree", function (e) {
+            organization_list = e;
+            var tree = organizationTree.init();
+            var rootNodes = tree.getRootNodes(e);
 
-                $('#area_tree').treeview({
-                    data: rootNodes,
-                    levels: 3,
-                    onNodeSelected: function (event, data) {
-                        $("#preview").hide();
-                        uploadId = null;
-                        initTable();
-                    }
-                });
-                $('#area_tree').treeview('selectNode', [0]);
-                initTable();
-            }
+            $('#area_tree').treeview({
+                data: rootNodes,
+                levels: 3,
+                onNodeSelected: function (event, data) {
+                    $("#preview").hide();
+                    uploadId = null;
+                    initTable();
+                }
+            });
+            $('#area_tree').treeview('selectNode', [0]);
         });
     };
 
@@ -58,10 +55,10 @@ $(function () {
             $.each(data, function (index, item) {
                 if (item['parentId'] == '-1') {
                     var obj = {
-                        id: item.id,
+                        id: item.organizationId,
                         level: level,
                         parentId: item.parentId,
-                        text: item.name,
+                        text: item.organizationName,
                         nodes: []
                     };
                     obj.nodes = that.getChildNodes(data, item, level);
@@ -75,19 +72,43 @@ $(function () {
             var result = [];
             level++;
             $.each(data, function (i, item) {
-                if (item['parentId'] == parentNode['id']) {
+                if (item['parentId'] == parentNode['organizationId']) {
                     var obj = {
-                        id: item.id,
+                        id: item.organizationId,
                         level: level,
                         parentId: item.parentId,
-                        text: item.name,
+                        text: item.organizationName,
                         nodes: null
                     };
                     result.push(obj);
                     var childNodes = that.getChildNodes(data, item, level);
                     if (childNodes != null && childNodes.length > 0) {
                         obj.nodes = childNodes;
+                    } else {
+                        obj.nodes = that.getMonitor(data, item, level);
                     }
+                }
+            });
+            return result.concat().sort(function(a, b) {
+                return a.id - b.id;
+            }).filter(function(item, index, array){
+                return !index || item.id !== array[index - 1].id
+            });
+        },
+        getMonitor: function (data, parentNode, level) {
+            var that = this;
+            var result = [];
+            level++;
+            $.each(data, function (i, item) {
+                if (item['deviceId'] !== null && item['organizationId'] === parentNode['organizationId']) {
+                    var obj = {
+                        id: item.deviceId,
+                        level: level,
+                        parentId: item.organizationId,
+                        text: item.deviceName,
+                        nodes: null
+                    };
+                    result.push(obj);
                 }
             });
             return result;
@@ -138,7 +159,7 @@ $(function () {
                     if ($("#minSimilarity").val() !== "") {
                         var minSimilarity = $("#minSimilarity").val();
                         if (!checkNumber(minSimilarity)) {
-                            toastr.warning("请输入1~100的数字");
+                            toastr.warning("相识度请输入1~100的数字");
                             return false;
                         }
                         param.minSimilarity = minSimilarity;
@@ -147,11 +168,10 @@ $(function () {
                     if ($("#maxSimilarity").val() !== "") {
                         var minSimilarity = $("#minSimilarity").val();
                         if (!checkNumber(minSimilarity)) {
-                            toastr.warning("请输入1~100的数字");
+                            toastr.warning("相识度请输入1~100的数字");
                             return false;
                         }
                         param.maxSimilarity = $("#maxSimilarity").val();
-                        param.maxSimilarity = maxSimilarity;
                     }
                     if (uploadId !== null) {
                         param.uploadId = uploadId;
@@ -206,38 +226,12 @@ $(function () {
      * 搜索
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
-        initTable();
+        target_list.ajax.reload();
     });
 
-    // /**
-    //  * 上传图片
-    //  */
-    // $("#img_input").on('change', function (e) {
-    //     // var file = $('#preview_size_fake');
-    //     // var reader = new FileReader();
-    //     // reader.readAsDataURL(file); // 读取文件
-    //     // // 渲染文件
-    //     // reader.onload = function (arg) {
-    //         // $("#preview_img").attr("src", arg.target.result);
-    //         // $("#preview_img").show();
-    //         $.ajax({
-    //             url: 'aims/upload',
-    //             type: 'POST',
-    //             cache: false,
-    //             data: new FormData($('#uploadForm')[0]),
-    //             processData: false,
-    //             contentType: false,
-    //             success:function (res) {
-    //                 uploadId = res.data;
-    //             },
-    //             error:function (res) {
-    //                 toastr.warning("请求列表数据失败, 请重试");
-    //             }
-    //         });
-    //     };
-    // });
-
-
+    /**
+     * 上传图片
+     */
     $("#file_upload").change(function () {
         var $file = $(this);
         var fileObj = $file[0];
@@ -251,18 +245,19 @@ $(function () {
             //在IE下
             dataURL = $file.val();
             var imgObj = document.getElementById("preview");
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,enabled=true)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+
         }
 
         $("#preview").show();
 
         var options = {
-            url : "/aims/upload",
-            success : function(res) {
+            url: "/aims/upload",
+            success: function (res) {
                 uploadId = res;
             },
-            resetForm : true
+            resetForm: true
         };
         $("#uploadForm").ajaxSubmit(options);
 

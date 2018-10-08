@@ -23,7 +23,6 @@ $(function () {
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
-            initTable();
         });
     };
 
@@ -204,8 +203,6 @@ $(function () {
      * 搜索
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
-        console.log($("#searchStart").val())
-        console.log($("#searchEnd").val())
-        initTable();
+        face_list.ajax.reload();
     });
 });

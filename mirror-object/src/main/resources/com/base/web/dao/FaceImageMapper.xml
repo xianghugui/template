@@ -67,8 +67,8 @@
     </select>
 
     <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
-        SELECT COUNT(tfi.u_id) FROM t_face_image tfi, t_device td
-        WHERE td.u_id = tfi.device_id
+        SELECT COUNT(tfi.u_id) FROM t_face_image tfi, t_device td,t_resource tr
+        WHERE td.u_id = tfi.device_id AND tfi.resource_id = tr.u_id
         <if test="terms.size >= 3 and terms[3].value != null">
             AND td.organization_id Like #{terms[3].value}
         </if>
