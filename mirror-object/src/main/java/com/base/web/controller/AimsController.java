@@ -59,7 +59,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             String currentImagePath;
             if (isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
-                        + "upload" + File.separator + "face" + File.separator + "test."+file.getOriginalFilename().split("[.]")[1];
+                        + "upload" + File.separator + "face" + File.separator + "test." + file.getOriginalFilename().split("[.]")[1];
             } else {
                 currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/test." + file.getOriginalFilename().split("[.]")[1];
             }
@@ -117,14 +117,15 @@ public class AimsController extends GenericController<FaceImage, Long> {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
                         Float similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
-                        if (similarity > 0) {
+                        if (similarity > 40) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
+
+                            faceImageList.get(i).put("similarity", similarity);
                             if (uploadValue.getMinSimilarity() != null && uploadValue.getMinSimilarity() > similarity) {
                                 faceImageList.remove(i);
-                            } else if (uploadValue.getMaxSimilarity() != null && uploadValue.getMaxSimilarity() < similarity) {
-                                faceImageList.remove(i);
-                            } else {
+                            }
+                            else {
                                 i++;
                                 continue;
                             }

@@ -20,7 +20,6 @@ public class UploadValue {
     //最小相识度
     private Float minSimilarity;
     //最大相识度
-    private Float maxSimilarity;
 
     public Long getUploadId() {
         return uploadId;
@@ -68,13 +67,5 @@ public class UploadValue {
 
     public void setMinSimilarity(Float minSimilarity) {
         this.minSimilarity = minSimilarity/100;
-    }
-
-    public Float getMaxSimilarity() {
-        return maxSimilarity;
-    }
-
-    public void setMaxSimilarity(Float maxSimilarity) {
-        this.maxSimilarity = maxSimilarity/100;
     }
 }

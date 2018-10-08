@@ -158,20 +158,12 @@ $(function () {
                     if ($("#minSimilarity").val() !== "") {
                         var minSimilarity = $("#minSimilarity").val();
                         if (!checkNumber(minSimilarity)) {
-                            toastr.warning("相识度请输入1~100的数字");
+                            toastr.warning("请输入大于40的相识度");
                             return false;
                         }
                         param.minSimilarity = minSimilarity;
                     }
 
-                    if ($("#maxSimilarity").val() !== "") {
-                        var minSimilarity = $("#minSimilarity").val();
-                        if (!checkNumber(minSimilarity)) {
-                            toastr.warning("相识度请输入1~100的数字");
-                            return false;
-                        }
-                        param.maxSimilarity = $("#maxSimilarity").val();
-                    }
                     if (uploadId !== null) {
                         param.uploadId = uploadId;
                     }
@@ -223,11 +215,41 @@ $(function () {
     });
 
     /**
+     * 设置默认时间
+     */
+    function getNowFormatDate() {
+        var date = new Date();
+        var seperator1 = "-";
+        var seperator2 = ":";
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        var searchStart = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + "00" + seperator2 + "00" + seperator2 + "00";
+
+        var searchEnd = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + date.getHours() + seperator2 + date.getMinutes()
+            + seperator2 + date.getSeconds();
+
+        $('#searchStart').val(searchStart);
+        $('#searchEnd').val(searchEnd);
+        $('#minSimilarity').val(40);
+    }
+    getNowFormatDate();
+
+
+    /**
      * 搜索
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         target_list.ajax.reload();
     });
+
 
     /**
      * 上传图片
@@ -245,9 +267,8 @@ $(function () {
             //在IE下
             dataURL = $file.val();
             var imgObj = document.getElementById("preview");
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,enabled=true)";
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=ture,sizingMethod=scale)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
-
         }
 
         $("#preview").show();
@@ -270,7 +291,7 @@ $(function () {
         if (!reg.test(theObj)) {
             return false;
         }
-        if (0 > theObj || theObj > 100) {
+        if (40 > theObj || theObj > 100) {
             return false;
         }
         return true;

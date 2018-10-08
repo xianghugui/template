@@ -62,7 +62,7 @@
         <if test="terms.size >= 6 and terms[5].value != null">
             AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
         </if>
-        ORDER BY tfi.create_time DESC
+        ORDER BY tr.create_time DESC
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
@@ -99,6 +99,7 @@
         <if test="searchEnd">
             AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
         </if>
+        ORDER BY tr.create_time DESC
     </select>
 
 </mapper>
