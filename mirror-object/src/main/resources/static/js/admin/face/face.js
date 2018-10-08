@@ -131,37 +131,35 @@ $(function () {
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
-                    var str = "pageSize=" + data.length + "&pageIndex=" + data.start;
+                    var param = {}
                     //区域树条件
                     if (organization.level == 0) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                        param.organizationId = (organization.id / 1000000);
                     } else if (organization.level == 1) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + (organization.id / 1000) + '%25&terms%5b3%5d.termType=like&terms%5b3%5d.type=and';
+                        param.organizationId = (organization.id / 1000);
                     } else if (organization.level == 2) {
-                        str += '&terms%5b3%5d.column=organizationId&terms%5b3%5d.value=' + organization.id + '&terms%5b3%5d.termType=eq&terms%5b3%5d.type=and';
-                    } else if(organization.level == 3){
-                        str += '&terms%5b6%5d.column=deviceId&terms%5b6%5d.value=' + organization.id ;
+                        param.organizationId = (organization.id);
+                    } else if (organization.level == 3) {
+                        param.deviceId = (organization.id);
                     }
-                    //按时间排序
-                    str += '&sorts%5b0%5d.name=createTime&sorts%5b0%5d.order=desc';
 
-                    if($('#searchStart').val() !== ""){
-                        str += '&terms%5b4%5d.name=searchStart&terms%5b4%5d.value='+$('#searchStart').val();
+                    if ($('#searchStart').val() !== "") {
+                        param.searchStart = $('#searchStart').val();
                     }
-                    if($('#searchEnd').val() !== ""){
-                        str += '&terms%5b5%5d.name=searchEnd&terms%5b5%5d.value='+$('#searchEnd').val();
+                    if ($('#searchEnd').val() !== "") {
+                        param.searchEnd = $('#searchEnd').val();
                     }
                     $.ajax({
-                        url: BASE_PATH + "camera/select",
+                        url: BASE_PATH + "aims/faceRecognize",
                         type: "GET",
-                        data: str,
+                        data: param,
                         cache: false,
                         dataType: "json",
                         success: function (result) {
                             var resultData = {};
                             resultData.draw = result.data.draw;
-                            resultData.recordsTotal = result.total;
-                            resultData.recordsFiltered = result.total;
+                            resultData.recordsTotal = result.data.length;
+                            resultData.recordsFiltered = result.data.length;
                             resultData.data = result.data;
                             if (resultData.data == null) {
                                 resultData.data = [];
@@ -178,8 +176,9 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div class='img-show-box'><div><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='time'>"+data.createTime+"</div></div></div>"
+                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='img-content'><div>" + data.name + "</div>" +
+                            "<div>" + data.createTime + "</div></div></div>"
                         return html;
                     }
                 },

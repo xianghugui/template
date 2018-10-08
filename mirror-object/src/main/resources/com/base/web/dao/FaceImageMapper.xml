@@ -46,7 +46,7 @@
     </select>
 
     <select id="queryAllFaceImage" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
         FROM t_face_image tfi,t_resource tr, t_device td
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
 
@@ -84,7 +84,7 @@
     </select>
 
     <select id="queryAllFaceFeature" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
         FROM t_face_image tfi,t_resource tr, t_device td
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
         <if test="organizationId != null">

@@ -136,7 +136,6 @@ $(function () {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
                     var param = {}
-                    var str = "";
                     //区域树条件
                     if (organization.level == 0) {
 
@@ -202,8 +201,9 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div class='img-show-box'><div><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='time'>" + data.createTime + "</div></div></div>"
+                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
+                            "<div class='img-content'><div>" + data.name + "</div>" +
+                            "<div>" + data.createTime + "</div></div></div>"
                         return html;
                     }
                 },
