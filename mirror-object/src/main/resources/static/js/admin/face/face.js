@@ -153,7 +153,7 @@ $(function () {
                         param.searchEnd = $('#searchEnd').val();
                     }
                     $.ajax({
-                        url: BASE_PATH + "aims/select",
+                        url: BASE_PATH + "aims/faceimage",
                         type: "GET",
                         data: param,
                         cache: false,
@@ -224,7 +224,6 @@ $(function () {
 
         $('#searchStart').val(searchStart);
         $('#searchEnd').val(searchEnd);
-        $('#minSimilarity').val(40);
     }
 
     getNowFormatDate();
