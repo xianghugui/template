@@ -19,9 +19,10 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
-                    initTable();
+                    face_list.ajax.reload();
                 }
             });
+            initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
     };
@@ -35,7 +36,6 @@ $(function () {
                 console.error("Required jQuery support is not available");
             } else {
                 inited = true;
-                var that = this;
                 $(function () {
 
                 });
@@ -141,7 +141,7 @@ $(function () {
                     } else if (organization.level == 1) {
                         param.organizationId = (organization.id / 1000);
                     } else if (organization.level == 2) {
-                        paramorganizationId = (organization.id);
+                        param.organizationId = (organization.id);
                     } else if (organization.level == 3) {
                         param.deviceId = (organization.id);
                     }
