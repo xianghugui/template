@@ -22,9 +22,10 @@ $(function () {
                 onNodeSelected: function (event, data) {
                     $("#preview").hide();
                     uploadId = null;
-                    initTable();
+                    target_list.ajax.reload();
                 }
             });
+            initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
     };
