@@ -1,6 +1,5 @@
 $(function () {
 
-
     /**
      * 初始化组织树
      * @type {boolean}
@@ -287,8 +286,8 @@ $(function () {
             var nHight = imgObj.offsetHeight;
             //按比例设置图片的宽
             var imgWidth = parseInt(nWidth * (200 / nHight));
-            $('.preview_img').css("width",imgWidth);
-            
+            $('.preview_img').css("width", imgWidth);
+
             imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
         }
@@ -331,6 +330,7 @@ $(function () {
         }
         return true;
     }
+    
 });
 
 
