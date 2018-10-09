@@ -277,8 +277,7 @@ $(function () {
             file.blur();
             var dataURL = document.selection.createRange().text;
             document.selection.empty();
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=image)";
-            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=image)";
             //图片必须显示出来,才能获取原图片的高和宽
             $("#preview").show();
 
@@ -289,8 +288,7 @@ $(function () {
             var imgWidth = parseInt(nWidth * (200 / nHight));
             $('.preview_img').css("width",imgWidth);
             
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale)";
-            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=scale)";
         }
 
         $('#upload_button').attr('disabled', "true");
@@ -300,7 +298,8 @@ $(function () {
             success: function (res) {
                 uploadId = null;
                 $('#upload_button').removeAttr('disabled');
-                if (res == "没有获取到特征值,请重新上传图片") {
+                console.log(typeof res)
+                if (typeof res == "没有获取到特征值,请重新上传图片") {
                     toastr.warning("没有获取到特征值,请重新上传图片");
                     return false;
                 }

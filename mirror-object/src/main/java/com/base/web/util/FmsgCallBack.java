@@ -52,20 +52,6 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private FaceFeatureUtil faceFeatureUtil;
 
-    /**
-     * 线程池
-     */
-    private static final ExecutorService THREAD_POOL = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-            60L, TimeUnit.SECONDS, new SynchronousQueue(),
-            new ThreadFactory() {
-
-                private final AtomicInteger mCount = new AtomicInteger(1);
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "FmsgCallBack_pool:" + mCount.getAndIncrement());
-                }
-            });
 
     /**
      * 检测到人脸保存图片
@@ -79,117 +65,96 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     @Override
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, Pointer pAlarmInfo, int dwBufLen, Pointer pUser) {
-        THREAD_POOL.execute(new CallBackThread(lCommand, pAlarmer, pAlarmInfo, dwBufLen, pUser));
+        Long start = System.currentTimeMillis();
+        Date date = new Date();
+        HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo = new HCNetSDK.NET_VCA_FACESNAP_RESULT();
+        strFaceSnapInfo.write();
+        Pointer pFaceSnapInfo = strFaceSnapInfo.getPointer();
+        pFaceSnapInfo.write(0, pAlarmInfo.getByteArray(0, strFaceSnapInfo.size()), 0, strFaceSnapInfo.size());
+        strFaceSnapInfo.read();
+        if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
+            //创建临时文件
+            String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
+            String absPath = fileService.getFileBasePath().concat(filePath);
+            File path = new File(absPath);
+            if (!path.exists()) {
+                path.mkdirs();
+            }
+            String newName = MD5.encode(String.valueOf(System.nanoTime()));
+            String fileAbsName = absPath.concat("/").concat(newName);
+            FileOutputStream fout;
+            try {
+                //保存图片
+                fout = new FileOutputStream(fileAbsName);
+                //将字节写入文件
+                long offset = 0;
+                ByteBuffer buffers = strFaceSnapInfo.pBuffer2.getByteBuffer(offset, strFaceSnapInfo.dwBackgroundPicLen);
+                byte[] bytes = new byte[strFaceSnapInfo.dwBackgroundPicLen];
+                buffers.rewind();
+                buffers.get(bytes);
+                fout.write(bytes);
+                fout.close();
+                //根据MD5值命名
+                File oldFile = new File(fileAbsName);
+                FileInputStream inputStream = new FileInputStream(oldFile);
+                String md5 = DigestUtils.md5Hex(inputStream);
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                Resources resources = resourcesService.selectByMd5(md5);
+                if (resources != null) {
+                    oldFile.delete();
+                    return;
+                } else {
+                    File newFile = new File(absPath.concat("/").concat(md5));
+                    Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(oldFile);
+                    if (map.size() > 0) {
+                        oldFile.renameTo(newFile);
+                        resources = new Resources();
+                        resources.setType("file");
+                        resources.setSize(strFaceSnapInfo.dwBackgroundPicLen);
+                        resources.setName(md5);
+                        resources.setPath(filePath);
+                        resources.setMd5(md5);
+                        resources.setCreateTime(date);
+                        FaceImage faceImage = new FaceImage();
+                        String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
+                        short port = strFaceSnapInfo.struDevInfo.wPort;
+                        Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
+                                .and(Camera.Property.PORT, port).single();
+                        if (camera != null) {
+                            faceImage.setDeviceId(camera.getId());
+                        }
+                        faceImage.setCreateTime(date);
+                        //插入数据
+                        insert(resources, faceImage, map);
+                    } else {
+                        oldFile.delete();
+                    }
+                    System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
+                }
+
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
-    private class CallBackThread implements Runnable {
-
-        private NativeLong lCommand;
-        private HCNetSDK.NET_DVR_ALARMER pAlarmer;
-        private Pointer pAlarmInfo;
-        private int dwBufLen;
-        private Pointer pUser;
-
-        public CallBackThread(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, Pointer pAlarmInfo, int dwBufLen, Pointer pUser) {
-            this.lCommand = lCommand;
-            this.pAlarmer = pAlarmer;
-            this.pAlarmInfo = pAlarmInfo;
-            this.dwBufLen = dwBufLen;
-            this.pUser = pUser;
-        }
-
-        @Override
-        public void run() {
-            Long start = System.currentTimeMillis();
-            Date date = new Date();
-            HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo = new HCNetSDK.NET_VCA_FACESNAP_RESULT();
-            strFaceSnapInfo.write();
-            Pointer pFaceSnapInfo = strFaceSnapInfo.getPointer();
-            pFaceSnapInfo.write(0, pAlarmInfo.getByteArray(0, strFaceSnapInfo.size()), 0, strFaceSnapInfo.size());
-            strFaceSnapInfo.read();
-            if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
-                //创建临时文件
-                String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
-                String absPath = fileService.getFileBasePath().concat(filePath);
-                File path = new File(absPath);
-                if (!path.exists()) {
-                    path.mkdirs();
-                }
-                String newName = MD5.encode(String.valueOf(System.nanoTime()));
-                String fileAbsName = absPath.concat("/").concat(newName);
-                FileOutputStream fout;
-                try {
-                    //保存图片
-                    fout = new FileOutputStream(fileAbsName);
-                    //将字节写入文件
-                    long offset = 0;
-                    ByteBuffer buffers = strFaceSnapInfo.pBuffer2.getByteBuffer(offset, strFaceSnapInfo.dwBackgroundPicLen);
-                    byte[] bytes = new byte[strFaceSnapInfo.dwBackgroundPicLen];
-                    buffers.rewind();
-                    buffers.get(bytes);
-                    fout.write(bytes);
-                    fout.close();
-                    //根据MD5值命名
-                    File oldFile = new File(fileAbsName);
-                    FileInputStream inputStream = new FileInputStream(oldFile);
-                    String md5 = DigestUtils.md5Hex(inputStream);
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    Resources resources = resourcesService.selectByMd5(md5);
-                    if (resources != null) {
-                        oldFile.delete();
-                        return;
-                    } else {
-                        File newFile = new File(absPath.concat("/").concat(md5));
-                        Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(oldFile);
-                        if (map.size() > 0) {
-                            oldFile.renameTo(newFile);
-                            resources = new Resources();
-                            resources.setType("file");
-                            resources.setSize(strFaceSnapInfo.dwBackgroundPicLen);
-                            resources.setName(md5);
-                            resources.setPath(filePath);
-                            resources.setMd5(md5);
-                            resources.setCreateTime(date);
-                            FaceImage faceImage = new FaceImage();
-                            String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
-                            short port = strFaceSnapInfo.struDevInfo.wPort;
-                            Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
-                                    .and(Camera.Property.PORT, port).single();
-                            if (camera != null) {
-                                faceImage.setDeviceId(camera.getId());
-                            }
-                            faceImage.setCreateTime(date);
-                            //插入数据
-                            insert(resources, faceImage, map);
-                        } else {
-                            oldFile.delete();
-                        }
-                    }
-                    System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000 );
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Transactional
-        private void insert(Resources resources, FaceImage faceImage, Map<Integer, byte[]> map) {
-            Long id = resourcesService.insert(resources);
-            faceImage.setResourceId(id);
-            faceImageService.insert(faceImage);
-            for (byte[] faceFeature : map.values()) {
-                FaceFeature faceFeature1 = new FaceFeature();
-                faceFeature1.setId(GenericPo.createUID());
-                faceFeature1.setFaceImageId(id);
-                faceFeature1.setFaceFeature(faceFeature);
-                faceFeatureService.insert(faceFeature1);
-            }
+    @Transactional
+    public void insert(Resources resources, FaceImage faceImage, Map<Integer, byte[]> map) {
+        Long id = resourcesService.insert(resources);
+        faceImage.setResourceId(id);
+        faceImageService.insert(faceImage);
+        for (byte[] faceFeature : map.values()) {
+            FaceFeature faceFeature1 = new FaceFeature();
+            faceFeature1.setId(GenericPo.createUID());
+            faceFeature1.setFaceImageId(id);
+            faceFeature1.setFaceFeature(faceFeature);
+            faceFeatureService.insert(faceFeature1);
         }
     }
 
