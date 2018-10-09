@@ -198,7 +198,7 @@ $(function () {
                             "<div class='img-content'><div>" + data.name + "</div>" +
                             "<div>" + data.createTime;
                         if (data.similarity != null) {
-                            html += "<span class='similarity-box'>" + data.similarity.toFixed(2) * 100 + "%</span>";
+                            html += "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span>";
                         }
                         html += "</div></div></div>";
                         return html;

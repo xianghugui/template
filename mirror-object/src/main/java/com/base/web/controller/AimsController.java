@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +116,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             }
             return ResponseMessage.ok(faceImageList);
         } else {
+            DecimalFormat decimalFormat=new DecimalFormat("0.00");
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             //获取数据库全部图片
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
@@ -133,7 +135,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         if (similarity >= uploadValue.getMinSimilarity()) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            faceImageList.get(i).put("similarity", similarity);
+                            faceImageList.get(i).put("similarity", decimalFormat.format(similarity));
                                 i++;
                                 continue;
                         } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
