@@ -1,5 +1,6 @@
 $(function () {
 
+
     /**
      * 初始化组织树
      * @type {boolean}
@@ -276,8 +277,7 @@ $(function () {
             file.blur();
             var dataURL = document.selection.createRange().text;
             document.selection.empty();
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=image)";
-            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=image)";
             //图片必须显示出来,才能获取原图片的高和宽
             $("#preview").show();
 
@@ -286,10 +286,9 @@ $(function () {
             var nHight = imgObj.offsetHeight;
             //按比例设置图片的宽
             var imgWidth = parseInt(nWidth * (200 / nHight));
-            $('.preview_img').css("width", imgWidth);
-
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale)";
-            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            $('.preview_img').css("width",imgWidth);
+            
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=scale)";
         }
 
         $('#upload_button').attr('disabled', "true");
@@ -330,7 +329,6 @@ $(function () {
         }
         return true;
     }
-    
 });
 
 
