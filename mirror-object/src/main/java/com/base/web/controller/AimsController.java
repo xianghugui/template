@@ -51,25 +51,12 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
-    @RequestMapping(value = "/select", method = RequestMethod.GET)
-    @AccessLogger("查询")
-    @Authorize(action = "R")
-    public ResponseMessage select(QueryParam param, HttpServletRequest req) {
-        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
-        return ResponseMessage.ok(faceImageList)
-                .include(getPOType(), param.getIncludes())
-                .exclude(getPOType(), param.getExcludes())
-                .onlyData();
-    }
-
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
     @Authorize(action = "C")
     public String faceRecognize(@RequestParam("file") MultipartFile file) throws Exception {
-        if (file == null) {
-            //上传文件没有检测到人脸直接返回空数组
-            return null;
-        } else {
+        String returnStr = "没有获取到特征值,请重新上传图片";
+        if (file != null) {
             String currentImagePath;
             if (isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
@@ -93,20 +80,24 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 //插入人脸特征值
                 return uploadFeatureService.insert(uploadFeature).toString();
             }
+            returnStr = "检测到多张人脸,请重新上传图片";
         }
-        return "没有获取到特征值";
+        return returnStr;
     }
 
 
     @RequestMapping(value = "/faceRecognize", method = RequestMethod.GET)
-    @AccessLogger("人脸检测")
+    @AccessLogger("目标查询")
     @Authorize(action = "R")
     public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws Exception {
         List<Map> faceImageList;
+
+        //模糊匹配组织ID
         String organizationId = uploadValue.getOrganizationId();
         if (organizationId != null) {
             uploadValue.setOrganizationId(organizationId + "%");
         }
+
         if (uploadValue.getUploadId() == null) {
             //上传文件没有检测到人脸直接返回全部人脸
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
@@ -115,17 +106,18 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         ResourceUtil.resourceBuildPath(req, map.get("resourceId").toString()));
             }
             return ResponseMessage.ok(faceImageList);
+
         } else {
-            DecimalFormat decimalFormat=new DecimalFormat("0.00");
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             //获取数据库全部图片
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
             //获取数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
-                //查询当前视频对应图片包含的所有人脸特征值
+                //查询当前图片包含的所有人脸特征值
                 List<FaceFeature> faceFeatureList = faceFeatureService.createQuery()
                         .where(FaceFeature.Property.faceImageId, faceImageList.get(i).get("resourceId"))
                         .list();
+
                 if (faceFeatureList.size() == 0) {
                     faceImageList.remove(i);
                 } else {
@@ -135,9 +127,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         if (similarity >= uploadValue.getMinSimilarity()) {
                             faceImageList.get(i).put("imageUrl",
                                     ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            faceImageList.get(i).put("similarity", decimalFormat.format(similarity));
-                                i++;
-                                continue;
+                            faceImageList.get(i).put("similarity", similarity);
+                            i++;
+                            continue;
                         } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
                             faceImageList.remove(i);
                         }
@@ -154,7 +146,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @RequestMapping(value = "/faceimage", method = RequestMethod.GET)
     @AccessLogger("人脸检索")
     @Authorize(action = "R")
-    public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req){
+    public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
         return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
     }
 

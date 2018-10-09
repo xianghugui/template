@@ -139,7 +139,6 @@ $(function () {
                     var param = {}
                     //区域树条件
                     if (organization.level == 0) {
-
                         param.organizationId = (organization.id / 1000000);
                     } else if (organization.level == 1) {
                         param.organizationId = (organization.id / 1000);
@@ -220,7 +219,7 @@ $(function () {
     });
 
     /**
-     * 设置默认时间
+     * 设置默认筛选条件
      */
     function getNowFormatDate() {
         var date = new Date();
@@ -250,7 +249,7 @@ $(function () {
 
 
     /**
-     * 搜索
+     * 搜索事件
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         target_list.ajax.reload();
@@ -270,6 +269,7 @@ $(function () {
             dataURL = windowURL.createObjectURL(fileObj.files[0]);
             $img.attr('src', dataURL);
         } else {
+
             //在IE9下,获取图片绝对路径
             var imgObj = document.getElementById("preview");
             var file = document.getElementById("file_upload");
@@ -277,16 +277,37 @@ $(function () {
             file.blur();
             var dataURL = document.selection.createRange().text;
             document.selection.empty();
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=image)";
+            imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            //图片必须显示出来,才能获取原图片的高和宽
+            $("#preview").show();
+
+            //获取原图片的高和宽
+            var nWidth = imgObj.offsetWidth;
+            var nHight = imgObj.offsetHeight;
+            //按比例设置图片的宽
+            var imgWidth = parseInt(nWidth * (200 / nHight));
+            $('.preview_img').css("width",imgWidth);
+            
             imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
         }
 
-        $("#preview").show();
-
+        $('#upload_button').attr('disabled', "true");
         //用ajaxSubmit提交图片
         var options = {
             url: "/aims/upload",
             success: function (res) {
+                uploadId = null;
+                $('#upload_button').removeAttr('disabled');
+                if (res == "没有获取到特征值,请重新上传图片") {
+                    toastr.warning("没有获取到特征值,请重新上传图片");
+                    return false;
+                }
+                else if (res == "检测到多张人脸,请重新上传图片") {
+                    toastr.warning("检测到多张人脸,请重新上传图片");
+                    return false;
+                }
                 uploadId = res;
             },
             resetForm: true
@@ -299,7 +320,7 @@ $(function () {
     //验证字符串是否是数字
     function checkNumber(theObj) {
         var reg = /^[0-9]+.?[0-9]*$/;
-        if(theObj == ""){
+        if (theObj == "") {
             return false;
         }
         if (!reg.test(theObj)) {
