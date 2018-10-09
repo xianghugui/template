@@ -135,25 +135,21 @@ public class FaceFeatureUtil {
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
-//            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
             return faceInfo;
         }
 
         AFD_FSDK_FACERES faceRes = new AFD_FSDK_FACERES(ppFaceRes.getValue());
         if (faceRes.nFace > 0) {
             faceInfo = new FaceInfo[faceRes.nFace];
-            int area;
             for (int i = 0; i < faceRes.nFace; i++) {
                 MRECT rect = new MRECT(new Pointer(Pointer.nativeValue(faceRes.rcFace.getPointer()) + faceRes.rcFace.size() * i));
                 int orient = faceRes.lfaceOrient.getPointer().getInt(i * 4);
-                area = (rect.right - rect.left) * (rect.bottom - rect.top);
                 faceInfo[i] = new FaceInfo();
                 faceInfo[i].left = rect.left;
                 faceInfo[i].top = rect.top;
                 faceInfo[i].right = rect.right;
                 faceInfo[i].bottom = rect.bottom;
                 faceInfo[i].orient = orient;
-                faceInfo[i].area = area;
             }
         }
         return faceInfo;
@@ -163,7 +159,6 @@ public class FaceFeatureUtil {
     public float compareFaceSimilarity(byte[] faceFeatureA,byte[] faceFeatureB) throws Exception {
         AFR_FSDK_FACEMODEL faceA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureA);
         AFR_FSDK_FACEMODEL faceB = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureB);
-        // calc similarity between faceA and faceB
         FloatByReference fSimilScore = new FloatByReference(0.0f);
         NativeLong ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_FacePairMatching(hFREngine, faceA, faceB, fSimilScore);
         faceA.freeUnmanaged();

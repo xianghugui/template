@@ -86,9 +86,9 @@ $(function () {
                     }
                 }
             });
-            return result.concat().sort(function(a, b) {
+            return result.concat().sort(function (a, b) {
                 return a.id - b.id;
-            }).filter(function(item, index, array){
+            }).filter(function (item, index, array) {
                 return !index || item.id !== array[index - 1].id
             });
         },
@@ -127,7 +127,7 @@ $(function () {
             "ordering": false,
             "autoWidth": false,
             "order": [],
-            "stripeClasses": [ 'col-md-3' ],
+            "stripeClasses": ['col-md-3'],
             "ajax": function (data, callback, settings) {
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
@@ -180,7 +180,7 @@ $(function () {
                     "data": null,
                     render: function (data, type, row, meta) {
                         var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='img-content'><div>"+data.name+"</div><div>"+data.createTime+"</div></div></div>"
+                            "<div class='img-content'><div>" + data.name + "</div><div>" + data.createTime + "</div></div></div>"
                         return html;
                     }
                 },

@@ -155,14 +155,14 @@ $(function () {
                         param.searchEnd = $('#searchEnd').val();
                     }
 
-                    if ($("#minSimilarity").val() !== "") {
-                        var minSimilarity = $("#minSimilarity").val();
-                        if (!checkNumber(minSimilarity)) {
-                            toastr.warning("请输入0~100的相识度");
-                            return false;
-                        }
-                        param.minSimilarity = minSimilarity;
+
+                    var minSimilarity = $("#minSimilarity").val();
+                    if (!checkNumber(minSimilarity)) {
+                        toastr.warning("请输入0~100的相识度");
+                        return false;
                     }
+                    param.minSimilarity = minSimilarity;
+
 
                     if (uploadId !== null) {
                         param.uploadId = uploadId;
@@ -197,7 +197,7 @@ $(function () {
                             "<div class='img-content'><div>" + data.name + "</div>" +
                             "<div>" + data.createTime;
                         if (data.similarity != null) {
-                            html+="<span class='similarity-box'>" + data.similarity.toFixed(2)*100 + "%</span>";
+                            html += "<span class='similarity-box'>" + data.similarity.toFixed(2) * 100 + "%</span>";
                         }
                         html += "</div></div></div>";
                         return html;
@@ -275,12 +275,14 @@ $(function () {
             file.select();
             file.blur();
             var dataURL = document.selection.createRange().text;
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=crop)";
+            document.selection.empty();
+            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale)";
             imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
         }
 
         $("#preview").show();
 
+        //用ajaxSubmit提交图片
         var options = {
             url: "/aims/upload",
             success: function (res) {
@@ -296,6 +298,9 @@ $(function () {
     //验证字符串是否是数字
     function checkNumber(theObj) {
         var reg = /^[0-9]+.?[0-9]*$/;
+        if(theObj == ""){
+            return false;
+        }
         if (!reg.test(theObj)) {
             return false;
         }
