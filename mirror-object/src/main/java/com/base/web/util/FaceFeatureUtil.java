@@ -73,9 +73,9 @@ public class FaceFeatureUtil {
         AFR_FSDK_FACEMODEL[] afr_fsdk_facemodels = extractFace(file);
         if (afr_fsdk_facemodels != null) {
             for (int j = 0; j < afr_fsdk_facemodels.length; j++) {
-                if (extractFace(file)[j] != null) {
+                if (afr_fsdk_facemodels[j] != null) {
                     try {
-                        map.put(j, extractFace(file)[j].toByteArray());
+                        map.put(j, afr_fsdk_facemodels[j].toByteArray());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

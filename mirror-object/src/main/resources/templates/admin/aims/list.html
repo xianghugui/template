@@ -34,7 +34,7 @@
         margin-top: 20px;
     }
 
-    .close{
+    .close {
         font-size: 40px;
         color: #ffffff;
         position: absolute;
@@ -64,6 +64,10 @@
     .similarity-box {
         float: right;
     }
+
+    #upload_button{
+        margin-bottom: 10px;
+    }
 </style>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -84,13 +88,6 @@
             </div>
             <div class="col-md-9">
                 <div class="box table-box">
-                    <div class="form-group pull-left">
-                        <form id="uploadForm" method="post" enctype="multipart/form-data">
-                            <label for="file_upload" id="upload_button" class="btn btn-primary btn-add">上传</label>
-                            <input id="file_upload" type="file" name="file" accept="image/*"
-                                   style="width: 0;height: 0;opacity: 0;"/>
-                        </form>
-                    </div>
                     <div class="form-inline pull-right">
                         <div class="form-group">
                             <label for="minSimilarity">相似度</label>
@@ -113,6 +110,11 @@
                     <div class="col-md-12">
                         <div class="image_container">
                             <img id="preview" class="preview_img" style="display: none;">
+                            <form id="uploadForm" method="post" enctype="multipart/form-data">
+                                <label for="file_upload" id="upload_button" class="btn btn-primary btn-add col-md-2 col-lg-offset-5">上传</label>
+                                <input id="file_upload" type="file" name="file" accept="image/*"
+                                       style="width: 0;height: 0;opacity: 0;"/>
+                            </form>
                         </div>
                     </div>
                     <table class="box-body col-md-12" id="target_list"></table>

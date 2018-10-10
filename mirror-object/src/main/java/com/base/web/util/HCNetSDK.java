@@ -184,7 +184,7 @@ public interface HCNetSDK extends Library {
     /***API函数声明,详细说明见API手册***/
 
     public static interface FMSGCallBack extends Callback {
-        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, Pointer pAlarmInfo, int dwBufLen, Pointer pUser);
+        public void invoke(NativeLong lCommand, NET_DVR_ALARMER pAlarmer, NET_VCA_FACESNAP_RESULT pAlarmInfo, int dwBufLen, Pointer pUser);
     }
 
     boolean NET_DVR_Init();

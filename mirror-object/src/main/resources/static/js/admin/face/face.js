@@ -122,6 +122,7 @@ $(function () {
             "lengthChange": false,
             "searching": false,
             "pageLength": 16,
+            "processing": true,
             "serverSide": true,
             "destroy": true,
             "info": true,
@@ -241,7 +242,7 @@ $(function () {
 
     $('#face_list').on("dblclick",".img",function () {
         var _self = $(this);
-        $('#img_show').attr('src',_self[0].href);
+        $('#img_show').attr('src',_self[0].src);
         $('#modal_img_show').modal("show");
     });
 });

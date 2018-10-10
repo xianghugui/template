@@ -122,11 +122,14 @@ $(function () {
      */
 
     function initTable() {
+        var language = lang;
+        lang.sProcessing = "请稍等，数据检索中......";
         target_list = $('#target_list').DataTable({
-            "language": lang,
+            "language": language,
             "lengthChange": false,
             "searching": false,
             "pageLength": 8,
+            "processing": true,
             "paging": true,
             "serverSide": false,
             "destroy": true,
@@ -258,7 +261,6 @@ $(function () {
         target_list.ajax.reload();
     });
 
-
     /**
      * 上传图片
      */
@@ -341,7 +343,7 @@ $(function () {
 
     $('#target_list').on("dblclick",".img",function () {
         var _self = $(this);
-        $('#img_show').attr('src',_self[0].href);
+        $('#img_show').attr('src',_self[0].src);
         $('#modal_img_show').modal("show");
     });
 });

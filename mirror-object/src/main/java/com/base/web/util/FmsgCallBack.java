@@ -58,20 +58,15 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      *
      * @param lCommand
      * @param pAlarmer
-     * @param pAlarmInfo
+     * @param strFaceSnapInfo
      * @param dwBufLen
      * @param pUser
      * @throws IOException
      */
     @Override
-    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, Pointer pAlarmInfo, int dwBufLen, Pointer pUser) {
+    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo, int dwBufLen, Pointer pUser) {
         Long start = System.currentTimeMillis();
         Date date = new Date();
-        HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo = new HCNetSDK.NET_VCA_FACESNAP_RESULT();
-        strFaceSnapInfo.write();
-        Pointer pFaceSnapInfo = strFaceSnapInfo.getPointer();
-        pFaceSnapInfo.write(0, pAlarmInfo.getByteArray(0, strFaceSnapInfo.size()), 0, strFaceSnapInfo.size());
-        strFaceSnapInfo.read();
         if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
             //创建临时文件
             String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
