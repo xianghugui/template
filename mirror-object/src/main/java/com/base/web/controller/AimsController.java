@@ -5,8 +5,6 @@ import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
 import com.base.web.bean.UploadFeature;
 import com.base.web.bean.UploadValue;
-import com.base.web.bean.common.PagerResult;
-import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
@@ -23,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +108,8 @@ public class AimsController extends GenericController<FaceImage, Long> {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             //获取数据库全部图片
             faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
-            //获取数据库的特征值
+
+            //遍历匹配数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前图片包含的所有人脸特征值
                 List<FaceFeature> faceFeatureList = faceFeatureService.createQuery()

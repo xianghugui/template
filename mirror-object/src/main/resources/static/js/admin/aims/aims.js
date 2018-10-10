@@ -22,6 +22,7 @@ $(function () {
                 onNodeSelected: function (event, data) {
                     $("#preview").hide();
                     uploadId = null;
+                    getNowFormatDate();
                     target_list.ajax.reload();
                 }
             });
@@ -119,6 +120,7 @@ $(function () {
     /**
      * dataTable
      */
+
     function initTable() {
         target_list = $('#target_list').DataTable({
             "language": lang,
@@ -154,7 +156,10 @@ $(function () {
                     if ($('#searchEnd').val() !== "") {
                         param.searchEnd = $('#searchEnd').val();
                     }
-
+                    if ($('#searchStart').val() >= $('#searchEnd').val()) {
+                        toastr.warning("开始时间必须小于结束时间");
+                        return false;
+                    }
 
                     var minSimilarity = $("#minSimilarity").val();
                     if (!checkNumber(minSimilarity)) {
@@ -210,6 +215,7 @@ $(function () {
     /**
      * 时间选择控件
      */
+
     $('.form_datetime').datetimepicker({
         format: 'yyyy-mm-dd hh:00',
         language: 'zh-CN',
@@ -221,6 +227,7 @@ $(function () {
     /**
      * 设置默认筛选条件
      */
+
     function getNowFormatDate() {
         var date = new Date();
         var seperator1 = "-";
@@ -245,12 +252,11 @@ $(function () {
         $('#minSimilarity').val(40);
     }
 
-    getNowFormatDate();
-
 
     /**
      * 搜索事件
      */
+
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         target_list.ajax.reload();
     });
@@ -259,6 +265,7 @@ $(function () {
     /**
      * 上传图片
      */
+
     $("#file_upload").change(function () {
         var $file = $(this);
         var fileObj = $file[0];
@@ -286,8 +293,8 @@ $(function () {
             var nHight = imgObj.offsetHeight;
             //按比例设置图片的宽
             var imgWidth = parseInt(nWidth * (200 / nHight));
-            $('.preview_img').css("width",imgWidth);
-            
+            $('.preview_img').css("width", imgWidth);
+
             imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=scale)";
         }
 

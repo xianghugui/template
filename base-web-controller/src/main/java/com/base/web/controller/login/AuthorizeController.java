@@ -156,8 +156,9 @@ public class AuthorizeController {
 
         User user = userService.selectByUserName(username);
         if (user == null || user.getStatus() != 1) throw new NotFoundException("用户不存在或已注销");
-        //密码错误
+        if (!user.getPassword().equals(MD5.encode(password))) throw new NotFoundException("密码错误,请重新输入");
 
+        //密码错误
         cache.evict(timeCacheKey);
         cache.evict(numberCacheKey);
         user.setPassword("");//去除密码

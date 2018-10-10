@@ -19,6 +19,7 @@ $(function () {
                 data: rootNodes,
                 levels: 3,
                 onNodeSelected: function (event, data) {
+                    getNowFormatDate();
                     face_list.ajax.reload();
                 }
             });
@@ -152,6 +153,10 @@ $(function () {
                     if ($('#searchEnd').val() !== "") {
                         param.searchEnd = $('#searchEnd').val();
                     }
+                    if ($('#searchStart').val() >= $('#searchEnd').val()) {
+                        toastr.warning("开始时间必须小于结束时间");
+                        return false;
+                    }
                     $.ajax({
                         url: BASE_PATH + "aims/faceimage",
                         type: "GET",
@@ -196,7 +201,7 @@ $(function () {
         language: 'zh-CN',
         autoclose: true,
         minView: 1,
-        todayBtn: "linked",
+        todayBtn: "linked"
 
     });
 
@@ -225,8 +230,6 @@ $(function () {
         $('#searchStart').val(searchStart);
         $('#searchEnd').val(searchEnd);
     }
-
-    getNowFormatDate();
 
     /**
      * 搜索
