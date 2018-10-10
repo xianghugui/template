@@ -9,6 +9,21 @@
     .img{
         width: 100%;
     }
+
+    .img_show_info {
+        width: 80%;
+        height: auto;
+        margin-top: 20px;
+    }
+
+    .close{
+        font-size: 40px;
+        color: #ffffff;
+        position: absolute;
+        right: 150px;
+        filter: alpha(opacity=100);
+    }
+
     .img-content {
         font-size: 12px;
         padding: 3px 5px;
@@ -58,6 +73,18 @@
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
+
+    <!-- /.modal add -->
+    <div class="modal fade" id="modal_img_show">
+        <div class="modal-body">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+            <img id="img_show" class="img_show_info">
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal add -->
 
     <div th:include="admin/include/copyright" th:remove="tag"></div>
 </div>
