@@ -18,7 +18,7 @@ import java.util.Map;
 public class FaceFeatureUtil {
 
 
-    private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
+    public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
     /**
      * 虹软人脸识别
      */

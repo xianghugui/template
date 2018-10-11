@@ -46,7 +46,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
         return faceImageService;
     }
 
-    private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
@@ -55,7 +54,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
         String returnStr = "没有获取到特征值,请重新上传图片";
         if (file != null) {
             String currentImagePath;
-            if (isWin) {
+            if (FaceFeatureUtil.isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
                         + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename();
             } else {

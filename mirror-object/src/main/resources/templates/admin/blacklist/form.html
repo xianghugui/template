@@ -1,0 +1,71 @@
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog">
+        <div class="modal-content panel-blur">
+            <div class="modal-header">
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加设备</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="add_form" id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label" style="text-align: center">名&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;称:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="name" id="name" value=""
+                                   placeholder="请输入名称"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="code" class="col-sm-3 control-label" style="text-align: center">身份证号码:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="code" id="code" value=""
+                                   placeholder="请输入身份证号码"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" style="text-align: center">照&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;片:</label>
+                        <div class="col-sm-8">
+                            <img id="preview" class="preview_img" style="display: none;">
+                                <label for="file_upload" id="upload_button" class="btn btn-primary btn-add col-md-12">上传</label>
+                                <input id="file_upload" type="file" name="file" accept="image/*"
+                                       style="width: 0;height: 0;opacity: 0;"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">取消</button>
+                            <button type="submit" id="insert" class="btn btn-primary">确定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal add -->
+
+
+<!-- 信息删除确认 -->
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="title">提示信息</h4>
+            </div>
+            <div class="modal-body">
+                <p>您确认要删除该摄像头吗？</p>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="url"/>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success btn-close-sure" data-dismiss="modal">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
