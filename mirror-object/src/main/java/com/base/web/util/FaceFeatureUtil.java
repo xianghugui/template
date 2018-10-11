@@ -71,11 +71,11 @@ public class FaceFeatureUtil {
     public Map returnFaceFeature(File file){
         Map<Integer, byte[]> map = new HashMap();
         AFR_FSDK_FACEMODEL[] afr_fsdk_facemodels = extractFace(file);
-        if (afr_fsdk_facemodels != null) {
+        if (afr_fsdk_facemodels.length > 0) {
             for (int j = 0; j < afr_fsdk_facemodels.length; j++) {
-                if (extractFace(file)[j] != null) {
+                if (afr_fsdk_facemodels[j] != null) {
                     try {
-                        map.put(j, extractFace(file)[j].toByteArray());
+                        map.put(j, afr_fsdk_facemodels[j].toByteArray());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -101,7 +101,6 @@ public class FaceFeatureUtil {
         //获取图片里面能检测到的所有人脸
         AFR_FSDK_FACEINPUT[] faceinput = new AFR_FSDK_FACEINPUT[faceInfos.length];
         for (int i = 0; i < faceInfos.length; i++) {
-            faceinput[i] = new AFR_FSDK_FACEINPUT();
             faceinput[i].lOrient = faceInfos[i].orient;
             faceinput[i].rcFace.left = faceInfos[i].left;
             faceinput[i].rcFace.top = faceInfos[i].top;
@@ -112,7 +111,6 @@ public class FaceFeatureUtil {
         //获取图片里面能检测到的所有人脸特征值
         AFR_FSDK_FACEMODEL[] faceFeature = new AFR_FSDK_FACEMODEL[faceinput.length];
         for (int i = 0; i < faceinput.length; i++) {
-            faceFeature[i] = new AFR_FSDK_FACEMODEL();
             NativeLong nativeLong = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_ExtractFRFeature(hFREngine, inputImg, faceinput[i], faceFeature[i]);
             if (nativeLong.longValue() != 0) {
                 faceFeature[i] = null;//人脸特征值获取失败将当前人脸特征值置空
@@ -144,7 +142,6 @@ public class FaceFeatureUtil {
             for (int i = 0; i < faceRes.nFace; i++) {
                 MRECT rect = new MRECT(new Pointer(Pointer.nativeValue(faceRes.rcFace.getPointer()) + faceRes.rcFace.size() * i));
                 int orient = faceRes.lfaceOrient.getPointer().getInt(i * 4);
-                faceInfo[i] = new FaceInfo();
                 faceInfo[i].left = rect.left;
                 faceInfo[i].top = rect.top;
                 faceInfo[i].right = rect.right;
