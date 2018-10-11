@@ -122,6 +122,7 @@ $(function () {
             "lengthChange": false,
             "searching": false,
             "pageLength": 16,
+            "processing": true,
             "serverSide": true,
             "destroy": true,
             "info": true,
@@ -210,8 +211,6 @@ $(function () {
      */
     function getNowFormatDate() {
         var date = new Date();
-        var seperator1 = "-";
-        var seperator2 = ":";
         var month = date.getMonth() + 1;
         var strDate = date.getDate();
         if (month >= 1 && month <= 9) {
@@ -220,13 +219,12 @@ $(function () {
         if (strDate >= 0 && strDate <= 9) {
             strDate = "0" + strDate;
         }
-        var searchStart = date.getFullYear() + seperator1 + month + seperator1 + strDate
-            + " " + "00" + seperator2 + "00" + seperator2 + "00";
+        var searchStart = date.getFullYear() + "-" + month + "-" + strDate
+            + " " + "00" + ":" + "00" + ":" + "00";
 
-        var searchEnd = date.getFullYear() + seperator1 + month + seperator1 + strDate
-            + " " + date.getHours() + seperator2 + date.getMinutes()
-            + seperator2 + date.getSeconds();
-
+        var searchEnd = date.getFullYear() + "-" + month + "-" + strDate
+            + " " + date.getHours() + ":" + date.getMinutes()
+            + ":" + date.getSeconds();
         $('#searchStart').val(searchStart);
         $('#searchEnd').val(searchEnd);
     }
@@ -236,5 +234,15 @@ $(function () {
      */
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         face_list.ajax.reload();
+    });
+
+    /**
+     * 图片双击预览
+     */
+
+    $('#face_list').on("dblclick",".img",function () {
+        var _self = $(this);
+        $('#img_show').attr('src',_self[0].src);
+        $('#modal_img_show').modal("show");
     });
 });

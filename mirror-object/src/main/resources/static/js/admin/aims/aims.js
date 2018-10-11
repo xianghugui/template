@@ -122,11 +122,14 @@ $(function () {
      */
 
     function initTable() {
+        var language = lang;
+        lang.sProcessing = "请稍等，数据检索中......";
         target_list = $('#target_list').DataTable({
-            "language": lang,
+            "language": language,
             "lengthChange": false,
             "searching": false,
             "pageLength": 8,
+            "processing": true,
             "paging": true,
             "serverSide": false,
             "destroy": true,
@@ -230,8 +233,6 @@ $(function () {
 
     function getNowFormatDate() {
         var date = new Date();
-        var seperator1 = "-";
-        var seperator2 = ":";
         var month = date.getMonth() + 1;
         var strDate = date.getDate();
         if (month >= 1 && month <= 9) {
@@ -240,13 +241,12 @@ $(function () {
         if (strDate >= 0 && strDate <= 9) {
             strDate = "0" + strDate;
         }
-        var searchStart = date.getFullYear() + seperator1 + month + seperator1 + strDate
-            + " " + "00" + seperator2 + "00" + seperator2 + "00";
+        var searchStart = date.getFullYear() + "-" + month + "-" + strDate
+            + " " + "00" + ":" + "00" + ":" + "00";
 
-        var searchEnd = date.getFullYear() + seperator1 + month + seperator1 + strDate
-            + " " + date.getHours() + seperator2 + date.getMinutes()
-            + seperator2 + date.getSeconds();
-
+        var searchEnd = date.getFullYear() + "-" + month + "-" + strDate
+            + " " + date.getHours() + ":" + date.getMinutes()
+            + ":" + date.getSeconds();
         $('#searchStart').val(searchStart);
         $('#searchEnd').val(searchEnd);
         $('#minSimilarity').val(40);
@@ -261,7 +261,6 @@ $(function () {
         target_list.ajax.reload();
     });
 
-
     /**
      * 上传图片
      */
@@ -275,6 +274,7 @@ $(function () {
         if (fileObj && fileObj.files && fileObj.files[0]) {
             dataURL = windowURL.createObjectURL(fileObj.files[0]);
             $img.attr('src', dataURL);
+            $("#preview").show();
         } else {
 
             //在IE9下,获取图片绝对路径
@@ -336,6 +336,16 @@ $(function () {
         }
         return true;
     }
+
+    /**
+     * 图片双击预览
+     */
+
+    $('#target_list').on("dblclick",".img",function () {
+        var _self = $(this);
+        $('#img_show').attr('src',_self[0].src);
+        $('#modal_img_show').modal("show");
+    });
 });
 
 
