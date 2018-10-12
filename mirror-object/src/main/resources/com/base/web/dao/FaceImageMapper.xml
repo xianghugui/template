@@ -10,6 +10,7 @@
         <result property="deviceId" column="device_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="blacklistId" column="blacklist_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="similarity" column="similarity" javaType="int" jdbcType="INTEGER"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">
@@ -66,7 +67,7 @@
         ORDER BY tr.create_time DESC
     </select>
     <select id="listFaceImage" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name,
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name,tfi.similarity,
         tb.`name` AS blackListName, tb.`code`
         FROM t_resource tr, t_device td,t_face_image tfi LEFT JOIN t_blacklist tb ON tfi.blacklist_id = tb.u_id
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id

@@ -23,7 +23,7 @@ $(function () {
                     $("#preview").hide();
                     uploadId = null;
                     getNowFormatDate();
-                    // target_list.ajax.reload();
+                    target_list.ajax.reload();
                 }
             });
             getNowFormatDate();

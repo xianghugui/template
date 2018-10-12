@@ -13,6 +13,8 @@ public class FaceImage extends GenericPo<Long> {
     private Long blacklistId;
     //创建时间
     private Date createTime;
+    //黑名单对比相识度
+    private int similarity;
 
     public Long getBlacklistId() {
         return blacklistId;
@@ -46,10 +48,19 @@ public class FaceImage extends GenericPo<Long> {
         this.createTime = createTime;
     }
 
+    public int getSimilarity() {
+        return similarity;
+    }
+
+    public void setSimilarity(int similarity) {
+        this.similarity = similarity;
+    }
+
     public interface Property extends GenericPo.Property {
         String resourceId = "resourceId";
         String deviceId = "deviceId";
         String blacklistId = "blacklistId";
         String createTime = "createTime";
+        String similarity = "similarity";
     }
 }

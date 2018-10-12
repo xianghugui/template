@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,11 +98,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         if (uploadValue.getUploadId() == null) {
             //上传文件没有检测到人脸直接返回全部人脸
-            faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
-            for (Map map : faceImageList) {
-                map.put("imageUrl",
-                        ResourceUtil.resourceBuildPath(req, map.get("resourceId").toString()));
-            }
+            faceImageList = new ArrayList<>();
             return ResponseMessage.ok(faceImageList);
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();

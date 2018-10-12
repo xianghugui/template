@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -312,12 +313,16 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         @Override
         public void run() {
             List<BlackList> list = blackListService.select();
+            DecimalFormat df = new DecimalFormat(".00");
+            float similarity;
             for (BlackList blackList : list) {
                 try {
-                    if (FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 0.4 > 0) {
+                    similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature());
+                    if (similarity - 0.4 > 0) {
                         FaceImage faceImage = new FaceImage();
                         faceImage.setId(faceImageId);
                         faceImage.setBlacklistId(blackList.getId());
+                        faceImage.setSimilarity((int) (similarity*100));
                         faceImageService.update(faceImage);
                     }
                 } catch (Exception e) {

@@ -61,16 +61,14 @@ public class FaceFeatureUtil{
             throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
-
-        System.out.println("初始化人脸检索引擎");
     }
 
     /**
-     * 清除人脸检索引擎内存
+     * 清除人脸检索引擎和人脸比对引擎
      */
     public void clearFaceEngine(){
         AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFDEngine);
-        AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFREngine);
+        AFR_FSDKLibrary.INSTANCE.AFR_FSDK_UninitialEngine(hFREngine);
         CLibrary.INSTANCE.free(pFDWorkMem);
         CLibrary.INSTANCE.free(pFRWorkMem);
     }

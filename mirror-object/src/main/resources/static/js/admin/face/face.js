@@ -188,7 +188,10 @@ $(function () {
                     render: function (data, type, row, meta) {
                         var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
                             "<div class='img-content'><div>" + data.name + "</div>" +
-                            "<div>" + data.createTime+"</div>";
+                            "<div>" + data.createTime;
+                        if (data.similarity != null && data.similarity != 0) {
+                            html += "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                        }
                         if (data.blackListName != null) {
                             html += "<div class='blackListName-box'>黑名单人物  :  " + data.blackListName + "<span class='black-code'>身份证号  :  "+data.code+"</span></div>";
                         }
