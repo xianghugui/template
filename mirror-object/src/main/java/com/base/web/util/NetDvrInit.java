@@ -12,7 +12,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
@@ -31,6 +33,8 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
     static HCNetSDK.NET_DVR_DEVICEINFO_V30 struDeviceInfoV30 = new HCNetSDK.NET_DVR_DEVICEINFO_V30();
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    Map<Long,FaceFeatureUtil> maps = new HashMap<Long,FaceFeatureUtil>();
 
     /**
      * 项目启动时设置所有已分配摄像头的人脸抓拍报警回调函数
@@ -66,6 +70,8 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
+                maps.put(alarmHandleId,new FaceFeatureUtil());
+                FmsgCallBack.setMaps(maps);
                 System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
                 cameraService.update(camera);
             }

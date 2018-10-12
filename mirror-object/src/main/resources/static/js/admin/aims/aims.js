@@ -139,6 +139,10 @@ $(function () {
             "order": [],
             "stripeClasses": ['col-md-3'],
             "ajax": function (data, callback, settings) {
+
+                httpGet.setProtocolVersion(HttpVersion.HTTP_1_0);
+                httpGet.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
                     var param = {}

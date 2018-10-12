@@ -35,8 +35,8 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Autowired
     private FaceImageService faceImageService;
 
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
+//    @Autowired
+    private FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
 
     @Autowired
     private UploadFeatureService uploadFeatureService;

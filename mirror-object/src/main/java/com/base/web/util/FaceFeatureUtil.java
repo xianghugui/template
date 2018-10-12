@@ -14,8 +14,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service(value = "faceFeatureUtil")
-public class FaceFeatureUtil {
+//@Service(value = "faceFeatureUtil")
+public class FaceFeatureUtil{
 
 
     private static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
@@ -140,6 +140,7 @@ public class FaceFeatureUtil {
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
+            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x" , ret.longValue()));
             return faceInfo;
         }
 

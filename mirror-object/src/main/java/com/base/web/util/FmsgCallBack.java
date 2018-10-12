@@ -11,6 +11,9 @@ import com.base.web.service.FaceFeatureService;
 import com.base.web.service.FaceImageService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -49,9 +52,14 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private FaceFeatureService faceFeatureService;
 
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
+//    @Autowired
+//    private FaceFeatureUtil faceFeatureUtil;
 
+    Map<Long,FaceFeatureUtil> maps = new HashMap<Long,FaceFeatureUtil>();
+
+    public void setMaps(Map<Long, FaceFeatureUtil> maps) {
+        this.maps = maps;
+    }
 
     /**
      * 检测到人脸保存图片
@@ -102,7 +110,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     return;
                 } else {
                     File newFile = new File(absPath.concat("/").concat(md5));
-                    Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(oldFile);
+                    Map<Integer, byte[]> map = maps.get(pAlarmer.lUserID.longValue()).returnFaceFeature(oldFile);
                     if (map.size() > 0) {
                         oldFile.renameTo(newFile);
                         resources = new Resources();
