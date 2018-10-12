@@ -11,6 +11,7 @@ import com.base.web.dao.ServerMapper;
 import com.base.web.dao.GenericMapper;
 import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
+import com.base.web.util.FaceFeatureUtil;
 import com.base.web.util.NetDvrInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
+                FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
                 camera.setStatus(1);
                 cameraService.update(camera);
                 serverDevice.setDeviceId(deviceIds[i]);
@@ -96,6 +98,8 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (!NetDvrInit.logout(camera.getUserId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，登出，错误码：" + NetDvrInit.getLastError());
                 }
+                FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).clearFaceEngine();
+                FaceFeatureUtil.ENGINEMAPS.remove(camera.getId());
             }
             serverDeviceMapper.batchDeleteServerDevice(serverDevice);
             map.put("status", 0);

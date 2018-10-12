@@ -56,15 +56,22 @@ public class FaceFeatureUtil{
         PointerByReference phFREngine = new PointerByReference();
         ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_InitialEngine(APPID, FR_SDKKEY, pFRWorkMem, FR_WORKBUF_SIZE, phFREngine);
         if (ret.longValue() != 0) {
-            AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFDEngine);
-            CLibrary.INSTANCE.free(pFDWorkMem);
-            CLibrary.INSTANCE.free(pFRWorkMem);
+            clearFaceEngine();
             System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
             throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
 
         System.out.println("初始化人脸检索引擎");
+    }
+
+    /**
+     * 清除人脸检索引擎内存
+     */
+    public void clearFaceEngine(){
+        AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFDEngine);
+        CLibrary.INSTANCE.free(pFDWorkMem);
+        CLibrary.INSTANCE.free(pFRWorkMem);
     }
 
     /**
