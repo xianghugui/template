@@ -97,7 +97,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     @Override
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo, int dwBufLen, Pointer pUser) {
-        FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(strFaceSnapInfo, fileService, resourcesService, cameraService));
+        if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
+            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(strFaceSnapInfo, fileService, resourcesService, cameraService));
+        }
     }
 
     @Transactional
@@ -118,7 +120,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     /**
      * 抓拍保存图片
      */
-    private class FmsgCallBackThread implements Runnable{
+    private class FmsgCallBackThread implements Runnable {
 
         private HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo;
 
@@ -129,7 +131,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         private CameraService cameraService;
 
         public FmsgCallBackThread(HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo, FileService fileService,
-                                  ResourcesService resourcesService, CameraService cameraService){
+                                  ResourcesService resourcesService, CameraService cameraService) {
             this.strFaceSnapInfo = strFaceSnapInfo;
             this.fileService = fileService;
             this.resourcesService = resourcesService;
@@ -140,86 +142,84 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         public void run() {
             Long start = System.currentTimeMillis();
             Date date = new Date();
-            if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
-                //创建临时文件
-                String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
-                String absPath = fileService.getFileBasePath().concat(filePath);
-                File path = new File(absPath);
-                if (!path.exists()) {
-                    path.mkdirs();
-                }
-                String newName = MD5.encode(String.valueOf(System.nanoTime()));
-                String fileAbsName = absPath.concat("/").concat(newName);
-                FileOutputStream fout;
-                try {
-                    //保存图片
-                    fout = new FileOutputStream(fileAbsName);
-                    //将字节写入文件
-                    long offset = 0;
-                    ByteBuffer buffers = strFaceSnapInfo.pBuffer2.getByteBuffer(offset, strFaceSnapInfo.dwBackgroundPicLen);
-                    byte[] bytes = new byte[strFaceSnapInfo.dwBackgroundPicLen];
-                    buffers.rewind();
-                    buffers.get(bytes);
-                    fout.write(bytes);
-                    fout.close();
-                    //根据MD5值命名
-                    File oldFile = new File(fileAbsName);
-                    FileInputStream inputStream = new FileInputStream(oldFile);
-                    String md5 = DigestUtils.md5Hex(inputStream);
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    Resources resources = resourcesService.selectByMd5(md5);
-                    if (resources != null) {
-                        oldFile.delete();
-                        return;
-                    } else {
-                        String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
-                        short port = strFaceSnapInfo.struDevInfo.wPort;
-                        Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
-                                .and(Camera.Property.PORT, port).single();
-                        File newFile = new File(absPath.concat("/").concat(md5));
-                        Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
-                        if (map.size() > 0) {
-                            oldFile.renameTo(newFile);
-                            resources = new Resources();
-                            resources.setType("file");
-                            resources.setSize(strFaceSnapInfo.dwBackgroundPicLen);
-                            resources.setName(md5);
-                            resources.setPath(filePath);
-                            resources.setMd5(md5);
-                            resources.setCreateTime(date);
-                            FaceImage faceImage = new FaceImage();
-                            if (camera != null) {
-                                faceImage.setDeviceId(camera.getId());
-                            }
-                            faceImage.setCreateTime(date);
-                            //插入数据
-                            insert(resources, faceImage, map);
-                            System.out.println(faceImage.getId());
-                            RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(blackListService, faceImageService,
-                                    map.get(0), faceImage.getId()));
-                        } else {
-                            oldFile.delete();
-                        }
-                        System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
-                    }
-
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            //创建临时文件
+            String filePath = "/file/".concat(DateTimeUtils.format(new Date(), DateTimeUtils.YEAR_MONTH_DAY));
+            String absPath = fileService.getFileBasePath().concat(filePath);
+            File path = new File(absPath);
+            if (!path.exists()) {
+                path.mkdirs();
             }
+            String newName = MD5.encode(String.valueOf(System.nanoTime()));
+            String fileAbsName = absPath.concat("/").concat(newName);
+            FileOutputStream fout;
+            try {
+                //保存图片
+                fout = new FileOutputStream(fileAbsName);
+                //将字节写入文件
+                long offset = 0;
+                ByteBuffer buffers = strFaceSnapInfo.pBuffer2.getByteBuffer(offset, strFaceSnapInfo.dwBackgroundPicLen);
+                byte[] bytes = new byte[strFaceSnapInfo.dwBackgroundPicLen];
+                buffers.rewind();
+                buffers.get(bytes);
+                fout.write(bytes);
+                fout.close();
+                //根据MD5值命名
+                File oldFile = new File(fileAbsName);
+                FileInputStream inputStream = new FileInputStream(oldFile);
+                String md5 = DigestUtils.md5Hex(inputStream);
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                Resources resources = resourcesService.selectByMd5(md5);
+                if (resources != null) {
+                    oldFile.delete();
+                    return;
+                } else {
+                    String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
+                    short port = strFaceSnapInfo.struDevInfo.wPort;
+                    Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
+                            .and(Camera.Property.PORT, port).single();
+                    File newFile = new File(absPath.concat("/").concat(md5));
+                    Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
+                    if (map.size() > 0) {
+                        oldFile.renameTo(newFile);
+                        resources = new Resources();
+                        resources.setType("file");
+                        resources.setSize(strFaceSnapInfo.dwBackgroundPicLen);
+                        resources.setName(md5);
+                        resources.setPath(filePath);
+                        resources.setMd5(md5);
+                        resources.setCreateTime(date);
+                        FaceImage faceImage = new FaceImage();
+                        if (camera != null) {
+                            faceImage.setDeviceId(camera.getId());
+                        }
+                        faceImage.setCreateTime(date);
+                        //插入数据
+                        insert(resources, faceImage, map);
+                        RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(blackListService, faceImageService,
+                                map.get(0), faceImage.getId()));
+                    } else {
+                        oldFile.delete();
+                    }
+                    System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
+                }
+
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
         }
     }
 
     /**
      * 检索黑名单
      */
-    private class RetrieveBlacklistThread implements Runnable{
+    private class RetrieveBlacklistThread implements Runnable {
 
         private BlackListService blackListService;
 
@@ -230,10 +230,11 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         private Long faceImageId;
 
         public RetrieveBlacklistThread(BlackListService blackListService, FaceImageService faceImageService,
-                                       byte[] faceFeatureA, Long faceImageId){
+                                       byte[] faceFeatureA, Long faceImageId) {
             this.blackListService = blackListService;
             this.faceImageService = faceImageService;
             this.faceFeatureA = faceFeatureA;
+            this.faceImageId = faceImageId;
         }
 
         @Override
@@ -241,7 +242,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             List<BlackList> list = blackListService.select();
             for (BlackList blackList : list) {
                 try {
-                    if(FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 4.0 > 0){
+                    if (FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 4.0 > 0) {
                         FaceImage faceImage = new FaceImage();
                         faceImage.setId(faceImageId);
                         faceImage.setBlacklistId(blackList.getId());
