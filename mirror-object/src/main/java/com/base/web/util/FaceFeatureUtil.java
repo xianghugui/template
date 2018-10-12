@@ -8,7 +8,6 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.PointerByReference;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.Map;
 //@Service(value = "faceFeatureUtil")
 public class FaceFeatureUtil{
 
+    public static final Map<Long,FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
 
     public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
     /**

@@ -20,7 +20,7 @@ import java.util.Map;
 public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
-    private FmsgCallBack FmsgCallBack;
+    private FmsgCallBack fmsgCallBack;
 
     @Autowired
     private CameraService cameraService;
@@ -34,7 +34,6 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    Map<Long,FaceFeatureUtil> maps = new HashMap<Long,FaceFeatureUtil>();
 
     /**
      * 项目启动时设置所有已分配摄像头的人脸抓拍报警回调函数
@@ -45,7 +44,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
         //初始化SDK
         if (hCNetSDK.NET_DVR_Init()) {
             //设置报警回调函数
-            hCNetSDK.NET_DVR_SetDVRMessageCallBack_V30(FmsgCallBack, null);
+            hCNetSDK.NET_DVR_SetDVRMessageCallBack_V30(fmsgCallBack, null);
             List<Camera> cameras = cameraService.createQuery().where(Camera.Property.STATUS, 1).list();
             for (Camera camera : cameras) {
                 //登陆
@@ -70,11 +69,11 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
-                maps.put(alarmHandleId,new FaceFeatureUtil());
-                FmsgCallBack.setMaps(maps);
+                FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
                 System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
                 cameraService.update(camera);
             }
+            FaceFeatureUtil.ENGINEMAPS.put(0L, new FaceFeatureUtil());
         }
 
     }

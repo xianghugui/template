@@ -6,6 +6,7 @@ import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.bean.po.resource.Resources;
+import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.service.BlackListService;
 import com.base.web.service.CameraService;
 import com.base.web.service.FaceFeatureService;
@@ -54,14 +55,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private BlackListService blackListService;
 
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
 
-    Map<Long,FaceFeatureUtil> maps = new HashMap<Long,FaceFeatureUtil>();
-
-    public void setMaps(Map<Long, FaceFeatureUtil> maps) {
-        this.maps = maps;
-    }
     /**
      * 检索黑名单线程池
      */
@@ -125,8 +119,12 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     oldFile.delete();
                     return;
                 } else {
+                    String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
+                    short port = strFaceSnapInfo.struDevInfo.wPort;
+                    Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
+                            .and(Camera.Property.PORT, port).single();
                     File newFile = new File(absPath.concat("/").concat(md5));
-                    Map<Integer, byte[]> map = maps.get(pAlarmer.lUserID.longValue()).returnFaceFeature(oldFile);
+                    Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
                     if (map.size() > 0) {
                         oldFile.renameTo(newFile);
                         resources = new Resources();
@@ -137,10 +135,6 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                         resources.setMd5(md5);
                         resources.setCreateTime(date);
                         FaceImage faceImage = new FaceImage();
-                        String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
-                        short port = strFaceSnapInfo.struDevInfo.wPort;
-                        Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
-                                .and(Camera.Property.PORT, port).single();
                         if (camera != null) {
                             faceImage.setDeviceId(camera.getId());
                         }
@@ -202,7 +196,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             List<BlackList> list = blackListService.select();
             for (BlackList blackList : list) {
                 try {
-                    if(faceFeatureUtil.compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 4.0 > 0){
+                    if(FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 4.0 > 0){
                         FaceImage faceImage = new FaceImage();
                         faceImage.setId(faceImageId);
                         faceImage.setBlacklistId(blackList.getId());

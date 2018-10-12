@@ -8,7 +8,6 @@ import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.BlackListService;
-import com.base.web.service.FaceImageService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import com.base.web.util.FaceFeatureUtil;
@@ -35,9 +34,6 @@ public class BlackListController extends GenericController<BlackList, Long> {
 
     @Autowired
     private ResourcesService resourcesService;
-
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
 
     @Autowired
     private FileService fileService;
@@ -149,7 +145,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         fileLength = getFileLength(file.getInputStream(), currentImagePath + fileName, fileLength);
         File faceFile = new File(currentImagePath + fileName);
         //获取人脸特征值
-        Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
+        Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
         if (map.size() != 1) {
             //没有检测到人脸
             faceFile.delete();
