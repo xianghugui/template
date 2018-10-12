@@ -98,8 +98,8 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (!NetDvrInit.logout(camera.getUserId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，登出，错误码：" + NetDvrInit.getLastError());
                 }
-                FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).clearFaceEngine();
-                FaceFeatureUtil.ENGINEMAPS.remove(camera.getId());
+//                FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).clearFaceEngine();
+//                FaceFeatureUtil.ENGINEMAPS.remove(camera.getId());
             }
             serverDeviceMapper.batchDeleteServerDevice(serverDevice);
             map.put("status", 0);

@@ -34,7 +34,6 @@ public class FaceFeatureUtil{
     private Pointer hFDEngine;
     private Pointer pFDWorkMem;
     private Pointer pFRWorkMem;
-    private boolean doing = false;
 
     public FaceFeatureUtil() {
         // init Engine
