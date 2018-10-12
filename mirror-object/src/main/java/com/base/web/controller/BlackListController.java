@@ -1,7 +1,6 @@
 package com.base.web.controller;
 
 import com.base.web.bean.BlackList;
-import com.base.web.bean.FaceImage;
 import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.resource.Resources;
@@ -38,9 +37,6 @@ public class BlackListController extends GenericController<BlackList, Long> {
     private ResourcesService resourcesService;
 
     @Autowired
-    private FaceImageService faceImageService;
-
-    @Autowired
     private FaceFeatureUtil faceFeatureUtil;
 
     @Autowired
@@ -57,6 +53,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         List<BlackList> list = blackListService.select();
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setImageUrl(ResourceUtil.resourceBuildPath(request, list.get(i).getResourceId().toString()));
+            list.get(i).setFaceFeature(null);
         }
         return ResponseMessage.ok(new PagerResult(list.size(), list));
     }

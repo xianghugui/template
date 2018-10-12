@@ -9,8 +9,18 @@ public class FaceImage extends GenericPo<Long> {
     private Long resourceId;
     //摄像头id
     private Long deviceId;
+    //黑名单id
+    private Long blacklistId;
     //创建时间
     private Date createTime;
+
+    public Long getBlacklistId() {
+        return blacklistId;
+    }
+
+    public void setBlacklistId(Long blacklistId) {
+        this.blacklistId = blacklistId;
+    }
 
     public Long getResourceId() {
         return resourceId;
@@ -39,6 +49,7 @@ public class FaceImage extends GenericPo<Long> {
     public interface Property extends GenericPo.Property {
         String resourceId = "resourceId";
         String deviceId = "deviceId";
+        String blacklistId = "blacklistId";
         String createTime = "createTime";
     }
 }

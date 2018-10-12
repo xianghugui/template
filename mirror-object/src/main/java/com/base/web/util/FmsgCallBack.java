@@ -1,19 +1,17 @@
 package com.base.web.util;
 
+import com.base.web.bean.BlackList;
 import com.base.web.bean.Camera;
 import com.base.web.bean.FaceFeature;
 import com.base.web.bean.FaceImage;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.bean.po.resource.Resources;
-import com.base.web.core.authorize.annotation.Authorize;
+import com.base.web.service.BlackListService;
 import com.base.web.service.CameraService;
 import com.base.web.service.FaceFeatureService;
 import com.base.web.service.FaceImageService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -27,6 +25,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,14 +51,31 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private FaceFeatureService faceFeatureService;
 
-//    @Autowired
-//    private FaceFeatureUtil faceFeatureUtil;
+    @Autowired
+    private BlackListService blackListService;
+
+    @Autowired
+    private FaceFeatureUtil faceFeatureUtil;
 
     Map<Long,FaceFeatureUtil> maps = new HashMap<Long,FaceFeatureUtil>();
 
     public void setMaps(Map<Long, FaceFeatureUtil> maps) {
         this.maps = maps;
     }
+    /**
+     * 检索黑名单线程池
+     */
+    private static final ExecutorService RETRIEVE_BLACKLIST_POOL = new ThreadPoolExecutor(0, 250,
+            0, TimeUnit.MILLISECONDS, new SynchronousQueue(),
+            new ThreadFactory() {
+
+                private final AtomicInteger mCount = new AtomicInteger(1);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "RetrieveBlacklist_pool:" + mCount.getAndIncrement());
+                }
+            });
 
     /**
      * 检测到人脸保存图片
@@ -158,6 +174,44 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             faceFeature1.setFaceImageId(id);
             faceFeature1.setFaceFeature(faceFeature);
             faceFeatureService.insert(faceFeature1);
+        }
+    }
+
+    /**
+     * 检索黑名单
+     */
+    private class RetrieveBlacklistThread implements Runnable{
+
+        private BlackListService blackListService;
+
+        private FaceImageService faceImageService;
+
+        private byte[] faceFeatureA;
+
+        private Long faceImageId;
+
+        public RetrieveBlacklistThread(BlackListService blackListService, FaceImageService faceImageService,
+                                       byte[] faceFeatureA, Long faceImageId){
+            this.blackListService = blackListService;
+            this.faceImageService = faceImageService;
+            this.faceFeatureA = faceFeatureA;
+        }
+
+        @Override
+        public void run() {
+            List<BlackList> list = blackListService.select();
+            for (BlackList blackList : list) {
+                try {
+                    if(faceFeatureUtil.compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature()) - 4.0 > 0){
+                        FaceImage faceImage = new FaceImage();
+                        faceImage.setId(faceImageId);
+                        faceImage.setBlacklistId(blackList.getId());
+                        faceImageService.update(faceImage);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

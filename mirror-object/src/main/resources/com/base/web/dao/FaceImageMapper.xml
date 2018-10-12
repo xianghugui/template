@@ -8,6 +8,7 @@
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="deviceId" column="device_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="blacklistId" column="blacklist_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
