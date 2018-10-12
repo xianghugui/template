@@ -11,6 +11,7 @@ public class BlackList extends GenericPo<Long> {
     //名字
     private String name;
     //资源ID
+    @JsonIgnore
     private Long resourceId;
 
     //人脸特征值

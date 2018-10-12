@@ -1,6 +1,7 @@
 package com.base.web.controller;
 
 import com.base.web.bean.BlackList;
+import com.base.web.bean.FaceImage;
 import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
 import com.base.web.bean.po.resource.Resources;
@@ -8,16 +9,14 @@ import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.BlackListService;
+import com.base.web.service.FaceImageService;
+import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import com.base.web.util.FaceFeatureUtil;
 import com.base.web.util.ResourceUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +38,13 @@ public class BlackListController extends GenericController<BlackList, Long> {
     private ResourcesService resourcesService;
 
     @Autowired
+    private FaceImageService faceImageService;
+
+    @Autowired
     private FaceFeatureUtil faceFeatureUtil;
+
+    @Autowired
+    private FileService fileService;
 
     @Autowired
     private HttpServletRequest request;
@@ -59,9 +64,76 @@ public class BlackListController extends GenericController<BlackList, Long> {
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @AccessLogger("添加黑名单")
     @Authorize(action = "C")
-    public String faceRecognize(@RequestParam("file") MultipartFile file, BlackList blackList) throws Exception {
+    public String insert(@RequestParam("file") MultipartFile file, BlackList blackList) throws Exception {
         if (file == null) {
             return "-1";
+        }
+        blackList = saveImage(file, blackList);
+        if (blackList == null) {
+            return "-1";
+        } else {
+            blackList.setCreateTime(new Date());
+            return blackListService.insert(blackList).toString();
+        }
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @AccessLogger("更新黑名单")
+    @Authorize(action = "U")
+    public ResponseMessage update(@PathVariable("id") Long id, @RequestParam(value = "file", required = false) MultipartFile file,
+                         BlackList blackList) throws Exception {
+        BlackList oldBlackList = blackListService.selectByPk(id);
+        assertFound(oldBlackList, "data is not found!");
+        if (file != null) {
+            blackList = saveImage(file, blackList);
+        }
+        blackListService.update(blackList);
+        if (file != null) {
+            deleteImage(oldBlackList.getResourceId());
+        }
+        return ResponseMessage.ok("更新成功");
+    }
+
+    @Override
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @AccessLogger("删除黑名单")
+    @Authorize(action = "U")
+    public ResponseMessage delete(@PathVariable("id") Long id) {
+        BlackList oldBlackList = blackListService.selectByPk(id);
+        assertFound(oldBlackList, "data is not found!");
+        blackListService.delete(id);
+        deleteImage(oldBlackList.getResourceId());
+        return ResponseMessage.ok("删除成功");
+    }
+
+    /**
+     * 如果图片没有被黑名单引用则删除
+     *
+     * @param resourceId
+     */
+    public void deleteImage(Long resourceId) {
+        int total = blackListService.createQuery().where(BlackList.Property.resourceId, resourceId).total();
+        if (total == 0) {
+            Resources resources = resourcesService.selectByPk(resourceId);
+            if (resources != null) {
+                String fileBasePath = fileService.getFileBasePath();
+                File file = new File(fileBasePath.concat(resources.getPath().concat("/".concat(resources.getMd5()))));
+                file.delete();
+                resourcesService.delete(resourceId);
+            }
+        }
+    }
+
+    /**
+     * 保存图片以及特征值
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public BlackList saveImage(MultipartFile file, BlackList blackList) throws IOException {
+        if (file == null) {
+            return null;
         }
         String currentImagePath;
         if (FaceFeatureUtil.isWin) {
@@ -75,43 +147,35 @@ public class BlackListController extends GenericController<BlackList, Long> {
             path.mkdirs();
         }
         long fileLength = 0;
-        fileLength = getFileLength(file.getInputStream(), currentImagePath + file.getOriginalFilename(), fileLength);
-        File faceFile = new File(currentImagePath + file.getOriginalFilename());
+        String fileName = file.getOriginalFilename();
+        fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+        fileLength = getFileLength(file.getInputStream(), currentImagePath + fileName, fileLength);
+        File faceFile = new File(currentImagePath + fileName);
         //获取人脸特征值
         Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
-        if (map.size() < 1) {
+        if (map.size() != 1) {
             //没有检测到人脸
             faceFile.delete();
-            return "-1";
-        }else if(map.size() > 1) {
-            //检测到多张人脸
-            faceFile.delete();
-            return "-2";
-        }else{
+            return null;
+        } else {
             //根据MD5命名
             String md5;
             try (FileInputStream inputStream = new FileInputStream(faceFile)) {
                 md5 = DigestUtils.md5Hex(inputStream);
             }
-            Resources resources = resourcesService.selectByMd5(md5);
-            if (resources != null) {
-                faceFile.delete();
-            } else {
-                File newFile = new File(currentImagePath.concat(md5));
-                faceFile.renameTo(newFile);
-                resources = new Resources();
-                resources.setType("file");
-                resources.setSize(fileLength);
-                resources.setName(md5);
-                resources.setPath("/blacklist/");
-                resources.setMd5(md5);
-                resources.setCreateTime(new Date());
-                resourcesService.insert(resources);
-            }
+            File newFile = new File(currentImagePath.concat(md5));
+            faceFile.renameTo(newFile);
+            Resources resources = new Resources();
+            resources.setType("file");
+            resources.setSize(fileLength);
+            resources.setName(md5);
+            resources.setPath("/blacklist/");
+            resources.setMd5(md5);
+            resources.setCreateTime(new Date());
+            resourcesService.insert(resources);
             blackList.setFaceFeature(map.get(0));
             blackList.setResourceId(resources.getId());
-            blackList.setCreateTime(new Date());
-            return blackListService.insert(blackList).toString();
+            return blackList;
         }
     }
 
