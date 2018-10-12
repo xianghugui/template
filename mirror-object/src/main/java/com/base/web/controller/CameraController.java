@@ -99,17 +99,6 @@ public class CameraController extends GenericController<Camera, Long> {
         return cameraService;
     }
 
-    @GetMapping(value = "/select")
-    @AccessLogger("查询")
-    @Authorize(action = "R")
-    public ResponseMessage list(QueryParam param, HttpServletRequest req) {
-        PagerResult<Map> faceImageList = faceImageService.queryAllFaceImage(param,req);
-        return ResponseMessage.ok(faceImageList)
-                .include(getPOType(), param.getIncludes())
-                .exclude(getPOType(), param.getExcludes())
-                .onlyData();
-    }
-
     @Override
     @DeleteMapping(value = "/{id}")
     @AccessLogger("删除")

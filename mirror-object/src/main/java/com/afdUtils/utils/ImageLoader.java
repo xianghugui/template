@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class ImageLoader {
     public static final boolean USING_FLOAT = false;
-    
+
     public static BufferInfo getI420FromFile(File file) {
         byte[] yuv = null;
         int w = 0;
@@ -21,37 +21,39 @@ public class ImageLoader {
             w = img.getWidth();
             h = img.getHeight();
             int[] bgra = img.getRGB(0, 0, w, h, null, 0, w);
-            if(USING_FLOAT){
+            if (USING_FLOAT) {
                 yuv = BGRA2I420_float(bgra, w, h);
-            }else{
+            } else {
                 yuv = BGRA2I420(bgra, w, h);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(0);
+
         }
         return new BufferInfo(w, h, yuv);
     }
-    
+
     public static BufferInfo getBGRFromFile(File file) {
         byte[] bgr = null;
         int width = 0;
         int height = 0;
         try {
             BufferedImage img = ImageIO.read(file);
-            width = img.getWidth();
-            height = img.getHeight();
-            BufferedImage bgrimg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-            bgrimg.setRGB(0, 0, width, height, img.getRGB(0, 0, width, height, null, 0, width), 0, width);
-            bgr = ((DataBufferByte)bgrimg.getRaster().getDataBuffer()).getData();
-
+            if (img != null) {
+                width = img.getWidth();
+                height = img.getHeight();
+                BufferedImage bgrimg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+                bgrimg.setRGB(0, 0, width, height, img.getRGB(0, 0, width, height, null, 0, width), 0, width);
+                bgr = ((DataBufferByte) bgrimg.getRaster().getDataBuffer()).getData();
+            }
         } catch (IOException e) {
+            System.out.println("ImageLoader:error");
             e.printStackTrace();
-            System.exit(0);
+
         }
         return new BufferInfo(width, height, bgr);
     }
-    
+
     //Full swing for BT.601
     public static byte[] BGRA2I420(int[] bgra, int width, int height) {
 
@@ -80,13 +82,13 @@ public class ImageLoader {
             }
         }
         return yuv;
-    } 
-    
+    }
+
     // ITU-R standard for YCbCr
     // Y =  0.299R + 0.587G + 0.114B
     // U = -0.169R - 0.331G + 0.499B + 128
     // V =  0.499R - 0.418G - 0.0813B + 128
-    
+
     public static byte[] BGRA2I420_float(int[] bgra, int width, int height) {
 
         byte[] yuv = new byte[width * height * 3 / 2];
@@ -100,9 +102,9 @@ public class ImageLoader {
                 float g = ((rgb >> 8) & 0xFF);
                 float r = ((rgb >> 16) & 0xFF);
 
-                float y = (0.299f * r + 0.587f * g + 0.114f * b) ;
-                float u = (-0.169f) * r - 0.331f* g + 0.499f * b + 128.0f;
-                float v = 0.499f * r - 0.418f * g - 0.0813f * b   + 128.0f;
+                float y = (0.299f * r + 0.587f * g + 0.114f * b);
+                float u = (-0.169f) * r - 0.331f * g + 0.499f * b + 128.0f;
+                float v = 0.499f * r - 0.418f * g - 0.0813f * b + 128.0f;
 
                 yuv[i * width + j] = (byte) y;
                 yuv[u_offset + (i >> 1) * (width >> 1) + (j >> 1)] = (byte) u;
@@ -110,5 +112,5 @@ public class ImageLoader {
             }
         }
         return yuv;
-    } 
+    }
 }

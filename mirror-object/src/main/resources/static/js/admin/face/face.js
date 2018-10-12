@@ -23,6 +23,7 @@ $(function () {
                     face_list.ajax.reload();
                 }
             });
+            getNowFormatDate();
             initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
@@ -186,7 +187,15 @@ $(function () {
                     "data": null,
                     render: function (data, type, row, meta) {
                         var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='img-content'><div>" + data.name + "</div><div>" + data.createTime + "</div></div></div>"
+                            "<div class='img-content'><div>" + data.name + "</div>" +
+                            "<div>" + data.createTime+"</div>";
+                        if (data.blackListName != null) {
+                            html += "<div class='blackListName-box'>黑名单人物  :  " + data.blackListName + "<span class='black-code'>身份证号  :  "+data.code+"</span></div>";
+                        }
+                        else{
+                            html +="<div>&nbsp;</div>"
+                        }
+                        html += "</div></div>";
                         return html;
                     }
                 },

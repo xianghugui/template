@@ -102,7 +102,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         ResourceUtil.resourceBuildPath(req, map.get("resourceId").toString()));
             }
             return ResponseMessage.ok(faceImageList);
-
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             //获取数据库全部图片

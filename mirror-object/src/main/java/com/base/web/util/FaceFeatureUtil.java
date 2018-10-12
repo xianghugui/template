@@ -70,6 +70,7 @@ public class FaceFeatureUtil{
      */
     public void clearFaceEngine(){
         AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFDEngine);
+        AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFREngine);
         CLibrary.INSTANCE.free(pFDWorkMem);
         CLibrary.INSTANCE.free(pFRWorkMem);
     }

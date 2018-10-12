@@ -23,9 +23,10 @@ $(function () {
                     $("#preview").hide();
                     uploadId = null;
                     getNowFormatDate();
-                    target_list.ajax.reload();
+                    // target_list.ajax.reload();
                 }
             });
+            getNowFormatDate();
             initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
@@ -140,9 +141,6 @@ $(function () {
             "stripeClasses": ['col-md-3'],
             "ajax": function (data, callback, settings) {
 
-                httpGet.setProtocolVersion(HttpVersion.HTTP_1_0);
-                httpGet.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
-
                 var organization = $('#area_tree').treeview('getSelected')[0];
                 if (typeof organization !== "undefined") {
                     var param = {}
@@ -210,6 +208,12 @@ $(function () {
                             "<div>" + data.createTime;
                         if (data.similarity != null) {
                             html += "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span>";
+                        }
+                        if (data.blackListName != null) {
+                            html += "<div class='blackListName-box'>黑名单人物  :  " + data.blackListName + "<span class='black-code'>身份证号  :  "+data.code+"</span></div>";
+                        }
+                        else{
+                            html +="<div>&nbsp;</div>"
                         }
                         html += "</div></div></div>";
                         return html;

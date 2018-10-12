@@ -46,47 +46,10 @@
         <include refid="BasicMapper.buildTotalSql"/>
     </select>
 
-    <select id="queryAllFaceImage" parameterType="com.base.web.bean.common.QueryParam" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
-        FROM t_face_image tfi,t_resource tr, t_device td
-        WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
-
-        <if test="terms.size >= 3 and terms[3].value != null">
-            AND td.organization_id Like #{terms[3].value}
-        </if>
-        <if test="terms.size >= 7 and terms[6].value != null">
-            AND tfi.device_id = #{terms[6].value}
-        </if>
-        <if test="terms.size >= 5 and terms[4].value != null">
-            AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
-        </if>
-        <if test="terms.size >= 6 and terms[5].value != null">
-            AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
-        </if>
-        ORDER BY tr.create_time DESC
-        LIMIT #{pageIndex},#{pageSize}
-    </select>
-
-    <select id="queryFaceImageTotal" parameterType="com.base.web.bean.common.QueryParam" resultType="int">
-        SELECT COUNT(tfi.u_id) FROM t_face_image tfi, t_device td,t_resource tr
-        WHERE td.u_id = tfi.device_id AND tfi.resource_id = tr.u_id
-        <if test="terms.size >= 3 and terms[3].value != null">
-            AND td.organization_id Like #{terms[3].value}
-        </if>
-        <if test="terms.size >= 7 and terms[6].value != null">
-            AND tfi.device_id = #{terms[6].value}
-        </if>
-        <if test="terms.size >= 5 and terms[4].value != null">
-            AND tr.create_time <![CDATA[ >= ]]> #{terms[4].value}
-        </if>
-        <if test="terms.size >= 6 and terms[5].value != null">
-            AND tr.create_time  <![CDATA[ <= ]]> #{terms[5].value}
-        </if>
-    </select>
-
     <select id="queryAllFaceFeature" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
-        FROM t_face_image tfi,t_resource tr, t_device td
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name,
+        tb.`name` AS blackListName, tb.`code`
+        FROM t_resource tr, t_device td,t_face_image tfi LEFT JOIN t_blacklist tb ON tfi.blacklist_id = tb.u_id
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
         <if test="organizationId != null">
             AND td.organization_id Like #{organizationId}
@@ -103,8 +66,9 @@
         ORDER BY tr.create_time DESC
     </select>
     <select id="listFaceImage" parameterType="com.base.web.bean.UploadValue" resultType="java.util.HashMap">
-        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name
-        FROM t_face_image tfi,t_resource tr, t_device td
+        SELECT tfi.u_id AS id, tfi.resource_id AS resourceId,tr.create_time AS createTime, td.name,
+        tb.`name` AS blackListName, tb.`code`
+        FROM t_resource tr, t_device td,t_face_image tfi LEFT JOIN t_blacklist tb ON tfi.blacklist_id = tb.u_id
         WHERE tfi.resource_id = tr.u_id AND td.u_id = tfi.device_id
         <if test="organizationId != null">
             AND td.organization_id Like CONCAT(#{organizationId},'%')
