@@ -245,7 +245,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 faceImage.setCreateTime(resources.getCreateTime());
                 //插入数据
                 insert(resources, faceImage, map);
-                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(map.get(0), faceImage.getId()));
+                for (byte[] faceFeature : map.values()) {
+                    RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(faceFeature, faceImage.getId()));
+                }
             } else {
                 oldFile.delete();
             }
