@@ -196,27 +196,27 @@ $(function () {
             },
             "columns": [
                 {
-                    "data": null,
-                    render: function (data, type, row, meta) {
-                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>";
-                        if (data.blackListName != null && data.blackListName != 0) {
-                            html += "<div class='img-content'><div>" + data.deviceName + "</div>";
-                            if (data.similarity != null) {
-                                html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
-                            }
-                            html += "</div><div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
-                        }
-                        else {
-                            html += "<div class='img-content'><div class='aims-name'>" + data.deviceName + "</div>";
-                            if (data.similarity != null) {
-                                html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
-                            }
-                        }
-                        html += "</div></div>";
-                        return html;
-                    }
+                    "data": null
                 },
-            ]
+            ],
+            "rowCallback": function( row, data ) {
+                var html = "<div class='img-show-box'><image class='img' src='" + BASE_PATH + "file/image/" + data.resourceId + "'></image>";
+                if (data.blackListName != null && data.blackListName != 0) {
+                    html += "<div class='img-content'><div>" + data.deviceName + "</div>";
+                    if (data.similarity != null) {
+                        html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                    }
+                    html += "</div><div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
+                }
+                else {
+                    html += "<div class='img-content'><div class='aims-name'>" + data.deviceName + "</div>";
+                    if (data.similarity != null) {
+                        html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                    }
+                }
+                html += "</div></div>";
+                $(row).html(html);
+            }
         });
     }
 

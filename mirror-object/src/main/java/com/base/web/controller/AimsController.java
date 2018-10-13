@@ -111,7 +111,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         //检测成功之后跳出当前寻缓
                         Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
                         if (similarity >= uploadValue.getMinSimilarity()) {
-                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
+//                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
                             faceImageList.get(i).setSimilarity(similarity);
                             i++;
                             break;
