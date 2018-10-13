@@ -23,12 +23,11 @@ $(function () {
                     $("#preview").hide();
                     uploadId = null;
                     getNowFormatDate();
-                    target_list.ajax.reload();
                 }
             });
+            $('#area_tree').treeview('selectNode', [0]);
             getNowFormatDate();
             initTable();
-            $('#area_tree').treeview('selectNode', [0]);
         });
     };
 
@@ -172,11 +171,7 @@ $(function () {
                         return false;
                     }
                     param.minSimilarity = minSimilarity;
-
-
-                    if (uploadId !== null) {
-                        param.uploadId = uploadId;
-                    }
+                    param.uploadId = uploadId;
                     $.ajax({
                         url: BASE_PATH + "aims/faceRecognize",
                         type: "GET",
@@ -203,19 +198,22 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='img-content'><div>" + data.name + "</div>" +
-                            "<div>" + data.createTime;
-                        if (data.similarity != null) {
-                            html += "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span>";
+                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>";
+                        if (data.blackListName != null && data.blackListName != 0) {
+                            html += "<div class='img-content'><div>" + data.name + "</div>" +
+                                "<div>" + data.createTime;
+                            if (data.similarity != null) {
+                                html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                            }
+                            html += "</div><div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
                         }
-                        if (data.blackListName != null) {
-                            html += "<div class='blackListName-box'>黑名单人物  :  " + data.blackListName + "<span class='black-code'>身份证号  :  "+data.code+"</span></div>";
+                        else {
+                            html += "<div class='img-content'><div class='aims-name'>" + data.name + "</div>";
+                            if (data.similarity != null) {
+                                html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                            }
                         }
-                        else{
-                            html +="<div>&nbsp;</div>"
-                        }
-                        html += "</div></div></div>";
+                        html += "</div></div>";
                         return html;
                     }
                 },
@@ -266,6 +264,11 @@ $(function () {
      */
 
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
+        if (uploadId == null) {
+            toastr.warning("请上传搜索图片后再搜索");
+            return false;
+        }
+        $('#target_list').show();
         target_list.ajax.reload();
     });
 
@@ -349,9 +352,9 @@ $(function () {
      * 图片双击预览
      */
 
-    $('#target_list').on("dblclick",".img",function () {
+    $('#target_list').on("dblclick", ".img", function () {
         var _self = $(this);
-        $('#img_show').attr('src',_self[0].src);
+        $('#img_show').attr('src', _self[0].src);
         $('#modal_img_show').modal("show");
     });
 });

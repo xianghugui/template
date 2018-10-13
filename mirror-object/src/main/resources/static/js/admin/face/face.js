@@ -186,17 +186,16 @@ $(function () {
                 {
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>" +
-                            "<div class='img-content'><div>" + data.name + "</div>" +
-                            "<div>" + data.createTime;
+                        var html = "<div class='img-show-box'><image class='img' src='" + data.imageUrl + "'></image>";
                         if (data.similarity != null && data.similarity != 0) {
-                            html += "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
+                            html += "<div class='img-content'><div>" + data.name + "</div>" +
+                                "<div>" + data.createTime;
+                            html += "<span class='similarity-box'>" + data.similarity + "%</span></div>";
+                            html += "<div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
                         }
-                        if (data.blackListName != null) {
-                            html += "<div class='blackListName-box'>黑名单人物  :  " + data.blackListName + "<span class='black-code'>身份证号  :  "+data.code+"</span></div>";
-                        }
-                        else{
-                            html +="<div>&nbsp;</div>"
+                        else {
+                            html += "<div class='img-content'><div class='aims-name'>" + data.name + "</div>" +
+                                "<div>" + data.createTime;
                         }
                         html += "</div></div>";
                         return html;
@@ -252,9 +251,9 @@ $(function () {
      * 图片双击预览
      */
 
-    $('#face_list').on("dblclick",".img",function () {
+    $('#face_list').on("dblclick", ".img", function () {
         var _self = $(this);
-        $('#img_show').attr('src',_self[0].src);
+        $('#img_show').attr('src', _self[0].src);
         $('#modal_img_show').modal("show");
     });
 });
