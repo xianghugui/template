@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.AimsMessageMapper">
+    <resultMap id="AimsMessageResultMap" type="com.base.web.bean.AimsMessageDTO">
+        <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="deviceName" column="device_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="blackListName" column="blackList_name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="code" column="code" javaType="String" jdbcType="VARCHAR"/>
+        <collection property="list" ofType="com.base.web.bean.FaceFeature">
+            <id property="id" column="tff_id" javaType="Long" jdbcType="BIGINT"/>
+            <result property="faceImageId" column="face_image_id" javaType="Long" jdbcType="BIGINT"/>
+            <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+        </collection>
+    </resultMap>
+    <select id="listAimsMessage" parameterType="com.base.web.bean.UploadValue" resultMap="AimsMessageResultMap">
+        SELECT
+        tfi.u_id,
+        tfi.resource_id,
+        tr.create_time,
+        td.`name` AS device_name,
+        tb.`name` AS blackList_name,
+        tb.`code`,
+        tff.u_id AS tff_id,
+        tff.face_feature
+        FROM
+        t_resource tr,
+        t_device td,
+        t_face_image tfi
+        LEFT JOIN t_blacklist tb ON tfi.blacklist_id = tb.u_id
+        LEFT JOIN t_face_feature tff ON tfi.resource_id = tff.face_image_id
+        WHERE
+        tfi.resource_id = tr.u_id
+        AND td.u_id = tfi.device_id
+        <if test="organizationId != null">
+            AND td.organization_id Like #{organizationId}
+        </if>
+        <if test="deviceId != null">
+            AND tfi.device_id = #{deviceId}
+        </if>
+        <if test="searchStart != null">
+            AND tr.create_time <![CDATA[ >= ]]> #{searchStart}
+        </if>
+        <if test="searchEnd">
+            AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
+        </if>
+        ORDER BY tr.create_time DESC
+    </select>
+</mapper>

@@ -1,14 +1,12 @@
 package com.base.web.controller;
 
 
-import com.base.web.bean.FaceFeature;
-import com.base.web.bean.FaceImage;
-import com.base.web.bean.UploadFeature;
-import com.base.web.bean.UploadValue;
+import com.base.web.bean.*;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
+import com.base.web.service.AimsMessageService;
 import com.base.web.service.FaceFeatureService;
 import com.base.web.service.FaceImageService;
 import com.base.web.service.UploadFeatureService;
@@ -22,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +35,11 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Autowired
     private FaceImageService faceImageService;
 
-//    @Autowired
-    private FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
-
     @Autowired
     private UploadFeatureService uploadFeatureService;
+
+    @Autowired
+    private AimsMessageService aimsMessageService;
 
     @Override
     protected FaceImageService getService() {
@@ -67,7 +65,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             file.transferTo(faceFile);
 
             //获取人脸特征值
-            Map<Integer, byte[]> map = faceFeatureUtil.returnFaceFeature(faceFile);
+            Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
             //删除图片
             faceFile.delete();
 
@@ -88,52 +86,44 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @AccessLogger("目标查询")
     @Authorize(action = "R")
     public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws Exception {
-        List<Map> faceImageList;
-
         //模糊匹配组织ID
         String organizationId = uploadValue.getOrganizationId();
         if (organizationId != null) {
             uploadValue.setOrganizationId(organizationId + "%");
         }
-
         if (uploadValue.getUploadId() == null) {
             //上传文件没有检测到人脸直接返回全部人脸
-            faceImageList = new ArrayList<>();
-            return ResponseMessage.ok(faceImageList);
+            return ResponseMessage.ok(new ArrayList<>());
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
+            Long start = System.currentTimeMillis();
             //获取数据库全部图片
-            faceImageList = faceImageService.queryAllFaceFeature(uploadValue);
-
+            List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
             //遍历匹配数据库的特征值
+            List<FaceFeature> faceFeatureList;
             for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前图片包含的所有人脸特征值
-                List<FaceFeature> faceFeatureList = faceFeatureService.createQuery()
-                        .where(FaceFeature.Property.faceImageId, faceImageList.get(i).get("resourceId"))
-                        .list();
-
+                faceFeatureList = faceImageList.get(i).getList();
                 if (faceFeatureList.size() == 0) {
                     faceImageList.remove(i);
                 } else {
                     for (int k = 0; k < faceFeatureList.size(); k++) {
                         //检测成功之后跳出当前寻缓
-                        Float similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
+                        Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
                         if (similarity >= uploadValue.getMinSimilarity()) {
-                            faceImageList.get(i).put("imageUrl",
-                                    ResourceUtil.resourceBuildPath(req, faceImageList.get(i).get("resourceId").toString()));
-                            faceImageList.get(i).put("similarity", similarity);
+                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
+                            faceImageList.get(i).setSimilarity(similarity);
                             i++;
-                            continue;
-                        } else if (k + 1 == faceFeatureList.size()) {//匹配失败，从未检测列表中移除当前检测数据
+                            break;
+                        } else if (k + 1 == faceFeatureList.size()) {
                             faceImageList.remove(i);
                         }
                     }
                 }
             }
+            System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
+            return ResponseMessage.ok(faceImageList);
         }
-
-        //响应上传成功的资源信息
-        return ResponseMessage.ok(faceImageList);
     }
 
 

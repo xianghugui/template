@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-//@Service(value = "faceFeatureUtil")
 public class FaceFeatureUtil{
 
     public static final Map<Long,FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
