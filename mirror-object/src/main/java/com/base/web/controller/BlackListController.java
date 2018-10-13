@@ -70,23 +70,6 @@ public class BlackListController extends GenericController<BlackList, Long> {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    @AccessLogger("更新黑名单")
-    @Authorize(action = "U")
-    public ResponseMessage update(@PathVariable("id") Long id, @RequestParam(value = "file", required = false) MultipartFile file,
-                         BlackList blackList) throws Exception {
-        BlackList oldBlackList = blackListService.selectByPk(id);
-        assertFound(oldBlackList, "data is not found!");
-        if (file != null) {
-            blackList = saveImage(file, blackList);
-        }
-        blackListService.update(blackList);
-        if (file != null) {
-            deleteImage(oldBlackList.getResourceId());
-        }
-        return ResponseMessage.ok("更新成功");
-    }
-
     @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @AccessLogger("删除黑名单")

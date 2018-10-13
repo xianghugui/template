@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.text.DecimalFormat;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,13 +54,11 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private BlackListService blackListService;
 
-    private static int corePoolSize = Runtime.getRuntime().availableProcessors();
-
     /**
      * 检索黑名单线程池
      */
     private static final ExecutorService RETRIEVE_BLACKLIST_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new SynchronousQueue(),
+            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -76,7 +74,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 回调函数线程池
      */
     private static final ExecutorService FMSGCALLBACK_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new SynchronousQueue(),
+            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -91,7 +89,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 人脸识别引擎线程池
      */
     private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new SynchronousQueue(),
+            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -108,15 +106,24 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      *
      * @param lCommand
      * @param pAlarmer
-     * @param strFaceSnapInfo
+     * @param pAlarmInfo
      * @param dwBufLen
      * @param pUser
      * @throws IOException
      */
     @Override
-    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo, int dwBufLen, Pointer pUser) {
-        if (strFaceSnapInfo.dwBackgroundPicLen > 0) {
-            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(strFaceSnapInfo, fileService, resourcesService, cameraService));
+    public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo,
+                       int dwBufLen, Pointer pUser) {
+        if (pAlarmInfo.dwBackgroundPicLen > 0) {
+            ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
+            byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
+            buffers.rewind();
+            buffers.get(bytes);
+            int time = pAlarmInfo.dwAbsTime;
+            Date date = new Date((time>>26) + 100,((time>>22) & 15) - 1,(time>>17) & 31,
+                    (time>>12) & 31,(time>>6) & 63,time & 63);
+            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(bytes, new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
+                    .split("\0", 2)[0], pAlarmInfo.struDevInfo.wPort, pAlarmInfo.dwBackgroundPicLen, date));
         }
     }
 
@@ -140,25 +147,22 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     private class FmsgCallBackThread implements Runnable {
 
-        private  HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo;
+        private byte[] bytes;
+        private String ip;
+        private short port;
+        private int picLen;
+        private Date date;
 
-        private FileService fileService;
-
-        private ResourcesService resourcesService;
-
-        private CameraService cameraService;
-
-        public FmsgCallBackThread( HCNetSDK.NET_VCA_FACESNAP_RESULT strFaceSnapInfo, FileService fileService,
-                                  ResourcesService resourcesService, CameraService cameraService) {
-            this.strFaceSnapInfo = strFaceSnapInfo;
-            this.fileService = fileService;
-            this.resourcesService = resourcesService;
-            this.cameraService = cameraService;
+        public FmsgCallBackThread(byte[] bytes, String ip, short port, int picLen, Date date) {
+            this.bytes = bytes;
+            this.ip = ip;
+            this.port = port;
+            this.picLen = picLen;
+            this.date = date;
         }
 
         @Override
         public void run() {
-            Date date = new Date();
             //创建临时文件
             String filePath = "/file/".concat(DateTimeUtils.format(date, DateTimeUtils.YEAR_MONTH_DAY));
             String absPath = fileService.getFileBasePath().concat(filePath);
@@ -172,11 +176,6 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             try {
                 //保存图片
                 fout = new FileOutputStream(fileAbsName);
-                ByteBuffer buffers = strFaceSnapInfo.pBuffer2.getByteBuffer(0, strFaceSnapInfo.dwBackgroundPicLen);
-                byte[] bytes = new byte[strFaceSnapInfo.dwBackgroundPicLen];
-                buffers.rewind();
-                buffers.get(bytes);
-                //将字节写入文件
                 fout.write(bytes);
                 fout.close();
                 //根据MD5值命名
@@ -191,17 +190,17 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     oldFile.delete();
                     return;
                 } else {
-                    String ip = new String(strFaceSnapInfo.struDevInfo.struDevIP.sIpV4).split("\0", 2)[0];
                     Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
-                            .and(Camera.Property.PORT, strFaceSnapInfo.struDevInfo.wPort).single();
+                            .and(Camera.Property.PORT, port).single();
                     File newFile = new File(absPath.concat("/").concat(md5));
+                    resources = new Resources();
                     resources.setType("file");
-                    resources.setSize(strFaceSnapInfo.dwBackgroundPicLen);
+                    resources.setSize(picLen);
                     resources.setName(md5);
                     resources.setPath(filePath);
                     resources.setMd5(md5);
                     resources.setCreateTime(date);
-                    ENGINE_POOL.execute(new Engine(blackListService,faceImageService,oldFile,newFile,camera, resources));
+                    ENGINE_POOL.execute(new Engine(oldFile,newFile,camera, resources));
                 }
 
             } catch (FileNotFoundException e) {
@@ -220,19 +219,15 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 提取特征值
      */
     private class Engine implements Runnable{
-        private BlackListService blackListService;
 
-        private FaceImageService faceImageService;
         private File oldFile;
         private Resources resources;
         private File newFile;
         private Camera camera;
 
 
-        public Engine(BlackListService blackListService, FaceImageService faceImageService,File oldFile, File newFile,
-                      Camera camera, Resources resources) {
-            this.blackListService = blackListService;
-            this.faceImageService = faceImageService;
+        public Engine(File oldFile, File newFile, Camera camera, Resources resources) {
+
             this.oldFile = oldFile;
             this.newFile = newFile;
             this.camera = camera;
@@ -250,8 +245,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 faceImage.setCreateTime(resources.getCreateTime());
                 //插入数据
                 insert(resources, faceImage, map);
-                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(blackListService, faceImageService,
-                        map.get(0), faceImage.getId()));
+                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(map.get(0), faceImage.getId()));
             } else {
                 oldFile.delete();
             }
@@ -263,18 +257,11 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     private class RetrieveBlacklistThread implements Runnable {
 
-        private BlackListService blackListService;
-
-        private FaceImageService faceImageService;
-
         private byte[] faceFeatureA;
 
         private Long faceImageId;
 
-        public RetrieveBlacklistThread(BlackListService blackListService, FaceImageService faceImageService,
-                                       byte[] faceFeatureA, Long faceImageId) {
-            this.blackListService = blackListService;
-            this.faceImageService = faceImageService;
+        public RetrieveBlacklistThread(byte[] faceFeatureA, Long faceImageId) {
             this.faceFeatureA = faceFeatureA;
             this.faceImageId = faceImageId;
         }
@@ -282,11 +269,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         @Override
         public void run() {
             List<BlackList> list = blackListService.select();
-            DecimalFormat df = new DecimalFormat(".00");
-            float similarity;
             for (BlackList blackList : list) {
                 try {
-                    similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature());
+                    float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature());
                     if (similarity - 0.4 > 0) {
                         FaceImage faceImage = new FaceImage();
                         faceImage.setId(faceImageId);
