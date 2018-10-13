@@ -26,7 +26,6 @@ $(function () {
                 }
             });
             $('#area_tree').treeview('selectNode', [0]);
-            getNowFormatDate();
             initTable();
         });
     };
