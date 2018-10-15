@@ -96,14 +96,21 @@ public class AimsController extends GenericController<FaceImage, Long> {
             return ResponseMessage.ok(new ArrayList<>());
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
-            Long start = System.currentTimeMillis();
-            //获取数据库全部图片
             int faceImageListTotal = aimsMessageService.listAimsMessageTotal(uploadValue);
-            System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
-            ForkJoinPool forkjoinPool = new ForkJoinPool();
-            RetrieveBlacklistThread task = new RetrieveBlacklistThread(faceImageListTotal, uploadFaceFeature, uploadValue);
-            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
-            return ResponseMessage.ok(result.get());
+//            ForkJoinPool forkjoinPool = new ForkJoinPool();
+//            RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
+//            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
+//            forkjoinPool.shutdown();
+
+            ExecutorService executor = Executors.newCachedThreadPool();
+
+            for(int i = 0;i <= faceImageListTotal/1000;i++){
+                uploadValue.setPageIndex(i*1000);
+                uploadValue.setPageSize(i*1000+1000);
+                executor.execute(new InnerThread(uploadValue,uploadFaceFeature));
+            }
+            executor.shutdown();
+            return ResponseMessage.ok();
         }
     }
 
@@ -117,54 +124,53 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
 
     private class RetrieveBlacklistThread extends RecursiveTask<List<AimsMessageDTO>> {
-        private int listAimsMessageTotal;
-        private List<AimsMessageDTO> returnFaceList;
+        private int THRESHOLD = 100;
+        private int start;
+        private int end;
+        private List<AimsMessageDTO> returnFaceList = new ArrayList<AimsMessageDTO>();
         private byte[] uploadFaceFeature;
         private UploadValue uploadValue;
 
-        public RetrieveBlacklistThread(int listAimsMessageTotal, byte[] uploadFaceFeature, UploadValue uploadValue) {
-            this.listAimsMessageTotal = listAimsMessageTotal;
+        public RetrieveBlacklistThread(int start,int end, byte[] uploadFaceFeature, UploadValue uploadValue) {
+            this.start = start;
+            this.end = end;
             this.uploadFaceFeature = uploadFaceFeature;
             this.uploadValue = uploadValue;
         }
 
         @Override
-        public List<AimsMessageDTO> compute() {
-            returnFaceList = new ArrayList<AimsMessageDTO>();
-            if (listAimsMessageTotal <= 1000) {
+        protected List<AimsMessageDTO> compute() {
+            //当end与start之间的差小于threshold时，开始进行实际的累加
+            if(end - start <= THRESHOLD){
                 try {
-                    return returnFaceList = face(0, listAimsMessageTotal);
+                    returnFaceList = face(start, end);
+                    return returnFaceList;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else {
-                int end = 0;
-                int start = 0;
-                List<RetrieveBlacklistThread> list = new ArrayList();
-                for (int i = 0; i <= listAimsMessageTotal / 1000; i++) {
-                    System.out.println(i);
-                    end += 1000;
-                    start = i * 1000;
-                    RetrieveBlacklistThread retrieveBlacklistThread = new RetrieveBlacklistThread(end, uploadFaceFeature, uploadValue);
-                    list.add(retrieveBlacklistThread);
-                    retrieveBlacklistThread.fork();
-                }
-                for(RetrieveBlacklistThread retrieveBlacklistThread:list){
-                    returnFaceList.addAll(retrieveBlacklistThread.join());
-                }
+            }else {//当end与start之间的差大于threshold，即要累加的数超过20个时候，将大任务分解成小任务
+                int middle = (end - start)/2;
+                RetrieveBlacklistThread left = new RetrieveBlacklistThread(start,middle, uploadFaceFeature, uploadValue);
+                RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle,end, uploadFaceFeature, uploadValue);
+                //并行执行两个小任务
+                left.fork();
+                right.fork();
+                //把两个小任务累加的结果合并起来
+                returnFaceList.addAll(left.join());
+                returnFaceList.addAll(right.join());
             }
             return returnFaceList;
         }
 
-        public List<AimsMessageDTO> face(int i, int length) throws Exception {
-            uploadValue.setPageIndex(length - 1000);
-            uploadValue.setPageSize(length);
+        public List<AimsMessageDTO> face(int pageIndex, int pageSize) throws Exception {
+            uploadValue.setPageIndex(pageIndex);
+            uploadValue.setPageSize(pageSize);
             Long start = System.currentTimeMillis();
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
             System.out.println("time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
             //遍历匹配数据库的特征值
             List<FaceFeature> faceFeatureList;
-            for (; i < faceImageList.size(); ) {
+            for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前图片包含的所有人脸特征值
                 faceFeatureList = faceImageList.get(i).getList();
                 if (faceFeatureList.size() == 0) {
@@ -185,6 +191,56 @@ public class AimsController extends GenericController<FaceImage, Long> {
             }
             return faceImageList;
         }
+    }
+
+    class InnerThread implements Runnable{
+        private UploadValue uploadValue;
+        private byte[] uploadFaceFeature;
+
+        public InnerThread(UploadValue uploadValue,byte[] uploadFaceFeature){
+            this.uploadValue = uploadValue;
+            this.uploadFaceFeature = uploadFaceFeature;
+        }
+
+        @Override
+        public void run() {
+            Long start = System.currentTimeMillis();
+            List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
+            //遍历匹配数据库的特征值
+            List<FaceFeature> faceFeatureList;
+            for (int i = 0; i < faceImageList.size(); ) {
+                //查询当前图片包含的所有人脸特征值
+                faceFeatureList = faceImageList.get(i).getList();
+                if (faceFeatureList.size() == 0) {
+                    faceImageList.remove(i);
+                } else {
+                    for (int k = 0; k < faceFeatureList.size(); k++) {
+                        //检测成功之后跳出当前寻缓
+                        Float similarity = null;
+                        try {
+                            similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (similarity >= uploadValue.getMinSimilarity()) {
+                            faceImageList.get(i).setSimilarity(similarity);
+                            i++;
+                            continue;
+                        } else if (k + 1 == faceFeatureList.size()) {
+                            faceImageList.remove(i);
+                        }
+                    }
+                }
+            }
+            System.out.println("select time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
+            returnFaceList(faceImageList);
+        }
+
+        public List<AimsMessageDTO> returnFaceList(List<AimsMessageDTO> faceImageList){
+            return faceImageList;
+        }
+
+
     }
 
 }
