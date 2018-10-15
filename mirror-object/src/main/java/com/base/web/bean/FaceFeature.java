@@ -4,16 +4,16 @@ import com.base.web.bean.po.GenericPo;
 
 public class FaceFeature extends GenericPo<Long> {
     //人脸图片关联ID
-    private Long faceImageId;
+    private Long resourceId;
     //人脸特征值
     private byte[] faceFeature;
 
-    public Long getFaceImageId() {
-        return faceImageId;
+    public Long getResourceId() {
+        return resourceId;
     }
 
-    public void setFaceImageId(Long faceImageId) {
-        this.faceImageId = faceImageId;
+    public void setResourceId(Long resourceId) {
+        this.resourceId = resourceId;
     }
 
     public byte[] getFaceFeature() {
@@ -25,7 +25,7 @@ public class FaceFeature extends GenericPo<Long> {
     }
 
     public interface Property extends GenericPo.Property {
-        String faceImageId = "faceImageId";
+        String resourceId = "resourceId";
         String faceFeature = "faceFeature";
     }
 }

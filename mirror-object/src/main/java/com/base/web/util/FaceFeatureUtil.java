@@ -13,9 +13,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FaceFeatureUtil{
+public class FaceFeatureUtil {
 
-    public static final Map<Long,FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
+    public static final Map<Long, FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
 
     public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
     /**
@@ -64,7 +64,7 @@ public class FaceFeatureUtil{
     /**
      * 清除人脸检索引擎和人脸比对引擎
      */
-    public void clearFaceEngine(){
+    public void clearFaceEngine() {
         AFD_FSDKLibrary.INSTANCE.AFD_FSDK_UninitialFaceEngine(hFDEngine);
         AFR_FSDKLibrary.INSTANCE.AFR_FSDK_UninitialEngine(hFREngine);
         CLibrary.INSTANCE.free(pFDWorkMem);
@@ -73,25 +73,13 @@ public class FaceFeatureUtil{
 
     /**
      * 返回人脸特征值
+     *
      * @param file
      * @return
      * @throws Exception
      */
-    public Map returnFaceFeature(File file){
-        Map<Integer, byte[]> map = new HashMap();
-        AFR_FSDK_FACEMODEL[] afr_fsdk_facemodels = extractFace(file);
-        if (afr_fsdk_facemodels != null) {
-            for (int j = 0; j < afr_fsdk_facemodels.length; j++) {
-                if (afr_fsdk_facemodels[j] != null) {
-                    try {
-                        map.put(j, afr_fsdk_facemodels[j].toByteArray());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return map;
+    public byte[][] returnFaceFeature(File file) {
+        return extractFace(file);
     }
 
     /**
@@ -100,7 +88,7 @@ public class FaceFeatureUtil{
      * @param file
      * @return AFR_FSDK_FACEMODEL
      */
-    public AFR_FSDK_FACEMODEL[] extractFace(File file) {
+    public  byte[][] extractFace(File file) {
         // load Image Data
         ASVLOFFSCREEN inputImg = loadImage(file);
         FaceInfo[] faceInfos = doFaceDetection(hFDEngine, inputImg);
@@ -120,14 +108,20 @@ public class FaceFeatureUtil{
 
         //获取图片里面能检测到的所有人脸特征值
         AFR_FSDK_FACEMODEL[] faceFeature = new AFR_FSDK_FACEMODEL[faceinput.length];
+        byte[][] bytes = new byte[faceinput.length][0];
         for (int i = 0; i < faceinput.length; i++) {
             faceFeature[i] = new AFR_FSDK_FACEMODEL();
             NativeLong nativeLong = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_ExtractFRFeature(hFREngine, inputImg, faceinput[i], faceFeature[i]);
             if (nativeLong.longValue() != 0) {
-                faceFeature[i] = null;//人脸特征值获取失败将当前人脸特征值置空
+                bytes[i] = null;
+            }
+            try {
+                bytes[i] = faceFeature[i].toByteArray();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        return faceFeature;
+        return bytes;
     }
 
     /**
@@ -140,14 +134,12 @@ public class FaceFeatureUtil{
      */
     public FaceInfo[] doFaceDetection(Pointer hFDEngine, ASVLOFFSCREEN inputImg) {
         FaceInfo[] faceInfo = new FaceInfo[0];
-
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
-            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x" , ret.longValue()));
+            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
             return faceInfo;
         }
-
         AFD_FSDK_FACERES faceRes = new AFD_FSDK_FACERES(ppFaceRes.getValue());
         if (faceRes.nFace > 0) {
             faceInfo = new FaceInfo[faceRes.nFace];
@@ -166,7 +158,7 @@ public class FaceFeatureUtil{
     }
 
     //提供特征值获取分数
-    public float compareFaceSimilarity(byte[] faceFeatureA,byte[] faceFeatureB) throws Exception {
+    public float compareFaceSimilarity(byte[] faceFeatureA, byte[] faceFeatureB) throws Exception {
         AFR_FSDK_FACEMODEL faceA = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureA);
         AFR_FSDK_FACEMODEL faceB = AFR_FSDK_FACEMODEL.fromByteArray(faceFeatureB);
         FloatByReference fSimilScore = new FloatByReference(0.0f);

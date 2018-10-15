@@ -1,19 +1,14 @@
 package com.base.web.util;
 
-import com.base.web.bean.BlackList;
-import com.base.web.bean.Camera;
-import com.base.web.bean.FaceFeature;
-import com.base.web.bean.FaceImage;
+import com.base.web.bean.*;
 import com.base.web.bean.po.GenericPo;
 import com.base.web.bean.po.resource.Resources;
-import com.base.web.service.BlackListService;
-import com.base.web.service.CameraService;
-import com.base.web.service.FaceFeatureService;
-import com.base.web.service.FaceImageService;
+import com.base.web.service.*;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.nio.sctp.Association;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hsweb.commons.DateTimeUtils;
 import org.hsweb.commons.MD5;
@@ -53,6 +48,9 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
     @Autowired
     private BlackListService blackListService;
+
+    @Autowired
+    private AssociationBlickListService associationBlickListService;
 
     /**
      * 检索黑名单线程池
@@ -120,24 +118,10 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             buffers.rewind();
             buffers.get(bytes);
             int time = pAlarmInfo.dwAbsTime;
-            Date date = new Date((time>>26) + 100,((time>>22) & 15) - 1,(time>>17) & 31,
-                    (time>>12) & 31,(time>>6) & 63,time & 63);
+            Date date = new Date((time >> 26) + 100, ((time >> 22) & 15) - 1, (time >> 17) & 31,
+                    (time >> 12) & 31, (time >> 6) & 63, time & 63);
             FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(bytes, new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
                     .split("\0", 2)[0], pAlarmInfo.struDevInfo.wPort, pAlarmInfo.dwBackgroundPicLen, date));
-        }
-    }
-
-    @Transactional
-    public void insert(Resources resources, FaceImage faceImage, Map<Integer, byte[]> map) {
-        Long id = resourcesService.insert(resources);
-        faceImage.setResourceId(id);
-        faceImageService.insert(faceImage);
-        for (byte[] faceFeature : map.values()) {
-            FaceFeature faceFeature1 = new FaceFeature();
-            faceFeature1.setId(GenericPo.createUID());
-            faceFeature1.setFaceImageId(id);
-            faceFeature1.setFaceFeature(faceFeature);
-            faceFeatureService.insert(faceFeature1);
         }
     }
 
@@ -200,7 +184,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     resources.setPath(filePath);
                     resources.setMd5(md5);
                     resources.setCreateTime(date);
-                    ENGINE_POOL.execute(new Engine(oldFile,newFile,camera, resources));
+                    ENGINE_POOL.execute(new Engine(oldFile, newFile, camera, resources));
                 }
 
             } catch (FileNotFoundException e) {
@@ -218,7 +202,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     /**
      * 提取特征值
      */
-    private class Engine implements Runnable{
+    private class Engine implements Runnable {
 
         private File oldFile;
         private Resources resources;
@@ -236,18 +220,14 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
         @Override
         public void run() {
-            Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
-            if (map.size() > 0) {
+            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
+            if (bytes.length > 0) {
                 oldFile.renameTo(newFile);
                 FaceImage faceImage = new FaceImage();
                 faceImage.setDeviceId(camera.getId());
-                faceImage.setBlacklistId(0L);
                 faceImage.setCreateTime(resources.getCreateTime());
-                //插入数据
-                insert(resources, faceImage, map);
-                for (byte[] faceFeature : map.values()) {
-                    RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(faceFeature, faceImage.getId()));
-                }
+                faceImage.setId(GenericPo.createUID());
+                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(bytes, resources, faceImage));
             } else {
                 oldFile.delete();
             }
@@ -259,31 +239,51 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     private class RetrieveBlacklistThread implements Runnable {
 
-        private byte[] faceFeatureA;
+        private byte[][] bytes;
 
-        private Long faceImageId;
+        private Resources resources;
 
-        public RetrieveBlacklistThread(byte[] faceFeatureA, Long faceImageId) {
-            this.faceFeatureA = faceFeatureA;
-            this.faceImageId = faceImageId;
+        private FaceImage faceImage;
+
+
+        public RetrieveBlacklistThread(byte[][] bytes, Resources resources, FaceImage faceImage) {
+            this.bytes = bytes;
+            this.resources = resources;
+            this.faceImage = faceImage;
         }
 
         @Override
         public void run() {
+            Long resourceId = resourcesService.insert(resources);
+            faceImage.setResourceId(resourceId);
+            Long faceImageId = faceImageService.insert(faceImage);
             List<BlackList> list = blackListService.select();
-            for (BlackList blackList : list) {
-                try {
-                    float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(faceFeatureA, blackList.getFaceFeature());
-                    if (similarity - 0.4 > 0) {
-                        FaceImage faceImage = new FaceImage();
-                        faceImage.setId(faceImageId);
-                        faceImage.setBlacklistId(blackList.getId());
-                        faceImage.setSimilarity((int) (similarity*100));
-                        faceImageService.update(faceImage);
+            FaceFeature faceFeature = new FaceFeature();
+            AssociationBlickListDO associationBlickListDO = new AssociationBlickListDO();
+            float similarity;
+            //遍历图片所有特征值
+            for (int j =  0; j < bytes.length; j++) {
+                //遍历所有黑名单
+                for (int i = 0 ; i < list.size(); ) {
+                    try {
+                        similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
+                        if (similarity - 0.4 > 0) {
+                            associationBlickListDO.setBlackListId(list.get(i).getId());
+                            associationBlickListDO.setFaceImageId(faceImageId);
+                            associationBlickListDO.setSimilarity((int) (similarity * 100));
+                            associationBlickListDO.setId(GenericPo.createUID());
+                            associationBlickListService.insert(associationBlickListDO);
+                            list.remove(i);
+                            continue;
+                        }
+                        i++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+                faceFeature.setResourceId(resourceId);
+                faceFeature.setFaceFeature(bytes[j]);
+                faceFeatureService.insert(faceFeature);
             }
         }
     }

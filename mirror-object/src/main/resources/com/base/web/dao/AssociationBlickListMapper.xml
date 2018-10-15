@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="com.base.web.dao.FaceFeatureMapper">
-    <resultMap id="FaceFeatureResultMap" type="com.base.web.bean.FaceFeature">
+<mapper namespace="com.base.web.dao.AssociationBlickListMapper">
+    <resultMap id="AssociationBlickListResultMap" type="com.base.web.bean.AssociationBlickListDO">
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
-        <result property="resourceId" column="resource_id" javaType="Long" jdbcType="BIGINT"/>
-        <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+        <result property="faceImageId" column="face_image_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="blackListId" column="blacklist_id" javaType="Long" jdbcType="BIGINT"/>
+        <result property="similarity" column="similarity" javaType="int" jdbcType="INTEGER"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">
-        <bind name="resultMapId" value="'FaceFeatureResultMap'"/>
-        <bind name="tableName" value="'t_face_feature'"/>
+        <bind name="resultMapId" value="'AssociationBlickListResultMap'"/>
+        <bind name="tableName" value="'t_association_blicklist'"/>
     </sql>
 
     <insert id="insert" parameterType="com.base.web.bean.common.InsertParam" >
@@ -30,11 +30,11 @@
         <include refid="BasicMapper.buildUpdateSql"/>
     </update>
 
-    <select id="selectByPk" parameterType="Long" resultMap="FaceFeatureResultMap">
-        select * from t_device where u_id=#{u_id}
+    <select id="selectByPk" parameterType="Long" resultMap="AssociationBlickListResultMap">
+        select * from t_association_blicklist where u_id=#{u_id}
     </select>
 
-    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="FaceFeatureResultMap">
+    <select id="select" parameterType="com.base.web.bean.common.QueryParam" resultMap="AssociationBlickListResultMap">
         <include refid="config"/>
         <include refid="BasicMapper.buildSelectSql"/>
     </select>
@@ -45,4 +45,3 @@
     </select>
 
 </mapper>
-

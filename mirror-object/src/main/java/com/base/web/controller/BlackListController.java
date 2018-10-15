@@ -128,8 +128,8 @@ public class BlackListController extends GenericController<BlackList, Long> {
         fileLength = getFileLength(file.getInputStream(), currentImagePath + fileName, fileLength);
         File faceFile = new File(currentImagePath + fileName);
         //获取人脸特征值
-        Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
-        if (map.size() != 1) {
+        byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
+        if (bytes.length != 1) {
             //没有检测到人脸
             faceFile.delete();
             return null;
@@ -149,7 +149,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
             resources.setMd5(md5);
             resources.setCreateTime(new Date());
             resourcesService.insert(resources);
-            blackList.setFaceFeature(map.get(0));
+            blackList.setFaceFeature(bytes[0]);
             blackList.setResourceId(resources.getId());
             return blackList;
         }

@@ -6,12 +6,8 @@ import com.base.web.bean.po.GenericPo;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
-import com.base.web.service.AimsMessageService;
-import com.base.web.service.FaceFeatureService;
-import com.base.web.service.FaceImageService;
-import com.base.web.service.UploadFeatureService;
+import com.base.web.service.*;
 import com.base.web.util.FaceFeatureUtil;
-import com.base.web.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +24,7 @@ import java.util.Map;
 @AccessLogger("目标查询")
 @Authorize(module = "aims")
 public class AimsController extends GenericController<FaceImage, Long> {
-    @Autowired
-    private FaceFeatureService faceFeatureService;
+
 
     @Autowired
     private FaceImageService faceImageService;
@@ -65,13 +59,13 @@ public class AimsController extends GenericController<FaceImage, Long> {
             file.transferTo(faceFile);
 
             //获取人脸特征值
-            Map<Integer, byte[]> map = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
+            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
             //删除图片
             faceFile.delete();
 
-            if (map.size() == 1) {
+            if (bytes.length == 1) {
                 UploadFeature uploadFeature = new UploadFeature();
-                uploadFeature.setFaceFeature(map.get(0));
+                uploadFeature.setFaceFeature(bytes[0]);
                 uploadFeature.setId(GenericPo.createUID());
                 //插入人脸特征值
                 return uploadFeatureService.insert(uploadFeature).toString();
@@ -111,7 +105,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         //检测成功之后跳出当前寻缓
                         Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
                         if (similarity >= uploadValue.getMinSimilarity()) {
-//                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
                             faceImageList.get(i).setSimilarity(similarity);
                             i++;
                             break;
@@ -132,6 +125,31 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Authorize(action = "R")
     public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
         return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
+    }
+
+    @Autowired
+    private BlackListService blackListService;
+
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public ResponseMessage test() {
+        System.out.println("2张人脸");
+        List<BlackList> list = blackListService.select();
+        File file = new File("C:\\Users\\Geek\\Desktop\\1.jpg");
+        byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(file);
+        float similarity;
+        for (int i = 0; i < bytes.length; i++) {
+            //遍历所有黑名单
+            for (int j = 0; j < list.size(); ) {
+                try {
+                    similarity = new FaceFeatureUtil().compareFaceSimilarity(bytes[i], list.get(j).getFaceFeature());
+                    System.out.println(list.get(j).getName() + ":" +similarity);
+                    j++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return ResponseMessage.ok();
     }
 
 }
