@@ -138,67 +138,55 @@ $(function () {
             "order": [],
             "stripeClasses": ['col-md-3'],
             "ajax": function (data, callback, settings) {
-
                 var organization = $('#area_tree').treeview('getSelected')[0];
-                if (typeof organization !== "undefined") {
-                    var param = {}
-                    //区域树条件
-                    if (organization.level == 0) {
-                        param.organizationId = (organization.id / 1000000);
-                    } else if (organization.level == 1) {
-                        param.organizationId = (organization.id / 1000);
-                    } else if (organization.level == 2) {
-                        param.organizationId = (organization.id);
-                    } else if (organization.level == 3) {
-                        param.deviceId = (organization.id);
-                    }
-
-                    if ($('#searchStart').val() !== "") {
-                        param.searchStart = $('#searchStart').val();
-                    }
-                    if ($('#searchEnd').val() !== "") {
-                        param.searchEnd = $('#searchEnd').val();
-                    }
-                    if ($('#searchStart').val() >= $('#searchEnd').val()) {
-                        toastr.warning("开始时间必须小于结束时间");
-                        return false;
-                    }
-
-                    var minSimilarity = $("#minSimilarity").val();
-                    if (!checkNumber(minSimilarity)) {
-                        toastr.warning("请输入0~100的相识度");
-                        return false;
-                    }
-                    param.minSimilarity = minSimilarity;
-                    param.uploadId = uploadId;
-                    $.ajax({
-                        url: BASE_PATH + "aims/faceRecognize",
-                        type: "GET",
-                        data: param,
-                        cache: false,
-                        success: function (result) {
-                            var resultData = {};
-                            resultData.draw = result.data.draw;
-                            resultData.recordsTotal = result.data.length;
-                            resultData.recordsFiltered = result.data.length;
-                            resultData.data = result.data;
-                            if (resultData.data == null) {
-                                resultData.data = [];
-                            }
-                            callback(resultData);
-                        },
-                        error: function () {
-                            toastr.warning("请求列表数据失败, 请重试");
-                        }
-                    });
+                var param = {};
+                //区域树条件
+                if (organization.level == 0) {
+                    param.organizationId = (organization.id / 1000000);
+                } else if (organization.level == 1) {
+                    param.organizationId = (organization.id / 1000);
+                } else if (organization.level == 2) {
+                    param.organizationId = (organization.id);
+                } else if (organization.level == 3) {
+                    param.deviceId = (organization.id);
                 }
+
+                if ($('#searchStart').val() !== "") {
+                    param.searchStart = $('#searchStart').val();
+                }
+                if ($('#searchEnd').val() !== "") {
+                    param.searchEnd = $('#searchEnd').val();
+                }
+                var minSimilarity = $("#minSimilarity").val();
+                param.minSimilarity = minSimilarity;
+                param.uploadId = uploadId;
+                $.ajax({
+                    url: BASE_PATH + "aims/faceRecognize",
+                    type: "GET",
+                    data: param,
+                    cache: false,
+                    success: function (result) {
+                        var resultData = {};
+                        resultData.draw = result.data.draw;
+                        resultData.recordsTotal = result.data.length;
+                        resultData.recordsFiltered = result.data.length;
+                        resultData.data = result.data;
+                        if (resultData.data == null) {
+                            resultData.data = [];
+                        }
+                        callback(resultData);
+                    },
+                    error: function () {
+                        toastr.warning("请求列表数据失败, 请重试");
+                    }
+                });
             },
             "columns": [
                 {
                     "data": null
                 },
             ],
-            "rowCallback": function( row, data ) {
+            "rowCallback": function (row, data) {
                 var html = "<div class='img-show-box'><image class='img' src='" + BASE_PATH + "file/image/" + data.resourceId + "'></image>";
                 if (data.blackListName != null && data.blackListName != 0) {
                     html += "<div class='img-content'><div>" + data.deviceName + "</div>";
@@ -262,8 +250,21 @@ $(function () {
      */
 
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
-        if (uploadId == null) {
+        var organization = $('#area_tree').treeview('getSelected')[0];
+        if (typeof organization === "undefined") {
+            toastr.warning("请选中节点后再搜索");
+            return false;
+        }
+        else if (uploadId == null) {
             toastr.warning("请上传搜索图片后再搜索");
+            return false;
+        }
+        else if ($('#searchStart').val() >= $('#searchEnd').val()) {
+            toastr.warning("开始时间必须小于结束时间");
+            return false;
+        }
+        else if (!checkNumber($("#minSimilarity").val())) {
+            toastr.warning("请输入0~100的相识度");
             return false;
         }
         $('#target_list').show();

@@ -140,7 +140,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     }
 
     /**
-     * 该服务器已关联和没关联的设备
+     * 查询该服务器已关联和没关联的设备
      * @param id
      * @return
      */

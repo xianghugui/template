@@ -8,6 +8,8 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.*;
 import com.base.web.util.FaceFeatureUtil;
+import com.base.web.util.FmsgCallBack;
+import com.base.web.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping(value = "/aims")
@@ -40,6 +44,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
         return faceImageService;
     }
 
+    private List<AimsMessageDTO> saveFace;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
@@ -69,8 +74,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 uploadFeature.setId(GenericPo.createUID());
                 //插入人脸特征值
                 return uploadFeatureService.insert(uploadFeature).toString();
+            } else if (bytes != null && bytes.length > 1) {
+                returnStr = "检测到多张人脸,请重新上传图片";
             }
-            returnStr = "检测到多张人脸,请重新上传图片";
         }
         return returnStr;
     }
@@ -79,7 +85,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @RequestMapping(value = "/faceRecognize", method = RequestMethod.GET)
     @AccessLogger("目标查询")
     @Authorize(action = "R")
-    public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws Exception {
+    public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws ExecutionException, InterruptedException {
         //模糊匹配组织ID
         String organizationId = uploadValue.getOrganizationId();
         if (organizationId != null) {
@@ -93,29 +99,22 @@ public class AimsController extends GenericController<FaceImage, Long> {
             Long start = System.currentTimeMillis();
             //获取数据库全部图片
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
-            //遍历匹配数据库的特征值
-            List<FaceFeature> faceFeatureList;
-            for (int i = 0; i < faceImageList.size(); ) {
-                //查询当前图片包含的所有人脸特征值
-                faceFeatureList = faceImageList.get(i).getList();
-                if (faceFeatureList.size() == 0) {
-                    faceImageList.remove(i);
-                } else {
-                    for (int k = 0; k < faceFeatureList.size(); k++) {
-                        //检测成功之后跳出当前寻缓
-                        Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
-                        if (similarity >= uploadValue.getMinSimilarity()) {
-                            faceImageList.get(i).setSimilarity(similarity);
-                            i++;
-                            break;
-                        } else if (k + 1 == faceFeatureList.size()) {
-                            faceImageList.remove(i);
-                        }
-                    }
-                }
-            }
             System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
-            return ResponseMessage.ok(faceImageList);
+
+//            ENGINE_POOL.execute(new AimsController.RetrieveBlacklistThread(faceImageList,uploadFaceFeature,uploadValue));
+
+            Long start2 = System.currentTimeMillis();
+
+            ForkJoinPool forkjoinPool = new ForkJoinPool();
+
+            RetrieveBlacklistThread task = new RetrieveBlacklistThread(faceImageList, uploadFaceFeature, uploadValue);
+
+            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
+
+            System.out.println((System.currentTimeMillis() - start2) * 1.0 / 1000);
+
+//            faceImageList = result.get();
+            return ResponseMessage.ok();
         }
     }
 
@@ -125,6 +124,94 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Authorize(action = "R")
     public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
         return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
+    }
+
+    /**
+     * 人脸识别引擎线程池
+     */
+    private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(0, 10,
+            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
+            new ThreadFactory() {
+
+                private final AtomicInteger mCount = new AtomicInteger(1);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "Engine_pool:" + mCount.getAndIncrement());
+                }
+            });
+
+    /**
+     * 检索黑名单
+     */
+
+
+    private class RetrieveBlacklistThread extends RecursiveTask<List<AimsMessageDTO>> {
+
+        private List<AimsMessageDTO> faceImageList;
+        private List<AimsMessageDTO> returnFaceList;
+        private byte[] uploadFaceFeature;
+        private UploadValue uploadValue;
+
+        public RetrieveBlacklistThread(List<AimsMessageDTO> faceImageList, byte[] uploadFaceFeature, UploadValue uploadValue) {
+            this.faceImageList = faceImageList;
+            this.uploadFaceFeature = uploadFaceFeature;
+            this.uploadValue = uploadValue;
+        }
+
+        @Override
+        public List<AimsMessageDTO> compute() {
+            returnFaceList = new ArrayList<AimsMessageDTO>();
+            if (faceImageList.size() <= 2000) {
+                try {
+                    return returnFaceList = face(0, faceImageList.size());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                int end = 0;
+                int start = 0;
+                List<AimsMessageDTO> index;
+                for (int i = 0; i < faceImageList.size() / 2000; i++) {
+                    System.out.println(i);
+                    end += 2000;
+                    start = i * 2000;
+                    index = faceImageList.subList(start,end);
+                    RetrieveBlacklistThread retrieveBlacklistThread = new RetrieveBlacklistThread(index, uploadFaceFeature, uploadValue);
+                    retrieveBlacklistThread.fork();
+                    List<AimsMessageDTO> result = retrieveBlacklistThread.join();
+                    returnFaceList.addAll(result);
+                }
+            }
+            return returnFaceList;
+        }
+
+        public List<AimsMessageDTO> face(int i, int length) throws Exception {
+            List<AimsMessageDTO> returnFace = new ArrayList<AimsMessageDTO>();
+            //遍历匹配数据库的特征值
+            List<FaceFeature> faceFeatureList;
+            for (; i < faceImageList.size(); ) {
+                //查询当前图片包含的所有人脸特征值
+                faceFeatureList = faceImageList.get(i).getList();
+                if (faceFeatureList.size() == 0) {
+                    faceImageList.remove(i);
+                } else {
+                    for (int k = 0; k < faceFeatureList.size(); k++) {
+                        //检测成功之后跳出当前寻缓
+                        Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
+                        if (similarity >= uploadValue.getMinSimilarity()) {
+//                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
+                            faceImageList.get(i).setSimilarity(similarity);
+                            i++;
+                            break;
+                        } else if (k + 1 == faceFeatureList.size()) {
+                            faceImageList.remove(i);
+                        }
+                    }
+                }
+            }
+            return faceImageList;
+        }
     }
 
 }
