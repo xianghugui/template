@@ -19,4 +19,9 @@ public class AimsMessageServiceImpl implements AimsMessageService {
     public List<AimsMessageDTO> listAimsMessage(UploadValue uploadValue) {
         return aimsMessageMapper.listAimsMessage(uploadValue);
     }
+
+    @Override
+    public int listAimsMessageTotal(UploadValue uploadValue) {
+        return aimsMessageMapper.listAimsMessageTotal(uploadValue);
+    }
 }

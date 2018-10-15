@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface AimsMessageService {
     List<AimsMessageDTO> listAimsMessage(UploadValue uploadValue);
+
+    int listAimsMessageTotal(UploadValue uploadValue);
 }

@@ -98,23 +98,12 @@ public class AimsController extends GenericController<FaceImage, Long> {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             Long start = System.currentTimeMillis();
             //获取数据库全部图片
-            List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
+            int faceImageListTotal = aimsMessageService.listAimsMessageTotal(uploadValue);
             System.out.println((System.currentTimeMillis() - start) * 1.0 / 1000);
-
-//            ENGINE_POOL.execute(new AimsController.RetrieveBlacklistThread(faceImageList,uploadFaceFeature,uploadValue));
-
-            Long start2 = System.currentTimeMillis();
-
             ForkJoinPool forkjoinPool = new ForkJoinPool();
-
-            RetrieveBlacklistThread task = new RetrieveBlacklistThread(faceImageList, uploadFaceFeature, uploadValue);
-
+            RetrieveBlacklistThread task = new RetrieveBlacklistThread(faceImageListTotal, uploadFaceFeature, uploadValue);
             Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
-
-            System.out.println((System.currentTimeMillis() - start2) * 1.0 / 1000);
-
-//            faceImageList = result.get();
-            return ResponseMessage.ok();
+            return ResponseMessage.ok(result.get());
         }
     }
 
@@ -126,35 +115,15 @@ public class AimsController extends GenericController<FaceImage, Long> {
         return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
     }
 
-    /**
-     * 人脸识别引擎线程池
-     */
-    private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(0, 10,
-            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
-            new ThreadFactory() {
-
-                private final AtomicInteger mCount = new AtomicInteger(1);
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "Engine_pool:" + mCount.getAndIncrement());
-                }
-            });
-
-    /**
-     * 检索黑名单
-     */
-
 
     private class RetrieveBlacklistThread extends RecursiveTask<List<AimsMessageDTO>> {
-
-        private List<AimsMessageDTO> faceImageList;
+        private int listAimsMessageTotal;
         private List<AimsMessageDTO> returnFaceList;
         private byte[] uploadFaceFeature;
         private UploadValue uploadValue;
 
-        public RetrieveBlacklistThread(List<AimsMessageDTO> faceImageList, byte[] uploadFaceFeature, UploadValue uploadValue) {
-            this.faceImageList = faceImageList;
+        public RetrieveBlacklistThread(int listAimsMessageTotal, byte[] uploadFaceFeature, UploadValue uploadValue) {
+            this.listAimsMessageTotal = listAimsMessageTotal;
             this.uploadFaceFeature = uploadFaceFeature;
             this.uploadValue = uploadValue;
         }
@@ -162,32 +131,37 @@ public class AimsController extends GenericController<FaceImage, Long> {
         @Override
         public List<AimsMessageDTO> compute() {
             returnFaceList = new ArrayList<AimsMessageDTO>();
-            if (faceImageList.size() <= 2000) {
+            if (listAimsMessageTotal <= 1000) {
                 try {
-                    return returnFaceList = face(0, faceImageList.size());
+                    return returnFaceList = face(0, listAimsMessageTotal);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
                 int end = 0;
                 int start = 0;
-                List<AimsMessageDTO> index;
-                for (int i = 0; i < faceImageList.size() / 2000; i++) {
+                List<RetrieveBlacklistThread> list = new ArrayList();
+                for (int i = 0; i <= listAimsMessageTotal / 1000; i++) {
                     System.out.println(i);
-                    end += 2000;
-                    start = i * 2000;
-                    index = faceImageList.subList(start,end);
-                    RetrieveBlacklistThread retrieveBlacklistThread = new RetrieveBlacklistThread(index, uploadFaceFeature, uploadValue);
+                    end += 1000;
+                    start = i * 1000;
+                    RetrieveBlacklistThread retrieveBlacklistThread = new RetrieveBlacklistThread(end, uploadFaceFeature, uploadValue);
+                    list.add(retrieveBlacklistThread);
                     retrieveBlacklistThread.fork();
-                    List<AimsMessageDTO> result = retrieveBlacklistThread.join();
-                    returnFaceList.addAll(result);
+                }
+                for(RetrieveBlacklistThread retrieveBlacklistThread:list){
+                    returnFaceList.addAll(retrieveBlacklistThread.join());
                 }
             }
             return returnFaceList;
         }
 
         public List<AimsMessageDTO> face(int i, int length) throws Exception {
-            List<AimsMessageDTO> returnFace = new ArrayList<AimsMessageDTO>();
+            uploadValue.setPageIndex(length - 1000);
+            uploadValue.setPageSize(length);
+            Long start = System.currentTimeMillis();
+            List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
+            System.out.println("time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
             //遍历匹配数据库的特征值
             List<FaceFeature> faceFeatureList;
             for (; i < faceImageList.size(); ) {
@@ -200,10 +174,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
                         //检测成功之后跳出当前寻缓
                         Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
                         if (similarity >= uploadValue.getMinSimilarity()) {
-//                            faceImageList.get(i).setImageUrl(ResourceUtil.resourceBuildPath(req, faceImageList.get(i).getResourceId().toString()));
                             faceImageList.get(i).setSimilarity(similarity);
                             i++;
-                            break;
+                            continue;
                         } else if (k + 1 == faceFeatureList.size()) {
                             faceImageList.remove(i);
                         }

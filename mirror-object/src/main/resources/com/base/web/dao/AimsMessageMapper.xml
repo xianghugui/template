@@ -30,8 +30,8 @@
         t_resource tr,
         t_device td,
         t_face_image tfi
-        LEFT JOIN t_blacklist tb ON tfi.blacklist_id = tb.u_id
-        LEFT JOIN t_face_feature tff ON tfi.resource_id = tff.face_image_id
+        LEFT JOIN t_face_feature tff ON tfi.resource_id = tff.resource_id
+        LEFT JOIN (t_association_blicklist tab,t_blacklist tb) ON tfi.u_id = tab.face_image_id AND tb.u_id = tab.blacklist_id
         WHERE
         tfi.resource_id = tr.u_id
         AND td.u_id = tfi.device_id
@@ -48,5 +48,32 @@
             AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
         </if>
         ORDER BY tr.create_time DESC
+        LIMIT #{pageIndex},#{pageSize}
     </select>
+
+
+    <select id="listAimsMessageTotal" parameterType="com.base.web.bean.UploadValue" resultType="int">
+        SELECT
+        COUNT(tfi.u_id)
+        FROM
+        t_device td,
+        t_face_image tfi
+        WHERE
+        td.u_id = tfi.device_id
+        <if test="organizationId != null">
+            AND td.organization_id Like #{organizationId}
+        </if>
+        <if test="deviceId != null">
+            AND tfi.device_id = #{deviceId}
+        </if>
+        <if test="searchStart != null">
+            AND tfi.create_time <![CDATA[ >= ]]> #{searchStart}
+        </if>
+        <if test="searchEnd">
+            AND tfi.create_time  <![CDATA[ <= ]]> #{searchEnd}
+        </if>
+    </select>
+
+
+
 </mapper>
