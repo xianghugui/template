@@ -63,7 +63,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             //删除图片
             faceFile.delete();
 
-            if (bytes.length == 1) {
+            if ( bytes != null && bytes.length == 1) {
                 UploadFeature uploadFeature = new UploadFeature();
                 uploadFeature.setFaceFeature(bytes[0]);
                 uploadFeature.setId(GenericPo.createUID());
@@ -125,31 +125,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Authorize(action = "R")
     public ResponseMessage listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
         return ResponseMessage.ok(faceImageService.listFaceImage(uploadValue, req));
-    }
-
-    @Autowired
-    private BlackListService blackListService;
-
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public ResponseMessage test() {
-        System.out.println("2张人脸");
-        List<BlackList> list = blackListService.select();
-        File file = new File("C:\\Users\\Geek\\Desktop\\1.jpg");
-        byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(file);
-        float similarity;
-        for (int i = 0; i < bytes.length; i++) {
-            //遍历所有黑名单
-            for (int j = 0; j < list.size(); ) {
-                try {
-                    similarity = new FaceFeatureUtil().compareFaceSimilarity(bytes[i], list.get(j).getFaceFeature());
-                    System.out.println(list.get(j).getName() + ":" +similarity);
-                    j++;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return ResponseMessage.ok();
     }
 
 }

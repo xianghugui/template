@@ -221,7 +221,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         @Override
         public void run() {
             byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
-            if (bytes.length > 0) {
+            if (bytes != null && bytes.length > 0) {
                 oldFile.renameTo(newFile);
                 FaceImage faceImage = new FaceImage();
                 faceImage.setDeviceId(camera.getId());
@@ -266,6 +266,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 //遍历所有黑名单
                 for (int i = 0 ; i < list.size(); ) {
                     try {
+                        System.out.println(bytes[j].length);
                         similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
                         if (similarity - 0.4 > 0) {
                             associationBlickListDO.setBlackListId(list.get(i).getId());

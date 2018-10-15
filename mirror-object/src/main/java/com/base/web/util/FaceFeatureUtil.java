@@ -113,7 +113,7 @@ public class FaceFeatureUtil {
             faceFeature[i] = new AFR_FSDK_FACEMODEL();
             NativeLong nativeLong = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_ExtractFRFeature(hFREngine, inputImg, faceinput[i], faceFeature[i]);
             if (nativeLong.longValue() != 0) {
-                bytes[i] = null;
+                bytes[i] = new byte[]{};
             }
             try {
                 bytes[i] = faceFeature[i].toByteArray();
