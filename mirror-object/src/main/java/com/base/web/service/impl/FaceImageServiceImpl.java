@@ -27,11 +27,6 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
     }
 
     @Override
-    public List<Map> queryAllFaceFeature(UploadValue uploadValue){
-        return faceImageMapper.queryAllFaceFeature(uploadValue);
-    }
-
-    @Override
     public PagerResult<Map> listFaceImage(UploadValue uploadValue, HttpServletRequest req) {
         PagerResult<Map> pagerResult = new PagerResult<>();
         int total = faceImageMapper.listFaceImageTotal(uploadValue);

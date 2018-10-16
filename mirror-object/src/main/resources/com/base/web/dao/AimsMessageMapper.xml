@@ -13,41 +13,41 @@
         <collection property="list" ofType="com.base.web.bean.FaceFeature">
             <id property="id" column="tff_id" javaType="Long" jdbcType="BIGINT"/>
             <result property="faceImageId" column="face_image_id" javaType="Long" jdbcType="BIGINT"/>
-            <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+            <result property="faceFeature" column="face_feature" jdbcType="BLOB"
+                    typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
         </collection>
     </resultMap>
     <select id="listAimsMessage" parameterType="com.base.web.bean.UploadValue" resultMap="AimsMessageResultMap">
         SELECT
         tfi.u_id,
         tfi.resource_id,
-        tr.create_time,
+        tfi.create_time,
         td.`name` AS device_name,
         tb.`name` AS blackList_name,
         tb.`code`,
         tff.u_id AS tff_id,
         tff.face_feature
         FROM
-        t_resource tr,
-        t_device td,
         t_face_image tfi
-        LEFT JOIN t_face_feature tff ON tfi.resource_id = tff.resource_id
-        LEFT JOIN (t_association_blicklist tab,t_blacklist tb) ON tfi.u_id = tab.face_image_id AND tb.u_id = tab.blacklist_id
-        WHERE
-        tfi.resource_id = tr.u_id
-        AND td.u_id = tfi.device_id
-        <if test="organizationId != null">
-            AND td.organization_id Like #{organizationId}
-        </if>
-        <if test="deviceId != null">
-            AND tfi.device_id = #{deviceId}
-        </if>
-        <if test="searchStart != null">
-            AND tr.create_time <![CDATA[ >= ]]> #{searchStart}
-        </if>
-        <if test="searchEnd">
-            AND tr.create_time  <![CDATA[ <= ]]> #{searchEnd}
-        </if>
-        ORDER BY tr.create_time DESC
+        INNER JOIN t_device td ON td.u_id = tfi.device_id
+        INNER JOIN t_face_feature tff ON tfi.resource_id = tff.resource_id
+        LEFT JOIN ( t_association_blicklist tab, t_blacklist tb ) ON tfi.u_id = tab.face_image_id AND tb.u_id =
+        tab.blacklist_id
+        <where>
+            <if test="organizationId != null">
+                AND td.organization_id Like #{organizationId}
+            </if>
+            <if test="deviceId != null">
+                AND tfi.device_id = #{deviceId}
+            </if>
+            <if test="searchStart != null">
+                AND tfi.create_time <![CDATA[ >= ]]> #{searchStart}
+            </if>
+            <if test="searchEnd">
+                AND tfi.create_time  <![CDATA[ <= ]]> #{searchEnd}
+            </if>
+        </where>
+        ORDER BY tfi.create_time DESC
         LIMIT #{pageIndex},#{pageSize}
     </select>
 
@@ -73,7 +73,6 @@
             AND tfi.create_time  <![CDATA[ <= ]]> #{searchEnd}
         </if>
     </select>
-
 
 
 </mapper>

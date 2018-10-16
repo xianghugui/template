@@ -56,7 +56,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     /**
      * 检索黑名单线程池
      */
-    private static final ExecutorService RETRIEVE_BLACKLIST_POOL = new ThreadPoolExecutor(0, 250,
+    private static final ExecutorService RETRIEVE_BLACKLIST_POOL = new ThreadPoolExecutor(3, 250,
             0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
@@ -72,7 +72,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     /**
      * 回调函数线程池
      */
-    private static final ExecutorService FMSGCALLBACK_POOL = new ThreadPoolExecutor(0, 250,
+    private static final ExecutorService FMSGCALLBACK_POOL = new ThreadPoolExecutor(6, 250,
             0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
@@ -87,7 +87,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     /**
      * 人脸识别引擎线程池
      */
-    private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(0, 250,
+    private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(3, 250,
             0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
             new ThreadFactory() {
 
