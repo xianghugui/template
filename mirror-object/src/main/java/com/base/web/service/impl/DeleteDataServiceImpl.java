@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service("deleteDataService")
 public class DeleteDataServiceImpl implements DeleteDataService {
@@ -27,6 +29,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
     @Transactional
     @Override
     public void clearData(UploadValue uploadValue) throws ParseException {
+        DeleteFileUtil deleteFileUtil = new DeleteFileUtil();
         String currentImagePath;
 
         //获取服务器人脸图片存储文件夹路径
@@ -40,21 +43,59 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         List<String> dateList = findDates(sdf.parse(uploadValue.getSearchStart()),sdf.parse(uploadValue.getSearchEnd()));
 
+        //创建线程池
+        ExecutorService executorService = Executors.newCachedThreadPool();
         //删除时间段里的服务器人脸图片存储文件夹(文件夹按时间命名的)
         for(String date:dateList){
             //按时间段生成线程
-            ClearFileThread clearFileThread = new ClearFileThread(currentImagePath+date);
-            Thread thread = new Thread(clearFileThread);
-            thread.start();
+            ClearFileThread clearFileThread = new ClearFileThread(new InjectMethod() {
+                @Override
+                public void inMethod() {
+                    deleteFileUtil.delete(currentImagePath+date);
+                }
+            });
+            executorService.execute(clearFileThread);
         }
 
         uploadValue.setSearchStart(uploadValue.getSearchStart()+" 00:00:00");
         uploadValue.setSearchEnd(uploadValue.getSearchEnd()+" 23:59:59");
         //删除数据库表数据
 
-        deleteDataMapper.deleteAssociationBlackList(uploadValue);
-        deleteDataMapper.deleteFaceImage(uploadValue);
-        deleteDataMapper.deleteFaceFeature(uploadValue);
+        ClearFileThread deleteAssociationBlackList = new ClearFileThread(new InjectMethod() {
+            @Override
+            public void inMethod() {
+                deleteDataMapper.deleteAssociationBlackList(uploadValue);
+            }
+        });
+
+        ClearFileThread deleteFaceFeature = new ClearFileThread(new InjectMethod() {
+            @Override
+            public void inMethod() {
+                deleteDataMapper.deleteFaceFeature(uploadValue);
+            }
+        });
+
+        ClearFileThread deleteFaceImage = new ClearFileThread(new InjectMethod() {
+            @Override
+            public void inMethod() {
+                deleteDataMapper.deleteFaceImage(uploadValue);
+            }
+        });
+
+        ClearFileThread deleteResource = new ClearFileThread(new InjectMethod() {
+            @Override
+            public void inMethod() {
+                deleteDataMapper.deleteResource(uploadValue);
+            }
+        });
+
+        executorService.execute(deleteAssociationBlackList);
+        executorService.execute(deleteFaceFeature);
+        executorService.execute(deleteFaceImage);
+        executorService.execute(deleteResource);
+
+        //关闭线程
+        executorService.shutdown();
     }
 
     //JAVA获取某段时间内的所有日期
@@ -78,17 +119,22 @@ public class DeleteDataServiceImpl implements DeleteDataService {
     //多线程删除文件
     public class ClearFileThread implements Runnable{
 
-        private String filePath;
-        private DeleteFileUtil deleteFileUtil = new DeleteFileUtil();
+        private InjectMethod method;
 
-        public ClearFileThread(String filePath){
-            this.filePath = filePath;
+        //传递方法
+        public ClearFileThread(InjectMethod method){
+            this.method = method;
         }
 
         @Override
-        public void run(){
-            deleteFileUtil.delete(filePath);
+        public void run() {
+            method.inMethod();
         }
+    }
+
+    //使用接口实现java传递函数
+    public interface InjectMethod{
+        public void inMethod();
     }
 
 
