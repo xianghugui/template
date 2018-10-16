@@ -54,7 +54,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         Map map = new HashMap();
         //添加关联设备
         if (serverDevice.getDeviceIdList() != null && serverDevice.getDeviceIdList().length > 0) {
-            Camera camera = null;
+            Camera camera;
             Long[] deviceIds = serverDevice.getDeviceIdList();
             for (int i = 0, length = deviceIds.length;  i < length; i++) {
                 camera = cameraService.selectByPk(deviceIds[i]);
@@ -86,7 +86,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
         //取消关联设备
         if (serverDevice.getCancelDeviceIdList() != null && serverDevice.getCancelDeviceIdList().length > 0) {
             Long[] deviceIds = serverDevice.getCancelDeviceIdList();
-            Camera camera = null;
+            Camera camera;
             for (int i = 0; i < deviceIds.length; i++) {
                 camera = cameraService.selectByPk(deviceIds[i]);
                 NetDvrInit.login(camera);

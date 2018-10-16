@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class FaceFeatureUtil {
 
+    //存放人脸识别引擎，根据摄像头ID获取对应引擎，key：0为目标检索等使用
     public static final Map<Long, FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
 
     public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
@@ -107,16 +108,16 @@ public class FaceFeatureUtil {
         }
 
         //获取图片里面能检测到的所有人脸特征值
-        AFR_FSDK_FACEMODEL[] faceFeature = new AFR_FSDK_FACEMODEL[faceinput.length];
+        AFR_FSDK_FACEMODEL faceFeature = new AFR_FSDK_FACEMODEL();
         byte[][] bytes = new byte[faceinput.length][0];
         for (int i = 0; i < faceinput.length; i++) {
-            faceFeature[i] = new AFR_FSDK_FACEMODEL();
-            NativeLong nativeLong = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_ExtractFRFeature(hFREngine, inputImg, faceinput[i], faceFeature[i]);
+            NativeLong nativeLong = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_ExtractFRFeature(hFREngine, inputImg, faceinput[i], faceFeature);
             if (nativeLong.longValue() != 0) {
                 bytes[i] = new byte[]{};
+                continue;
             }
             try {
-                bytes[i] = faceFeature[i].toByteArray();
+                bytes[i] = faceFeature.toByteArray();
             } catch (Exception e) {
                 e.printStackTrace();
             }

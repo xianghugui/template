@@ -8,7 +8,6 @@ $(function () {
     var inited = false;
     var organization_list = [];
     var face_list = null;
-    var flag = false;
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
@@ -21,14 +20,10 @@ $(function () {
                 levels: 3,
                 onNodeSelected: function (event, data) {
                     getNowFormatDate();
-                    if(flag){
-                        face_list.ajax.reload();
-                    }
-                    else{
-                        initTable();
-                    }
+                    face_list.ajax.reload();
                 }
             });
+            initTable();
             $('#area_tree').treeview('selectNode', [0]);
         });
     };

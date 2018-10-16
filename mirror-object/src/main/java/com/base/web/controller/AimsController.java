@@ -8,8 +8,6 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.*;
 import com.base.web.util.FaceFeatureUtil;
-import com.base.web.util.FmsgCallBack;
-import com.base.web.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping(value = "/aims")

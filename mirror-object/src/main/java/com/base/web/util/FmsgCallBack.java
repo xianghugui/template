@@ -52,6 +52,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private AssociationBlickListService associationBlickListService;
 
+
     /**
      * 检索黑名单线程池
      */
@@ -113,10 +114,12 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo,
                        int dwBufLen, Pointer pUser) {
         if (pAlarmInfo.dwBackgroundPicLen > 0) {
+            //读取图片到byte[]
             ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
             byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
             buffers.rewind();
             buffers.get(bytes);
+            //获取摄像头抓拍的时间
             int time = pAlarmInfo.dwAbsTime;
             Date date = new Date((time >> 26) + 100, ((time >> 22) & 15) - 1, (time >> 17) & 31,
                     (time >> 12) & 31, (time >> 6) & 63, time & 63);
@@ -266,7 +269,6 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 //遍历所有黑名单
                 for (int i = 0 ; i < list.size(); ) {
                     try {
-                        System.out.println(bytes[j].length);
                         similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
                         if (similarity - 0.4 > 0) {
                             associationBlickListDO.setBlackListId(list.get(i).getId());
