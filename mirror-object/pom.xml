@@ -85,13 +85,6 @@
         <!--人脸模块外部到入库-->
         <dependency>
             <groupId>com.sun.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/jna.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jna</groupId>
             <artifactId>examples</artifactId>
             <version>1.0</version>
             <scope>system</scope>
@@ -258,6 +251,11 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>4.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -258,27 +258,29 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             //遍历图片所有特征值
             for (int j =  0; j < bytes.length; j++) {
                 //遍历所有黑名单
-                for (int i = 0 ; i < list.size(); ) {
-                    try {
-                        similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
-                        if (similarity - 0.4 > 0) {
-                            associationBlickListDO.setId(GenericPo.createUID());
-                            associationBlickListDO.setBlackListId(list.get(i).getId());
-                            associationBlickListDO.setFaceImageId(faceImageId);
-                            associationBlickListDO.setSimilarity((int) (similarity * 100));
-                            associationBlickListService.insert(associationBlickListDO);
-                            list.remove(i);
-                            continue;
+                if (bytes[j].length > 0) {
+                    for (int i = 0; i < list.size(); ) {
+                        try {
+                            similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
+                            if (similarity - 0.4 > 0) {
+                                associationBlickListDO.setId(GenericPo.createUID());
+                                associationBlickListDO.setBlackListId(list.get(i).getId());
+                                associationBlickListDO.setFaceImageId(faceImageId);
+                                associationBlickListDO.setSimilarity((int) (similarity * 100));
+                                associationBlickListService.insert(associationBlickListDO);
+                                list.remove(i);
+                                continue;
+                            }
+                            i++;
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        i++;
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
+                    faceFeature.setId(GenericPo.createUID());
+                    faceFeature.setResourceId(resourceId);
+                    faceFeature.setFaceFeature(bytes[j]);
+                    faceFeatureService.insert(faceFeature);
                 }
-                faceFeature.setId(GenericPo.createUID());
-                faceFeature.setResourceId(resourceId);
-                faceFeature.setFaceFeature(bytes[j]);
-                faceFeatureService.insert(faceFeature);
             }
         }
     }
