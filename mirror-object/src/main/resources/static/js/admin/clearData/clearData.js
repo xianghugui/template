@@ -22,14 +22,14 @@ $(function () {
 
             $('.btn').button('loading');
 
-            // Request.post("clearData/delete", uploadValue, function (e) {
-            //     if (e.success) {
-            //         $('.btn').button('reset');
-            //         toastr.success("清空完毕");
-            //     } else {
-            //         toastr.error(e.message);
-            //     }
-            // });
+            Request.post("clearData/delete", uploadValue, function (e) {
+                if (e.success) {
+                    $('.btn').button('reset');
+                    toastr.success("清空完毕");
+                } else {
+                    toastr.error(e.message);
+                }
+            });
         }
     });
 

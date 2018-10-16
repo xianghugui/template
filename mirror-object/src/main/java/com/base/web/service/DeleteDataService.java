@@ -8,5 +8,5 @@ import java.util.Date;
 import java.util.List;
 
 public interface DeleteDataService {
-    int clearData(UploadValue uploadValue) throws ParseException;
+    void clearData(UploadValue uploadValue) throws ParseException;
 }

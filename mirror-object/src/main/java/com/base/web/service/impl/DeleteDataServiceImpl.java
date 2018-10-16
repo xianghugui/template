@@ -26,8 +26,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
 
     @Transactional
     @Override
-    public int clearData(UploadValue uploadValue) throws ParseException {
-        DeleteFileUtil deleteFileUtil = new DeleteFileUtil();
+    public void clearData(UploadValue uploadValue) throws ParseException {
         String currentImagePath;
 
         //获取服务器人脸图片存储文件夹路径
@@ -43,16 +42,19 @@ public class DeleteDataServiceImpl implements DeleteDataService {
 
         //删除时间段里的服务器人脸图片存储文件夹(文件夹按时间命名的)
         for(String date:dateList){
-            deleteFileUtil.delete(currentImagePath+date);
+            //按时间段生成线程
+            ClearFileThread clearFileThread = new ClearFileThread(currentImagePath+date);
+            Thread thread = new Thread(clearFileThread);
+            thread.start();
         }
 
         uploadValue.setSearchStart(uploadValue.getSearchStart()+" 00:00:00");
         uploadValue.setSearchEnd(uploadValue.getSearchEnd()+" 23:59:59");
         //删除数据库表数据
+
         deleteDataMapper.deleteAssociationBlackList(uploadValue);
         deleteDataMapper.deleteFaceImage(uploadValue);
         deleteDataMapper.deleteFaceFeature(uploadValue);
-        return deleteDataMapper.deleteResource(uploadValue);
     }
 
     //JAVA获取某段时间内的所有日期
@@ -72,4 +74,22 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         }
         return dateList;
     }
+
+    //多线程删除文件
+    public class ClearFileThread implements Runnable{
+
+        private String filePath;
+        private DeleteFileUtil deleteFileUtil = new DeleteFileUtil();
+
+        public ClearFileThread(String filePath){
+            this.filePath = filePath;
+        }
+
+        @Override
+        public void run(){
+            deleteFileUtil.delete(filePath);
+        }
+    }
+
+
 }
