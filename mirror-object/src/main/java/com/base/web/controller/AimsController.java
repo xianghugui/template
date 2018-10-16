@@ -97,13 +97,15 @@ public class AimsController extends GenericController<FaceImage, Long> {
 //            RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
 //            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
 //            forkjoinPool.shutdown();
-
+            List<AimsMessageDTO> aimsMessageDTOS = new ArrayList<>();
             ExecutorService executor = Executors.newCachedThreadPool();
 
             for(int i = 0;i <= faceImageListTotal/1000;i++){
                 uploadValue.setPageIndex(i*1000);
                 uploadValue.setPageSize(i*1000+1000);
-                executor.execute(new InnerThread(uploadValue,uploadFaceFeature));
+                InnerThread innerThread = new InnerThread(uploadValue,uploadFaceFeature,"Thread"+i);
+                executor.execute(innerThread);
+                aimsMessageDTOS.addAll(innerThread.returnFaceList());
             }
             executor.shutdown();
             return ResponseMessage.ok();
@@ -192,14 +194,18 @@ public class AimsController extends GenericController<FaceImage, Long> {
     class InnerThread implements Runnable{
         private UploadValue uploadValue;
         private byte[] uploadFaceFeature;
+        private String name;
+        private List<AimsMessageDTO> faceImageList;
 
-        public InnerThread(UploadValue uploadValue,byte[] uploadFaceFeature){
+        public InnerThread(UploadValue uploadValue,byte[] uploadFaceFeature,String name){
             this.uploadValue = uploadValue;
             this.uploadFaceFeature = uploadFaceFeature;
+            this.name = name;
         }
 
         @Override
         public void run() {
+            System.out.println(name);
             Long start = System.currentTimeMillis();
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
             //遍历匹配数据库的特征值
@@ -229,10 +235,10 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 }
             }
             System.out.println("select time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
-            returnFaceList(faceImageList);
+            this.faceImageList = faceImageList;
         }
 
-        public List<AimsMessageDTO> returnFaceList(List<AimsMessageDTO> faceImageList){
+        public List<AimsMessageDTO> returnFaceList(){
             return faceImageList;
         }
 

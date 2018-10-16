@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.web.dao.DeleteDataMapper">
+    <delete id="deleteResource" parameterType="com.base.web.bean.UploadValue">
+        DELETE FROM t_resource WHERE create_time BETWEEN #{searchStart} AND #{searchEnd}
+    </delete>
+
+    <delete id="deleteFaceImage" parameterType="com.base.web.bean.UploadValue">
+        DELETE FROM t_face_image WHERE create_time BETWEEN #{searchStart} AND #{searchEnd}
+    </delete>
+
+    <delete id="deleteFaceFeature" parameterType="com.base.web.bean.UploadValue">
+        DELETE FROM t_face_feature WHERE create_time BETWEEN #{searchStart} AND #{searchEnd}
+    </delete>
+
+    <delete id="deleteAssociationBlackList" parameterType="com.base.web.bean.UploadValue">
+        DELETE FROM t_association_blicklist WHERE create_time BETWEEN #{searchStart} AND #{searchEnd}
+    </delete>
+</mapper>

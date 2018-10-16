@@ -8,6 +8,7 @@
         <result property="faceImageId" column="face_image_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="blackListId" column="blacklist_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="similarity" column="similarity" javaType="int" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">

@@ -266,6 +266,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                             associationBlickListDO.setBlackListId(list.get(i).getId());
                             associationBlickListDO.setFaceImageId(faceImageId);
                             associationBlickListDO.setSimilarity((int) (similarity * 100));
+                            associationBlickListDO.setCreateTime(resources.getCreateTime());
                             associationBlickListService.insert(associationBlickListDO);
                             list.remove(i);
                             continue;
@@ -278,6 +279,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                 faceFeature.setId(GenericPo.createUID());
                 faceFeature.setResourceId(resourceId);
                 faceFeature.setFaceFeature(bytes[j]);
+                faceFeature.setCreateTime(resources.getCreateTime());
                 faceFeatureService.insert(faceFeature);
             }
         }
