@@ -114,17 +114,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo,
                        int dwBufLen, Pointer pUser) {
         if (pAlarmInfo.dwBackgroundPicLen > 0) {
-            //读取图片到byte[]
-            ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
-            byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
-            buffers.rewind();
-            buffers.get(bytes);
-            //获取摄像头抓拍的时间
-            int time = pAlarmInfo.dwAbsTime;
-            Date date = new Date((time >> 26) + 100, ((time >> 22) & 15) - 1, (time >> 17) & 31,
-                    (time >> 12) & 31, (time >> 6) & 63, time & 63);
-            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(bytes, new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
-                    .split("\0", 2)[0], pAlarmInfo.struDevInfo.wPort, pAlarmInfo.dwBackgroundPicLen, date));
+            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(pAlarmInfo));
         }
     }
 
@@ -134,22 +124,20 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     private class FmsgCallBackThread implements Runnable {
 
-        private byte[] bytes;
-        private String ip;
-        private short port;
-        private int picLen;
-        private Date date;
+        private HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo;
 
-        public FmsgCallBackThread(byte[] bytes, String ip, short port, int picLen, Date date) {
-            this.bytes = bytes;
-            this.ip = ip;
-            this.port = port;
-            this.picLen = picLen;
-            this.date = date;
+
+        public FmsgCallBackThread(HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo) {
+            this.pAlarmInfo = pAlarmInfo;
+
         }
 
         @Override
         public void run() {
+            //获取摄像头抓拍的时间
+            int time = pAlarmInfo.dwAbsTime;
+            Date date = new Date((time >> 26) + 100, ((time >> 22) & 15) - 1, (time >> 17) & 31,
+                    (time >> 12) & 31, (time >> 6) & 63, time & 63);
             //创建临时文件
             String filePath = "/file/".concat(DateTimeUtils.format(date, DateTimeUtils.YEAR_MONTH_DAY));
             String absPath = fileService.getFileBasePath().concat(filePath);
@@ -163,6 +151,11 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             try {
                 //保存图片
                 fout = new FileOutputStream(fileAbsName);
+                //读取图片到byte[]
+                ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
+                byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
+                buffers.rewind();
+                buffers.get(bytes);
                 fout.write(bytes);
                 fout.close();
                 //根据MD5值命名
@@ -177,17 +170,20 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     oldFile.delete();
                     return;
                 } else {
-                    Camera camera = cameraService.createQuery().where(Camera.Property.IP, ip)
-                            .and(Camera.Property.PORT, port).single();
+                    String ip = new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
+                            .split("\0", 2)[0];
+                    Long cameraId = cameraService.createQuery().where(Camera.Property.IP, ip)
+                            .and(Camera.Property.PORT, pAlarmInfo.struDevInfo.wPort).single().getId();
                     File newFile = new File(absPath.concat("/").concat(md5));
                     resources = new Resources();
                     resources.setType("file");
-                    resources.setSize(picLen);
+                    resources.setSize(pAlarmInfo.dwBackgroundPicLen);
                     resources.setName(md5);
                     resources.setPath(filePath);
                     resources.setMd5(md5);
                     resources.setCreateTime(date);
-                    ENGINE_POOL.execute(new Engine(oldFile, newFile, camera, resources));
+                    Long resourceId = resourcesService.insert(resources);
+                    ENGINE_POOL.execute(new Engine(oldFile, newFile, cameraId, resourceId, date));
                 }
 
             } catch (FileNotFoundException e) {
@@ -208,29 +204,32 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     private class Engine implements Runnable {
 
         private File oldFile;
-        private Resources resources;
         private File newFile;
-        private Camera camera;
+        private Long resourceId;
+        private Long cameraId;
+        private Date date;
 
 
-        public Engine(File oldFile, File newFile, Camera camera, Resources resources) {
+        public Engine(File oldFile, File newFile, Long cameraId, Long resourceId, Date date) {
 
             this.oldFile = oldFile;
             this.newFile = newFile;
-            this.camera = camera;
-            this.resources = resources;
+            this.cameraId = cameraId;
+            this.resourceId = resourceId;
+            this.date = date;
         }
 
         @Override
         public void run() {
-            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(camera.getId()).returnFaceFeature(oldFile);
+            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(cameraId).returnFaceFeature(oldFile);
             if (bytes != null && bytes.length > 0) {
                 oldFile.renameTo(newFile);
                 FaceImage faceImage = new FaceImage();
-                faceImage.setDeviceId(camera.getId());
-                faceImage.setCreateTime(resources.getCreateTime());
-                faceImage.setId(GenericPo.createUID());
-                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(bytes, resources, faceImage));
+                faceImage.setDeviceId(cameraId);
+                faceImage.setCreateTime(date);
+                faceImage.setResourceId(resourceId);
+                Long faceImageId = faceImageService.insert(faceImage);
+                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(bytes, faceImageId, resourceId));
             } else {
                 oldFile.delete();
             }
@@ -244,22 +243,17 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
         private byte[][] bytes;
 
-        private Resources resources;
+        private Long faceImageId;
+        private Long resourceId;
 
-        private FaceImage faceImage;
-
-
-        public RetrieveBlacklistThread(byte[][] bytes, Resources resources, FaceImage faceImage) {
+        public RetrieveBlacklistThread(byte[][] bytes, Long faceImageId, Long resourceId) {
             this.bytes = bytes;
-            this.resources = resources;
-            this.faceImage = faceImage;
+            this.faceImageId = faceImageId;
+            this.resourceId = resourceId;
         }
 
         @Override
         public void run() {
-            Long resourceId = resourcesService.insert(resources);
-            faceImage.setResourceId(resourceId);
-            Long faceImageId = faceImageService.insert(faceImage);
             List<BlackList> list = blackListService.select();
             FaceFeature faceFeature = new FaceFeature();
             AssociationBlickListDO associationBlickListDO = new AssociationBlickListDO();
