@@ -243,8 +243,10 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
         @Override
         public void run() {
+            resources.setId(GenericPo.createUID());
             Long resourceId = resourcesService.insert(resources);
             FaceImage faceImage = new FaceImage();
+            faceImage.setId(GenericPo.createUID());
             faceImage.setDeviceId(cameraId);
             faceImage.setCreateTime(resources.getCreateTime());
             faceImage.setResourceId(resourceId);
@@ -260,10 +262,10 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     try {
                         similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
                         if (similarity - 0.4 > 0) {
+                            associationBlickListDO.setId(GenericPo.createUID());
                             associationBlickListDO.setBlackListId(list.get(i).getId());
                             associationBlickListDO.setFaceImageId(faceImageId);
                             associationBlickListDO.setSimilarity((int) (similarity * 100));
-                            associationBlickListDO.setId(GenericPo.createUID());
                             associationBlickListService.insert(associationBlickListDO);
                             list.remove(i);
                             continue;
@@ -273,6 +275,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                         e.printStackTrace();
                     }
                 }
+                faceFeature.setId(GenericPo.createUID());
                 faceFeature.setResourceId(resourceId);
                 faceFeature.setFaceFeature(bytes[j]);
                 faceFeatureService.insert(faceFeature);
