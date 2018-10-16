@@ -8,20 +8,17 @@ import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.nio.sctp.Association;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hsweb.commons.DateTimeUtils;
 import org.hsweb.commons.MD5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -267,6 +264,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                                 associationBlickListDO.setBlackListId(list.get(i).getId());
                                 associationBlickListDO.setFaceImageId(faceImageId);
                                 associationBlickListDO.setSimilarity((int) (similarity * 100));
+                                associationBlickListDO.setCreateTime(resources.getCreateTime());
                                 associationBlickListService.insert(associationBlickListDO);
                                 list.remove(i);
                                 continue;
@@ -279,6 +277,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     faceFeature.setId(GenericPo.createUID());
                     faceFeature.setResourceId(resourceId);
                     faceFeature.setFaceFeature(bytes[j]);
+                    faceFeature.setCreateTime(resources.getCreateTime());
                     faceFeatureService.insert(faceFeature);
                 }
             }
