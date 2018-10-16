@@ -177,15 +177,18 @@ public class FaceFeatureUtil {
 
     public ASVLOFFSCREEN loadImage(File file) {
         ASVLOFFSCREEN inputImg = new ASVLOFFSCREEN();
-
         if (bUseBGRToEngine) {
             BufferInfo bufferInfo = ImageLoader.getBGRFromFile(file);
             inputImg.u32PixelArrayFormat = ASVL_COLOR_FORMAT.ASVL_PAF_RGB24_B8G8R8;
             inputImg.i32Width = bufferInfo.width;
             inputImg.i32Height = bufferInfo.height;
             inputImg.pi32Pitch[0] = inputImg.i32Width * 3;
-            inputImg.ppu8Plane[0] = new Memory(inputImg.pi32Pitch[0] * inputImg.i32Height);
-            inputImg.ppu8Plane[0].write(0, bufferInfo.buffer, 0, inputImg.pi32Pitch[0] * inputImg.i32Height);
+            if(inputImg.pi32Pitch[0] != 0 && inputImg.i32Height != 0){
+                inputImg.ppu8Plane[0] = new Memory(inputImg.pi32Pitch[0] * inputImg.i32Height);
+                inputImg.ppu8Plane[0].write(0, bufferInfo.buffer, 0, inputImg.pi32Pitch[0] * inputImg.i32Height);
+            } else{
+                inputImg.ppu8Plane[0] = Pointer.NULL;
+            }
             inputImg.ppu8Plane[1] = Pointer.NULL;
             inputImg.ppu8Plane[2] = Pointer.NULL;
             inputImg.ppu8Plane[3] = Pointer.NULL;

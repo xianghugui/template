@@ -67,9 +67,7 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
-                for (int i = 0; i < 10; i++) {
-                    FaceFeatureUtil.ENGINEMAPS.put(camera.getId() + i,new FaceFeatureUtil());
-                }
+                FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
                 System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
                 cameraService.update(camera);
             }
