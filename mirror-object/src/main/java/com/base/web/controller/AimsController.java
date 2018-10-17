@@ -50,10 +50,16 @@ public class AimsController extends GenericController<FaceImage, Long> {
             String currentImagePath;
             if (FaceFeatureUtil.isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
-                        + "upload" + File.separator + "face" + File.separator + file.getOriginalFilename().split("[.]")[1];
+                        + "upload" + File.separator + "face" + File.separator;
             } else {
-                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/" + file.getOriginalFilename().split("[.]")[1];
+                currentImagePath = "/data/apache-tomcat-8.5.31/bin/upload/face/";
             }
+            File path = new File(currentImagePath);
+            //判断目录是否存在
+            if (!path.exists()) {
+                path.mkdirs();
+            }
+            currentImagePath += file.getOriginalFilename().split("[.]")[1];
             //创建临时目录
             File faceFile = new File(currentImagePath);
             file.transferTo(faceFile);
