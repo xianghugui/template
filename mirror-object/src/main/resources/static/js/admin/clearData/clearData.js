@@ -20,6 +20,7 @@ $(function () {
                 searchEnd: searchEnd
             };
 
+
             $('.btn').button('loading');
 
             Request.post("clearData/delete", uploadValue, function (e) {

@@ -93,22 +93,12 @@ public class AimsController extends GenericController<FaceImage, Long> {
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
             int faceImageListTotal = aimsMessageService.listAimsMessageTotal(uploadValue);
-//            ForkJoinPool forkjoinPool = new ForkJoinPool();
-//            RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
-//            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
-//            forkjoinPool.shutdown();
-            List<AimsMessageDTO> aimsMessageDTOS = new ArrayList<>();
-            ExecutorService executor = Executors.newCachedThreadPool();
 
-            for(int i = 0;i <= faceImageListTotal/1000;i++){
-                uploadValue.setPageIndex(i*1000);
-                uploadValue.setPageSize(i*1000+1000);
-                InnerThread innerThread = new InnerThread(uploadValue,uploadFaceFeature,"Thread"+i);
-                executor.execute(innerThread);
-                aimsMessageDTOS.addAll(innerThread.returnFaceList());
-            }
-            executor.shutdown();
-            return ResponseMessage.ok();
+            ForkJoinPool forkjoinPool = new ForkJoinPool();
+            RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
+            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
+            forkjoinPool.shutdown();
+            return ResponseMessage.ok(result.get());
         }
     }
 
@@ -189,60 +179,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
             }
             return faceImageList;
         }
-    }
-
-    class InnerThread implements Runnable{
-        private UploadValue uploadValue;
-        private byte[] uploadFaceFeature;
-        private String name;
-        private List<AimsMessageDTO> faceImageList;
-
-        public InnerThread(UploadValue uploadValue,byte[] uploadFaceFeature,String name){
-            this.uploadValue = uploadValue;
-            this.uploadFaceFeature = uploadFaceFeature;
-            this.name = name;
-        }
-
-        @Override
-        public void run() {
-            System.out.println(name);
-            Long start = System.currentTimeMillis();
-            List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
-            //遍历匹配数据库的特征值
-            List<FaceFeature> faceFeatureList;
-            for (int i = 0; i < faceImageList.size(); ) {
-                //查询当前图片包含的所有人脸特征值
-                faceFeatureList = faceImageList.get(i).getList();
-                if (faceFeatureList.size() == 0) {
-                    faceImageList.remove(i);
-                } else {
-                    for (int k = 0; k < faceFeatureList.size(); k++) {
-                        //检测成功之后跳出当前寻缓
-                        Float similarity = null;
-                        try {
-                            similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (similarity >= uploadValue.getMinSimilarity()) {
-                            faceImageList.get(i).setSimilarity(similarity);
-                            i++;
-                            continue;
-                        } else if (k + 1 == faceFeatureList.size()) {
-                            faceImageList.remove(i);
-                        }
-                    }
-                }
-            }
-            System.out.println("select time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
-            this.faceImageList = faceImageList;
-        }
-
-        public List<AimsMessageDTO> returnFaceList(){
-            return faceImageList;
-        }
-
-
     }
 
 }
