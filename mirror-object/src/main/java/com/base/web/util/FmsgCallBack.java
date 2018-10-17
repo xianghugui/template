@@ -46,6 +46,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     @Autowired
     private BlackListService blackListService;
 
+
     @Autowired
     private AssociationBlickListService associationBlickListService;
 
@@ -54,7 +55,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 检索黑名单线程池
      */
     private static final ExecutorService RETRIEVE_BLACKLIST_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
+            3L, TimeUnit.SECONDS, new LinkedBlockingQueue(1000),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -70,7 +71,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 回调函数线程池
      */
     private static final ExecutorService FMSGCALLBACK_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
+            3L, TimeUnit.SECONDS, new LinkedBlockingQueue(1000),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -85,7 +86,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      * 人脸识别引擎线程池
      */
     private static final ExecutorService ENGINE_POOL = new ThreadPoolExecutor(0, 250,
-            0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(),
+            3L, TimeUnit.SECONDS, new LinkedBlockingQueue(1000),
             new ThreadFactory() {
 
                 private final AtomicInteger mCount = new AtomicInteger(1);
@@ -111,7 +112,15 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
     public void invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo,
                        int dwBufLen, Pointer pUser) {
         if (pAlarmInfo.dwBackgroundPicLen > 0) {
-           FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(pAlarmInfo));
+            ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
+            byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
+            buffers.rewind();
+            buffers.get(bytes);
+            int time = pAlarmInfo.dwAbsTime;
+            Date date = new Date((time>>26) + 100,((time>>22) & 15) - 1,(time>>17) & 31,
+                    (time>>12) & 31,(time>>6) & 63,time & 63);
+            FMSGCALLBACK_POOL.execute(new FmsgCallBackThread(bytes, new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
+                    .split("\0", 2)[0], pAlarmInfo.struDevInfo.wPort, pAlarmInfo.dwBackgroundPicLen, date));
         }
     }
 
@@ -121,19 +130,22 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
      */
     private class FmsgCallBackThread implements Runnable {
 
-        private HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo;
+        private byte[] bytes;
+        private String ip;
+        private short port;
+        private int picLen;
+        private Date date;
 
-
-        public FmsgCallBackThread(HCNetSDK.NET_VCA_FACESNAP_RESULT pAlarmInfo) {
-            this.pAlarmInfo = pAlarmInfo;
+        public FmsgCallBackThread(byte[] bytes, String ip, short port, int picLen, Date date) {
+            this.bytes = bytes;
+            this.ip = ip;
+            this.port = port;
+            this.picLen = picLen;
+            this.date = date;
         }
 
         @Override
         public void run() {
-            //获取摄像头抓拍的时间
-            int time = pAlarmInfo.dwAbsTime;
-            Date date = new Date((time >> 26) + 100, ((time >> 22) & 15) - 1, (time >> 17) & 31,
-                    (time >> 12) & 31, (time >> 6) & 63, time & 63);
             //创建临时文件
             String filePath = "/file/".concat(DateTimeUtils.format(date, DateTimeUtils.YEAR_MONTH_DAY));
             String absPath = fileService.getFileBasePath().concat(filePath);
@@ -147,11 +159,6 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             try {
                 //保存图片
                 fout = new FileOutputStream(fileAbsName);
-                //读取图片到byte[]
-                ByteBuffer buffers = pAlarmInfo.pBuffer2.getByteBuffer(0, pAlarmInfo.dwBackgroundPicLen);
-                byte[] bytes = new byte[pAlarmInfo.dwBackgroundPicLen];
-                buffers.rewind();
-                buffers.get(bytes);
                 fout.write(bytes);
                 fout.close();
                 //根据MD5值命名
@@ -166,14 +173,12 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     oldFile.delete();
                     return;
                 } else {
-                    String ip = new String(pAlarmInfo.struDevInfo.struDevIP.sIpV4, StandardCharsets.UTF_8)
-                            .split("\0", 2)[0];
                     Long cameraId = cameraService.createQuery().where(Camera.Property.IP, ip)
-                            .and(Camera.Property.PORT, pAlarmInfo.struDevInfo.wPort).single().getId();
+                            .and(Camera.Property.PORT, port).single().getId();
                     File newFile = new File(absPath.concat("/").concat(md5));
                     resources = new Resources();
                     resources.setType("file");
-                    resources.setSize(pAlarmInfo.dwBackgroundPicLen);
+                    resources.setSize(picLen);
                     resources.setName(md5);
                     resources.setPath(filePath);
                     resources.setMd5(md5);

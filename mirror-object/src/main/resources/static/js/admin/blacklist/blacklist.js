@@ -105,6 +105,9 @@ $(function () {
 
     // 身份证号码验证
     jQuery.validator.addMethod("isIdCardNo", function(value, element) {
+        if (value.trim() == "") {
+            return true;
+        }
         return this.optional(element) || idCardNoUtil.checkIdCardNo(value);
     });
 
@@ -117,7 +120,7 @@ $(function () {
         },
         messages: {
             name: {required: "请输入名称"},
-            code: {isIdCardNo: "请输入身份证号码"},
+            code: {isIdCardNo: "请输入正确的身份证号码"},
             file: {fileValidator: "请上传图片"},
         },
         submitHandler: function (form) {

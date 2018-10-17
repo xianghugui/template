@@ -40,7 +40,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
         return faceImageService;
     }
 
-    private List<AimsMessageDTO> saveFace;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
     @AccessLogger("人脸检测")
