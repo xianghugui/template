@@ -59,8 +59,8 @@ public class DeleteDataServiceImpl implements DeleteDataService {
 
         uploadValue.setSearchStart(uploadValue.getSearchStart()+" 00:00:00");
         uploadValue.setSearchEnd(uploadValue.getSearchEnd()+" 23:59:59");
-        //删除数据库表数据
 
+        //删除相关数据库表数据
         ClearFileThread deleteAssociationBlackList = new ClearFileThread(new InjectMethod() {
             @Override
             public void inMethod() {

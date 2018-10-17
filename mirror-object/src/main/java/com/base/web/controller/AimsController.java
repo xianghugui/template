@@ -88,17 +88,21 @@ public class AimsController extends GenericController<FaceImage, Long> {
             uploadValue.setOrganizationId(organizationId + "%");
         }
         if (uploadValue.getUploadId() == null) {
-            //上传文件没有检测到人脸直接返回全部人脸
             return ResponseMessage.ok(new ArrayList<>());
         } else {
             byte[] uploadFaceFeature = uploadFeatureService.selectByPk(uploadValue.getUploadId()).getFaceFeature();
+            //查询数据总条数
             int faceImageListTotal = aimsMessageService.listAimsMessageTotal(uploadValue);
-
+            //创建线程池
             ForkJoinPool forkjoinPool = new ForkJoinPool();
             RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
             Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
+            //关闭线程池
             forkjoinPool.shutdown();
-            return ResponseMessage.ok(result.get());
+            List<AimsMessageDTO> list = new ArrayList<>();
+            //获取返回结果
+            list = result.get();
+            return ResponseMessage.ok(list);
         }
     }
 
@@ -112,13 +116,19 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
 
     private class RetrieveBlacklistThread extends RecursiveTask<List<AimsMessageDTO>> {
-        private int THRESHOLD = 100;
+        private int THRESHOLD = 4000;
         private int start;
         private int end;
         private List<AimsMessageDTO> returnFaceList = new ArrayList<AimsMessageDTO>();
         private byte[] uploadFaceFeature;
         private UploadValue uploadValue;
 
+        /**
+         * @param start   数据查询开始下标
+         * @param end   数据查询结束下标
+         * @param uploadFaceFeature 上传的人脸特征值
+         * @param uploadValue  上传的数据筛选参数
+         */
         public RetrieveBlacklistThread(int start,int end, byte[] uploadFaceFeature, UploadValue uploadValue) {
             this.start = start;
             this.end = end;
@@ -128,7 +138,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         @Override
         protected List<AimsMessageDTO> compute() {
-            //当end与start之间的差小于threshold时，开始进行实际的累加
+            //当end与start之间的差小于threshold时，返回人脸对比结果
             if(end - start <= THRESHOLD){
                 try {
                     returnFaceList = face(start, end);
@@ -136,8 +146,8 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else {//当end与start之间的差大于threshold，即要累加的数超过20个时候，将大任务分解成小任务
-                int middle = (end - start)/2;
+            }else {//当end与start之间的差大于threshold，将大任务分解成小任务
+                int middle = start+(end - start)/2;
                 RetrieveBlacklistThread left = new RetrieveBlacklistThread(start,middle, uploadFaceFeature, uploadValue);
                 RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle,end, uploadFaceFeature, uploadValue);
                 //并行执行两个小任务
@@ -147,20 +157,21 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 returnFaceList.addAll(left.join());
                 returnFaceList.addAll(right.join());
             }
+            //返回合并结果
             return returnFaceList;
         }
 
         public List<AimsMessageDTO> face(int pageIndex, int pageSize) throws Exception {
+
             uploadValue.setPageIndex(pageIndex);
             uploadValue.setPageSize(pageSize);
-            Long start = System.currentTimeMillis();
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
-            System.out.println("time:"+(System.currentTimeMillis() - start) * 1.0 / 1000);
-            //遍历匹配数据库的特征值
             List<FaceFeature> faceFeatureList;
+            //遍历匹配数据库的特征值
             for (int i = 0; i < faceImageList.size(); ) {
                 //查询当前图片包含的所有人脸特征值
                 faceFeatureList = faceImageList.get(i).getList();
+                //特征不匹配,则删除list中的记录
                 if (faceFeatureList.size() == 0) {
                     faceImageList.remove(i);
                 } else {

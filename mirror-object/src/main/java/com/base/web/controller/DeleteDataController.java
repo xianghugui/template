@@ -14,7 +14,7 @@ import java.util.Date;
 
 @RestController
 @RequestMapping(value = "/clearData")
-@AccessLogger("目标查询")
+@AccessLogger("数据清理")
 @Authorize(module = "clearData")
 public class DeleteDataController{
 
