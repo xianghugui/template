@@ -45,7 +45,7 @@ public class FaceFeatureUtil {
         if (ret.longValue() != 0) {
             CLibrary.INSTANCE.free(pFDWorkMem);
             CLibrary.INSTANCE.free(pFRWorkMem);
-            System.out.println(String.format("AFD_FSDK_InitialFaceEngine ret 0x%x", ret.longValue()));
+//            System.out.println(String.format("AFD_FSDK_InitialFaceEngine ret 0x%x", ret.longValue()));
             throw new RuntimeException();
         }
 
@@ -56,7 +56,7 @@ public class FaceFeatureUtil {
         ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_InitialEngine(APPID, FR_SDKKEY, pFRWorkMem, FR_WORKBUF_SIZE, phFREngine);
         if (ret.longValue() != 0) {
             clearFaceEngine();
-            System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
+//            System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
             throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
@@ -138,7 +138,7 @@ public class FaceFeatureUtil {
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
-            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
+//            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
             return faceInfo;
         }
         AFD_FSDK_FACERES faceRes = new AFD_FSDK_FACERES(ppFaceRes.getValue());

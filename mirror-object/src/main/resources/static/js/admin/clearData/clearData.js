@@ -15,6 +15,11 @@ $(function () {
                 toastr.warning("开始时间不能大于结束时间");
                 return false;
             }
+            if(GetDateDiff(searchStart,searchEnd) > 30){
+                toastr.warning("数据量过大,时间间隔不能超过30天");
+                return false;
+            }
+
             var uploadValue = {
                 searchStart: searchStart,
                 searchEnd: searchEnd
@@ -46,8 +51,16 @@ $(function () {
         todayBtn: "linked"
     });
 
-    toastr.options = {
-        "timeOut": "800"
+    /**
+     * 计算时间间隔
+     */
+
+    function GetDateDiff(startDate,endDate)
+    {
+        var startTime = new Date(Date.parse(startDate.replace(/-/g,   "/"))).getTime();
+        var endTime = new Date(Date.parse(endDate.replace(/-/g,   "/"))).getTime();
+        var dates = Math.abs((startTime - endTime))/(1000*60*60*24);
+        return  dates;
     }
 });
 

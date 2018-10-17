@@ -251,6 +251,10 @@ $(function () {
 
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         var organization = $('#area_tree').treeview('getSelected')[0];
+        if(GetDateDiff($('#searchStart').val(),$('#searchEnd').val()) > 3){
+            toastr.warning("数据量过大,查询时间间隔不能超过3天");
+            return false;
+        }
         if (typeof organization === "undefined") {
             toastr.warning("请选中节点后再搜索");
             return false;
@@ -356,6 +360,17 @@ $(function () {
         $('#img_show').attr('src', _self[0].src);
         $('#modal_img_show').modal("show");
     });
+
+    /**
+     * 计算时间间隔
+     */
+    function GetDateDiff(startDate,endDate)
+    {
+        var startTime = new Date(Date.parse(startDate.replace(/-/g,   "/"))).getTime();
+        var endTime = new Date(Date.parse(endDate.replace(/-/g,   "/"))).getTime();
+        var dates = Math.abs((startTime - endTime))/(1000*60*60*24);
+        return  dates;
+    }
 });
 
 
