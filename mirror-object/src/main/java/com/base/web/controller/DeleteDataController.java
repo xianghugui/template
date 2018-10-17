@@ -28,7 +28,8 @@ public class DeleteDataController{
     @AccessLogger("清空某时间段数据库数据")
     @Authorize(action = "D")
     public ResponseMessage clearData(@RequestBody UploadValue uploadValue) throws ParseException {
-        return ResponseMessage.ok(deleteDataService.clearData(uploadValue));
+        deleteDataService.clearData(uploadValue);
+        return ResponseMessage.ok();
     }
 
 

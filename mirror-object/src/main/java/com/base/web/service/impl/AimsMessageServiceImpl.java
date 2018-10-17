@@ -12,6 +12,8 @@ import java.util.List;
 @Service("aimsMessageService")
 public class AimsMessageServiceImpl implements AimsMessageService {
 
+
+
     @Autowired
     private AimsMessageMapper aimsMessageMapper;
 
