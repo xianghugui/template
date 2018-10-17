@@ -4,12 +4,8 @@
 <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
 <link rel="stylesheet" th:href="@{/plugins/fileinput/css/fileinput.css}"/>
 <style>
-    .table-box {
-        padding: 10px;
-        height: 400px;
-    }
-    .box-inner{
-        margin-top:100px;
+    .box-inner {
+        margin: 20px;
     }
 </style>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -23,35 +19,37 @@
         <div th:include="admin/include/title" th:remove="tag"></div>
 
         <!-- Main content -->
-            <section class="content">
-                <div class="box table-box col-md-12">
-                <div class="col-md-8 box-inner">
-
-                    <div class="form-inline pull-right">
-                        <form name="clear_from" id="clear_from">
-                            <div class="form-group">
-                                <label for="searchStart">开始时间</label>&nbsp;
-                                <input id="searchStart" size="16" type="text" readonly
-                                       class="form-control form_datetime"
-                                       style="width: 150px">
-                            </div>
-                            &nbsp;&nbsp;
-                            <div class="form-group">
-                                <label for="searchEnd">结束时间</label>&nbsp;
-                                <input id="searchEnd" size="16" type="text" readonly
-                                       class="form-control form_datetime"
-                                       style="width: 150px">
-                            </div>
-                            &nbsp;&nbsp;
-                            <button type="submit"
-                                    data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>数据清除中..."
-                                    class="btn btn-default btn-info btn-search">清理数据
-                            </button>
-                        </form>
+        <section class="content">
+            <div class="box">
+                <div class="box-header with-border"><h3 class="box-title">数据清理</h3></div>
+                <div class="box-body">
+                    <div class="col-md-8 box-inner">
+                        <div class="form-inline pull-right">
+                            <form name="clear_from" id="clear_from">
+                                <div class="form-group">
+                                    <label for="searchStart">开始时间</label>&nbsp;
+                                    <input id="searchStart" size="16" type="text" readonly
+                                           class="form-control form_datetime"
+                                           style="width: 150px">
+                                </div>
+                                &nbsp;&nbsp;
+                                <div class="form-group">
+                                    <label for="searchEnd">结束时间</label>&nbsp;
+                                    <input id="searchEnd" size="16" type="text" readonly
+                                           class="form-control form_datetime"
+                                           style="width: 150px">
+                                </div>
+                                &nbsp;&nbsp;
+                                <button type="submit"
+                                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>数据清除中..."
+                                        class="btn btn-default btn-info btn-search">清理数据
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-        </div>
-            </section>
+            </div>
+        </section>
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->

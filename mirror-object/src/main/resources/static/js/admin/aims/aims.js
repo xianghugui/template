@@ -251,8 +251,8 @@ $(function () {
 
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         var organization = $('#area_tree').treeview('getSelected')[0];
-        if(GetDateDiff($('#searchStart').val(),$('#searchEnd').val()) > 3){
-            toastr.warning("数据量过大,查询时间间隔不能超过3天");
+        if (GetDateDiff($('#searchStart').val(), $('#searchEnd').val()) > 7) {
+            toastr.warning("数据量过大,查询时间间隔不能超过7天");
             return false;
         }
         if (typeof organization === "undefined") {
@@ -260,7 +260,7 @@ $(function () {
             return false;
         }
         else if (uploadId == null) {
-            toastr.warning("请上传搜索图片后再搜索");
+            toastr.warning("请先上传搜索图片后再搜索");
             return false;
         }
         else if ($('#searchStart').val() >= $('#searchEnd').val()) {
@@ -271,8 +271,8 @@ $(function () {
             toastr.warning("请输入0~100的相识度");
             return false;
         }
-        $('#target_list').show();
         target_list.ajax.reload();
+        $('#target_list').show();
     });
 
     /**
@@ -364,12 +364,11 @@ $(function () {
     /**
      * 计算时间间隔
      */
-    function GetDateDiff(startDate,endDate)
-    {
-        var startTime = new Date(Date.parse(startDate.replace(/-/g,   "/"))).getTime();
-        var endTime = new Date(Date.parse(endDate.replace(/-/g,   "/"))).getTime();
-        var dates = Math.abs((startTime - endTime))/(1000*60*60*24);
-        return  dates;
+    function GetDateDiff(startDate, endDate) {
+        var startTime = new Date(Date.parse(startDate.replace(/-/g, "/"))).getTime();
+        var endTime = new Date(Date.parse(endDate.replace(/-/g, "/"))).getTime();
+        var dates = Math.abs((startTime - endTime)) / (1000 * 60 * 60 * 24);
+        return dates;
     }
 });
 
