@@ -84,7 +84,7 @@
 <!-- ./wrapper -->
 
 <import th:include="admin/include/footer" th:remove="tag" />
-<script src="//cdn.bootcss.com/raphael/2.1.0/raphael-min.js"></script>
+<script th:src="@{/plugins/raphael/js/raphael.min.js}"></script>
 <script th:src="@{/plugins/morris/morris.min.js}"></script>
 <script th:src="@{/plugins/knob/jquery.knob.js}"></script>
 <script th:inline="javascript">

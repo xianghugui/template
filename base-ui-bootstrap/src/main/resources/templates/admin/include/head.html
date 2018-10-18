@@ -9,11 +9,7 @@
 <!-- Bootstrap 3.3.7 -->
 <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
 <!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
-<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css"/>-->
-<!-- Ionicons -->
-<link rel="stylesheet" href="https://cdn.bootcss.com/ionicons/2.0.1/css/ionicons.min.css"/>
-<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css"/>-->
+<link rel="stylesheet" th:href="@{/plugins/font-awesome/css/font-awesome.min.css}"/>
 <!-- Theme style -->
 <link rel="stylesheet" th:href="@{/css/AdminLTE.css}"/>
 <link rel="stylesheet" th:href="@{/css/skins/_all-skins.css}"/>
@@ -25,14 +21,14 @@
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
-<script src="//oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<script th:src="@{/plugins/html5shiv-master/js/html5shiv.js}"></script>
+<script th:src="@{/plugins/respond-master/js/respond.js}"></script>
 <![endif]-->
 <script th:inline="javascript">
     var BASE_PATH = [[${#httpServletRequest.contextPath + '/'}]];
     var CURRENT_PAGE = [[${path}]];
 </script>
 <!-- Google Font -->
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"/>
-<!--<link rel="stylesheet" th:href="@{/css/animate.css}"/>-->
+<!--<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"/>-->
+<link rel="stylesheet" th:href="@{/css/animate.css}"/>
 <link rel="stylesheet" th:href="@{/plugins/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.css}"/>

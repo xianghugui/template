@@ -8,20 +8,20 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" src="https://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" th:href="@{/plugins/font-awesome/css/font-awesome.min.css}"/>
     <link rel="stylesheet" th:href="@{/css/AdminLTE.css}"/>
     <link rel="stylesheet" th:href="@{/plugins/iCheck/square/blue.css}"/>
     <link rel="stylesheet" th:href="@{/plugins/toastr/toastr.min.css}"/>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script th:src="@{/plugins/html5shiv-master/js/html5shiv.js}"></script>
+    <script th:src="@{/plugins/respond-master/js/respond.js}"></script>
     <![endif]-->
 
     <!-- Google Font -->
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"/>
+    <!--<link rel="stylesheet"-->
+          <!--href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"/>-->
     <link rel="stylesheet" th:href="@{/css/login.css}"/>
 </head>
 <body class="hold-transition login-page">
