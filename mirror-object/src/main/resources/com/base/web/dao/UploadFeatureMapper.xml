@@ -7,6 +7,7 @@
     <resultMap id="UploadFeatureResultMap" type="com.base.web.bean.UploadFeature">
         <id property="id" column="u_id" javaType="Long" jdbcType="BIGINT"/>
         <result property="faceFeature" column="face_feature" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.ByteArrayTypeHandler"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
     <!--用于动态生成sql所需的配置-->
     <sql id="config">

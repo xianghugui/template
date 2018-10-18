@@ -19,17 +19,13 @@ import java.util.Date;
 public class DeleteDataController{
 
     @Autowired
-    private DeleteDataController deleteData;
-
-    @Autowired
     private DeleteDataService deleteDataService;
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @AccessLogger("清空某时间段数据库数据")
     @Authorize(action = "D")
     public ResponseMessage clearData(@RequestBody UploadValue uploadValue) throws ParseException {
-        deleteDataService.clearData(uploadValue);
-        return ResponseMessage.ok();
+        return ResponseMessage.ok(deleteDataService.clearData(uploadValue));
     }
 
 

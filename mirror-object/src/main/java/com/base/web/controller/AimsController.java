@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -73,6 +74,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 UploadFeature uploadFeature = new UploadFeature();
                 uploadFeature.setFaceFeature(bytes[0]);
                 uploadFeature.setId(GenericPo.createUID());
+                uploadFeature.setCreateTime(new Date());
                 //插入人脸特征值
                 return uploadFeatureService.insert(uploadFeature).toString();
             } else if (bytes != null && bytes.length > 1) {

@@ -25,15 +25,15 @@
 
                             <div class="box box-solid bg-teal-gradient " >
                                 <div class="box box-solid bg-teal-gradient " >
-                                    <div class="box-header">
-                                        <i class="fa fa-th"></i>
+                                    <!--<div class="box-header">-->
+                                        <!--<i class="fa fa-th"></i>-->
 
-                                        <h3 class="box-title">访问人数</h3>
+                                        <!--<h3 class="box-title">访问人数</h3>-->
 
-                                    </div>
-                                    <div class="box-body border-radius-none">
-                                        <div class="chart" id="line-chart" style="height: 250px;"></div>
-                                    </div>
+                                    <!--</div>-->
+                                    <!--<div class="box-body border-radius-none">-->
+                                        <!--<div class="chart" id="line-chart" style="height: 250px;"></div>-->
+                                    <!--</div>-->
                                     <!-- /.box-body -->
                                     <div class="box-footer no-border">
                                         <div class="row">
@@ -96,24 +96,24 @@ $(function () {
         datas.push({time: new Date(new Date().getTime()-1000*60*(i*2)).format('yyyy-MM-dd hh:mm:ss'), 'item': parseInt(Math.random()*3, 10)});
     }
 
-    var line = new Morris.Line({
-        element          : 'line-chart',
-        resize           : true,
-        data             : datas,
-        xkey             : 'time',
-        ykeys            : ['item'],
-        labels           : ['在线数'],
-        lineColors       : ['#efefef'],
-        lineWidth        : 2,
-        hideHover        : 'auto',
-        gridTextColor    : '#fff',
-        gridStrokeWidth  : 0.4,
-        pointSize        : 4,
-        pointStrokeColors: ['#efefef'],
-        gridLineColor    : '#efefef',
-        gridTextFamily   : 'Open Sans',
-        gridTextSize     : 10
-    });
+    // var line = new Morris.Line({
+    //     element          : 'line-chart',
+    //     resize           : true,
+    //     data             : datas,
+    //     xkey             : 'time',
+    //     ykeys            : ['item'],
+    //     labels           : ['在线数'],
+    //     lineColors       : ['#efefef'],
+    //     lineWidth        : 2,
+    //     hideHover        : 'auto',
+    //     gridTextColor    : '#fff',
+    //     gridStrokeWidth  : 0.4,
+    //     pointSize        : 4,
+    //     pointStrokeColors: ['#efefef'],
+    //     gridLineColor    : '#efefef',
+    //     gridTextFamily   : 'Open Sans',
+    //     gridTextSize     : 10
+    // });
 
 
 

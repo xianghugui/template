@@ -28,7 +28,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
 
     @Transactional
     @Override
-    public void clearData(UploadValue uploadValue) throws ParseException {
+    public boolean clearData(UploadValue uploadValue) throws ParseException {
         DeleteFileUtil deleteFileUtil = new DeleteFileUtil();
         String currentImagePath;
 
@@ -89,13 +89,23 @@ public class DeleteDataServiceImpl implements DeleteDataService {
             }
         });
 
+        ClearFileThread deleteUploadFeature = new ClearFileThread(new InjectMethod() {
+            @Override
+            public void inMethod() {
+                deleteDataMapper.deleteUploadFeature(uploadValue);
+            }
+        });
+
         executorService.execute(deleteAssociationBlackList);
         executorService.execute(deleteFaceFeature);
         executorService.execute(deleteFaceImage);
         executorService.execute(deleteResource);
+        executorService.execute(deleteUploadFeature);
 
-        //关闭线程
+        //全部线程执行完毕后,关闭线程池
         executorService.shutdown();
+
+        return executorService.isTerminated();
     }
 
     //JAVA获取某段时间内的所有日期
@@ -135,6 +145,12 @@ public class DeleteDataServiceImpl implements DeleteDataService {
     //使用接口实现java传递函数
     public interface InjectMethod{
         public void inMethod();
+    }
+
+
+    @Override
+    public Date selectFirstOne(){
+        return deleteDataMapper.selectFirstOne();
     }
 
 
