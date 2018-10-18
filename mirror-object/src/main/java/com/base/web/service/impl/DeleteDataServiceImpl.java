@@ -43,7 +43,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         List<String> dateList = findDates(sdf.parse(uploadValue.getSearchStart()),sdf.parse(uploadValue.getSearchEnd()));
 
-        //创建线程池
+        //可变大小线程池，按照任务数来分配线程
         ExecutorService executorService = Executors.newCachedThreadPool();
         //删除时间段里的服务器人脸图片存储文件夹(文件夹按时间命名的)
         for(String date:dateList){

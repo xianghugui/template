@@ -193,7 +193,7 @@ $(function () {
                     if (data.similarity != null) {
                         html += "<div>" + data.createTime + "<span class='similarity-box'>" + parseInt(data.similarity * 100) + "%</span></div>";
                     }
-                    html += "</div><div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
+                    html += "<div class='blackListName-box'>" + data.blackListName + "<span class='black-code'>" + data.code + "</span></div>";
                 }
                 else {
                     html += "<div class='img-content'><div class='aims-name'>" + data.deviceName + "</div>";
