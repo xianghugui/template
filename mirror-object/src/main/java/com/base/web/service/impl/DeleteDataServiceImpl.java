@@ -41,60 +41,42 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        List<String> dateList = findDates(sdf.parse(uploadValue.getSearchStart()),sdf.parse(uploadValue.getSearchEnd()));
+        List<String> dateList = findDates(sdf.parse(uploadValue.getSearchStart()), sdf.parse(uploadValue.getSearchEnd()));
 
         //可变大小线程池，按照任务数来分配线程
         ExecutorService executorService = Executors.newCachedThreadPool();
         //删除时间段里的服务器人脸图片存储文件夹(文件夹按时间命名的)
-        for(String date:dateList){
+        for (String date : dateList) {
             //按时间段生成线程
-            ClearFileThread clearFileThread = new ClearFileThread(new InjectMethod() {
-                @Override
-                public void inMethod() {
-                    deleteFileUtil.delete(currentImagePath+date);
-                }
-            });
+            Runnable clearFileThread = () -> {
+                deleteFileUtil.delete(currentImagePath + date);
+            };
             executorService.execute(clearFileThread);
         }
 
-        uploadValue.setSearchStart(uploadValue.getSearchStart()+" 00:00:00");
-        uploadValue.setSearchEnd(uploadValue.getSearchEnd()+" 23:59:59");
+        uploadValue.setSearchStart(uploadValue.getSearchStart() + " 00:00:00");
+        uploadValue.setSearchEnd(uploadValue.getSearchEnd() + " 23:59:59");
 
         //删除相关数据库表数据
-        ClearFileThread deleteAssociationBlackList = new ClearFileThread(new InjectMethod() {
-            @Override
-            public void inMethod() {
-                deleteDataMapper.deleteAssociationBlackList(uploadValue);
-            }
-        });
+        Runnable deleteAssociationBlackList = () -> {
+            deleteDataMapper.deleteAssociationBlackList(uploadValue);
+        };
 
-        ClearFileThread deleteFaceFeature = new ClearFileThread(new InjectMethod() {
-            @Override
-            public void inMethod() {
-                deleteDataMapper.deleteFaceFeature(uploadValue);
-            }
-        });
+        Runnable deleteFaceFeature = () -> {
+            deleteDataMapper.deleteFaceFeature(uploadValue);
+        };
 
-        ClearFileThread deleteFaceImage = new ClearFileThread(new InjectMethod() {
-            @Override
-            public void inMethod() {
-                deleteDataMapper.deleteFaceImage(uploadValue);
-            }
-        });
+        Runnable deleteFaceImage = () -> {
+            deleteDataMapper.deleteFaceImage(uploadValue);
+        };
 
-        ClearFileThread deleteResource = new ClearFileThread(new InjectMethod() {
-            @Override
-            public void inMethod() {
-                deleteDataMapper.deleteResource(uploadValue);
-            }
-        });
+        Runnable deleteResource = () -> {
+            deleteDataMapper.deleteResource(uploadValue);
+        };
 
-        ClearFileThread deleteUploadFeature = new ClearFileThread(new InjectMethod() {
-            @Override
-            public void inMethod() {
-                deleteDataMapper.deleteUploadFeature(uploadValue);
-            }
-        });
+        Runnable deleteUploadFeature = () -> {
+            deleteDataMapper.deleteUploadFeature(uploadValue);
+        };
 
         executorService.execute(deleteAssociationBlackList);
         executorService.execute(deleteFaceFeature);
@@ -126,30 +108,9 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         return dateList;
     }
 
-    //多线程删除文件
-    public class ClearFileThread implements Runnable{
-
-        private InjectMethod method;
-
-        //传递方法
-        public ClearFileThread(InjectMethod method){
-            this.method = method;
-        }
-
-        @Override
-        public void run() {
-            method.inMethod();
-        }
-    }
-
-    //使用接口实现java传递函数
-    public interface InjectMethod{
-        public void inMethod();
-    }
-
 
     @Override
-    public Date selectFirstOne(){
+    public Date selectFirstOne() {
         return deleteDataMapper.selectFirstOne();
     }
 
