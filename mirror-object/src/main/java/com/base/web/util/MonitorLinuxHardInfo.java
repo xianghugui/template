@@ -15,7 +15,11 @@ import java.util.Date;
 
 
 /**
- * Linux服务器硬盘内存监控
+ *
+ * 功能描述: 定时监控服务器硬盘内存,超过阈值后,清理最早时间段内的数据
+ * @author FQ
+ * @date 10/19/2018 1:55 PM
+ *
  */
 
 @Configuration
@@ -29,13 +33,10 @@ public class MonitorLinuxHardInfo {
     @Autowired
     private DeleteDataService deleteDataService;
 
-    /**
-     * 定时监控服务器硬盘内存,超过阈值后,清理最早时间段内的数据
-     * 每三小时监测一次
-     */
-    @Scheduled(cron="* * 0/3 * * ? ")
+    @Scheduled(cron = "* * 0/3 * * ? ")
     public void getLinuxMemInfo() {
-        if(!FaceFeatureUtil.isWin) {
+        //判断系统
+        if (!FaceFeatureUtil.isWin) {
             try {
                 String[] readLineArray = null;
                 String getReadLine = null;
@@ -55,16 +56,17 @@ public class MonitorLinuxHardInfo {
                         int m = 0;
                         readLineArray = getReadLine.split(" ");
                         for (String para : readLineArray) {
-                            if (para.trim().length() == 0){
+                            if (para.trim().length() == 0) {
                                 continue;
                             }
                             ++m;
+                            //获取服务器硬盘信息
                             if (para.endsWith("%")) {
                                 if (m == 5) {
                                     use_rate = Integer.parseInt(para.split("%")[0]);
-                                    if(use_rate >= THRESHOLD){
+                                    if (use_rate >= THRESHOLD) {
                                         UploadValue uploadValue = new UploadValue();
-                                        //查询最早一条数据的时间
+                                        //查询最早一条数据的日期
                                         Date deleteDateStart = deleteDataService.selectFirstOne();
                                         Date deleteDateEnd;
 
