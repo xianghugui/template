@@ -86,9 +86,11 @@ public class CameraController extends GenericController<Camera, Long> {
                 camera.setAlarmHandleId(alarmHandleId);
             }
         }
-        //报警撤防，登出
-        NetDvrInit.closeAlarmChan(oldCamera.getAlarmHandleId());
-        NetDvrInit.logout(oldCamera.getUserId());
+        if (oldCamera.getStatus() == 1) {
+            //报警撤防，登出
+            NetDvrInit.closeAlarmChan(oldCamera.getAlarmHandleId());
+            NetDvrInit.logout(oldCamera.getUserId());
+        }
         camera.setId(id);
         getService().update(camera);
         return ResponseMessage.ok("修改成功");

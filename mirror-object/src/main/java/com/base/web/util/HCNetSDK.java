@@ -16,12 +16,26 @@
 package com.base.web.util;
 
 import com.sun.jna.*;
+import org.apache.commons.collections.map.HashedMap;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 //SDK接口说明,HCNetSDK.dll
 public interface HCNetSDK extends Library {
+
+    public static final Map<Integer, String> ERROR_MAP = new HashedMap(){{
+        put(1, "用户名密码错误。注册时输入的用户名或者密码错误。");
+        put(2, "权限不足。一般和通道相关，例如有预览通道1权限，无预览通道2权限，即有预览权限但不完全，预览通道2返回此错误。");
+        put(3, "SDK未初始化。");
+        put(4, "通道号错误。设备没有对应的通道号。");
+        put(5, "设备总的连接数超过最大。");
+        put(6, "版本不匹配。SDK和设备的版本不匹配。");
+        put(7, "连接设备失败。设备不在线或网络原因引起的连接超时等。");
+        put(12, "调用次序错误。");
+        put(17, "参数错误。SDK接口中给入的输入或输出参数为空，或者参数格式或值不符合要求。");
+    }};
 
     //linux下的etc/ld.so.conf添加/data/apache-tomcat-8.5.31/webapps/ROOT/WEB-INF/classes/linux-x86-64/HCNetSDKCom/,然后执行ldconfig
     HCNetSDK INSTANCE = Native.loadLibrary("hcnetsdk", HCNetSDK.class);
