@@ -1,6 +1,6 @@
 #LOGGING
 logging:
-    config: classpath:config/logback.xml
+    config: classpath:config/logback-spring.xml
 
 base:
     dynamic-datasource: #动态数据源配置

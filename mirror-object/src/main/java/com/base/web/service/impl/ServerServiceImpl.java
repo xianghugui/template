@@ -5,7 +5,6 @@ import com.base.web.bean.Server;
 import com.base.web.bean.ServerDevice;
 import com.base.web.bean.common.*;
 import com.base.web.bean.po.GenericPo;
-import com.base.web.dao.CameraMapper;
 import com.base.web.dao.ServerDeviceMapper;
 import com.base.web.dao.ServerMapper;
 import com.base.web.dao.GenericMapper;
