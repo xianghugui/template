@@ -189,7 +189,7 @@ $(function () {
 
             Request.post("server/addDevice", JSON.stringify(params), function (e) {
                 if (e.success) {
-                    toastr.info("保存完毕");
+                    toastr.info(e.data);
                     $("#modal_server_device_add").modal('hide');
                     serverList.ajax.reload();
                 } else {

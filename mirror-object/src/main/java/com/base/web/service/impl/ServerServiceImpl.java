@@ -12,6 +12,7 @@ import com.base.web.dao.GenericMapper;
 import com.base.web.service.CameraService;
 import com.base.web.service.ServerService;
 import com.base.web.util.FaceFeatureUtil;
+import com.base.web.util.HCNetSDK;
 import com.base.web.util.NetDvrInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
     @Transactional
     public String addDevice(ServerDevice serverDevice) {
         Map map = new HashMap();
+        String str = "";
         //添加关联设备
         if (serverDevice.getDeviceIdList() != null && serverDevice.getDeviceIdList().length > 0) {
             Camera camera;
@@ -63,6 +65,8 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (userId == 0xFFFFFFFF || userId == 0xFFFFFFFFL) {
                     logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "登陆失败，错误码：" + NetDvrInit.getLastError());
+                    str += camera.getCode() + "：登陆失败，" + (HCNetSDK.ERROR_MAP.containsKey(NetDvrInit.getLastError()) ?
+                            HCNetSDK.ERROR_MAP.get(NetDvrInit.getLastError()) : "错误码:" + NetDvrInit.getLastError() + "\n");
                     continue;
                 } else {
                     camera.setUserId(userId);
@@ -71,6 +75,8 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (alarmHandleId == 0xFFFFFFFF || alarmHandleId == 0xFFFFFFFFL) {
                     logger.error("IP:" + camera.getIp() + "port:" + camera.getPort() + "account:" + camera.getAccount()
                             + "password:"+ camera.getPassword() + "报警布防失败，错误码：" + NetDvrInit.getLastError());
+                    str += camera.getCode() + "：布防失败，" + (HCNetSDK.ERROR_MAP.containsKey(NetDvrInit.getLastError()) ?
+                            HCNetSDK.ERROR_MAP.get(NetDvrInit.getLastError()) : "错误码:" + NetDvrInit.getLastError() + "\n");
                     continue;
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
@@ -93,6 +99,8 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (!NetDvrInit.closeAlarmChan(camera.getAlarmHandleId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，报警撤防失败，错误码：" + NetDvrInit.getLastError());
                     deviceIds[i] = -1L;
+                    str += camera.getCode() + "：撤防失败，" + (HCNetSDK.ERROR_MAP.containsKey(NetDvrInit.getLastError()) ?
+                            HCNetSDK.ERROR_MAP.get(NetDvrInit.getLastError()) : "错误码:" + NetDvrInit.getLastError() + "\n");
                     continue;
                 }
                 if (!NetDvrInit.logout(camera.getUserId())) {
@@ -107,7 +115,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
             serverMapper.updateCameraStatus(map);
         }
 
-        return "关联成功";
+        return str.isEmpty() ? "保存完毕" : str;
     }
 
     /**

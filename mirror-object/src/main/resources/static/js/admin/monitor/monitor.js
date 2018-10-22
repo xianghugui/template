@@ -209,6 +209,10 @@ $(function () {
     WebVideo();
 
     function WebVideo() {
+        if (-2 == WebVideoCtrl.I_CheckPluginInstall()) {
+            alert("Chrome浏览器版本过高，不支持NPAPI");
+            return;
+        }
         if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
             alert("您还未安装过插件，请安装WebComponentsKit.exe！");
             window.open(Request.BASH_PATH + "webcomponents/WebComponentsKit.exe")
