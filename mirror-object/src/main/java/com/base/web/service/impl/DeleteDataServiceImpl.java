@@ -19,12 +19,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 
 @Service("deleteDataService")
 public class DeleteDataServiceImpl implements DeleteDataService {
 
     @Autowired
     private DeleteDataMapper deleteDataMapper;
+
+
+    /**
+     *
+     * 功能描述: 多线程删除规定时间内的服务器文件和数据库数据
+     * @author FQ
+     * @date 10/22/2018 2:08 PM
+     * @param uploadValue
+     * @return boolean
+     *
+     */
 
     @Transactional
     @Override
@@ -84,8 +97,17 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         executorService.execute(deleteResource);
         executorService.execute(deleteUploadFeature);
 
-        //全部线程执行完毕后,关闭线程池
+        //不允许再向线程池中增加线程
         executorService.shutdown();
+
+        //判断是否所有线程已经执行完毕
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                System.out.println("线程池没有关闭");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return executorService.isTerminated();
     }
@@ -107,6 +129,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         }
         return dateList;
     }
+
 
 
     @Override

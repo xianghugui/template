@@ -3,7 +3,17 @@
 <head>
     <import th:include="admin/include/head" th:remove="tag"/>
     <link rel="stylesheet" th:href="@{/plugins/morris/morris.css}"/>
+    <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
+<style>
+    .index-box{
+        padding: 50px;
+    }
 
+    .btn-clear{
+        background: #d23c03 !important;
+        color: #fff;
+    }
+</style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -23,21 +33,39 @@
 
                         <div class="col-md-12">
 
-                            <div class="box box-solid bg-teal-gradient " >
-                                <div class="box box-solid bg-teal-gradient " >
-                                    <!--<div class="box-header">-->
-                                        <!--<i class="fa fa-th"></i>-->
+                            <div class="box box-solid bg-teal-gradient ">
+                                <div class="box box-solid bg-teal-gradient ">
+                                    <!--clear-Data-start-->
+                                    <div class="box-header" th:if="${user.hasAccessModuleAction('clearData','D')}">
+                                        <div class="form-inline pull-right">
+                                            <form name="clear_from" id="clear_from">
+                                                <div class="form-group">
+                                                    <label for="searchStart">开始时间</label>&nbsp;
+                                                    <input id="searchStart" size="16" type="text" readonly
+                                                           class="form-control form_datetime"
+                                                           style="width: 150px">
+                                                </div>
+                                                &nbsp;&nbsp;
+                                                <div class="form-group">
+                                                    <label for="searchEnd">结束时间</label>&nbsp;
+                                                    <input id="searchEnd" size="16" type="text" readonly
+                                                           class="form-control form_datetime"
+                                                           style="width: 150px">
+                                                </div>
+                                                &nbsp;&nbsp;
+                                                <button type="submit"
+                                                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>数据清除中..."
+                                                        class="btn btn-default btn-info btn-clear">数据清理
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!--clear-Data-end-->
 
-                                        <!--<h3 class="box-title">访问人数</h3>-->
-
-                                    <!--</div>-->
-                                    <!--<div class="box-body border-radius-none">-->
-                                        <!--<div class="chart" id="line-chart" style="height: 250px;"></div>-->
-                                    <!--</div>-->
                                     <!-- /.box-body -->
-                                    <div class="box-footer no-border">
+                                    <div class="box-footer no-border index-box">
                                         <div class="row">
-                                            <div class="col-xs-4 text-center" >
+                                            <div class="col-xs-4 text-center">
                                                 <input type="text" id="ram" class="knob" data-readonly="true" value="0"
                                                        data-width="120" data-height="120"
                                                        data-fgColor="#39CCCC"/>
@@ -45,7 +73,7 @@
                                                 <div class="knob-label">服务器内存占用</div>
                                             </div>
                                             <!-- ./col -->
-                                            <div class="col-xs-4 text-center" >
+                                            <div class="col-xs-4 text-center">
                                                 <input type="text" id="cpu" class="knob" data-readonly="true" value="0"
                                                        data-width="120" data-height="120"
                                                        data-fgColor="#39CCCC"/>
@@ -78,67 +106,127 @@
     </div>
     <!-- /.content-wrapper -->
 
-    <import th:include="admin/include/copyright" th:remove="tag" />
+    <import th:include="admin/include/copyright" th:remove="tag"/>
 
 </div>
 <!-- ./wrapper -->
 
-<import th:include="admin/include/footer" th:remove="tag" />
+<import th:include="admin/include/footer" th:remove="tag"/>
 <script th:src="@{/plugins/raphael/js/raphael.min.js}"></script>
 <script th:src="@{/plugins/morris/morris.min.js}"></script>
 <script th:src="@{/plugins/knob/jquery.knob.js}"></script>
+<script th:src="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.js}"></script>
+<script th:src="@{/plugins/datetimppicker/bootstrap-datetimepicker.zh-CN.js}"></script>
 <script th:inline="javascript">
-/*<![CDATA[*/
-$(function () {
+    /*<![CDATA[*/
+    $(function () {
 
-    var datas = [];
-    for(var i = 0; i < 15; i++) {
-        datas.push({time: new Date(new Date().getTime()-1000*60*(i*2)).format('yyyy-MM-dd hh:mm:ss'), 'item': parseInt(Math.random()*3, 10)});
-    }
+        var datas = [];
+        for (var i = 0; i < 15; i++) {
+            datas.push({
+                time: new Date(new Date().getTime() - 1000 * 60 * (i * 2)).format('yyyy-MM-dd hh:mm:ss'),
+                'item': parseInt(Math.random() * 3, 10)
+            });
+        }
 
-    // var line = new Morris.Line({
-    //     element          : 'line-chart',
-    //     resize           : true,
-    //     data             : datas,
-    //     xkey             : 'time',
-    //     ykeys            : ['item'],
-    //     labels           : ['在线数'],
-    //     lineColors       : ['#efefef'],
-    //     lineWidth        : 2,
-    //     hideHover        : 'auto',
-    //     gridTextColor    : '#fff',
-    //     gridStrokeWidth  : 0.4,
-    //     pointSize        : 4,
-    //     pointStrokeColors: ['#efefef'],
-    //     gridLineColor    : '#efefef',
-    //     gridTextFamily   : 'Open Sans',
-    //     gridTextSize     : 10
-    // });
-
-
-
-    /* jQueryKnob */
-    $('.knob').knob({
-        'change' : function (v) { console.log(v); }
-    });
-
-    var getloadInfo = function () {
-        Request.get("monitor/info", null, function (e) {
-            if (e.success) {
-                $("#ram").val(e.data.ram).trigger('change');
-                $("#cpu").val(e.data.cpu).trigger('change');
-                $("#disk").val(e.data.disk).trigger('change');
+        /* jQueryKnob */
+        $('.knob').knob({
+            'change': function (v) {
+                console.log(v);
             }
         });
-    };
 
-    setInterval(function () {
+        var getloadInfo = function () {
+            Request.get("monitor/info", null, function (e) {
+                if (e.success) {
+                    $("#ram").val(e.data.ram).trigger('change');
+                    $("#cpu").val(e.data.cpu).trigger('change');
+                    $("#disk").val(e.data.disk).trigger('change');
+                }
+            });
+        };
+
+        setInterval(function () {
+            getloadInfo();
+        }, 2000);
+
         getloadInfo();
-    }, 2000);
 
-    getloadInfo();
-});
-/*]]>*/
+        /**
+         * 数据清理
+         */
+
+        $("#clear_from").validate({
+            submitHandler: function () {
+                var searchStart = $("#searchStart").val();
+                var searchEnd = $("#searchEnd").val();
+
+                if (searchStart === "") {
+                    toastr.warning("请选择开始时间");
+                    return false;
+                }
+                if (searchEnd === "") {
+                    toastr.warning("请选择结束时间");
+                    return false;
+                }
+                if (searchStart > searchEnd) {
+                    toastr.warning("开始时间不能大于结束时间");
+                    return false;
+                }
+                if (GetDateDiff(searchStart, searchEnd) > 30) {
+                    toastr.warning("数据量过大,时间间隔不能超过30天");
+                    return false;
+                }
+
+                var uploadValue = {
+                    searchStart: searchStart,
+                    searchEnd: searchEnd
+                };
+
+                confirm('警告', '清除的数据将无法恢复! 确定要删除吗?', function () {
+                    //按键加载效果
+                    $('.btn').button('loading');
+                    Request.post("clearData/delete", uploadValue, function (e) {
+                        if (e.success) {
+                            $("#searchStart").val("");
+                            $("#searchEnd").val("");
+                            toastr.success(e.data);
+                        } else {
+                            toastr.error(e.message);
+                        }
+                    });
+                    $('.btn').button('reset');
+                });
+            }
+        });
+
+        /**
+         * 时间选择控件
+         */
+
+        $('.form_datetime').datetimepicker({
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            minView: 2,
+            todayBtn: "linked"
+        });
+
+        /**
+         * 功能描述:计算时间段间隔
+         * @param: startDate
+         * @param: endDate
+         *
+         */
+
+        function GetDateDiff(startDate, endDate) {
+            var startTime = new Date(Date.parse(startDate.replace(/-/g, "/"))).getTime();
+            var endTime = new Date(Date.parse(endDate.replace(/-/g, "/"))).getTime();
+            var dates = Math.abs((startTime - endTime)) / (1000 * 60 * 60 * 24);
+            return dates;
+        }
+    });
+    /*]]>*/
 </script>
 </body>
 </html>

@@ -45,8 +45,7 @@ public interface DeleteDataMapper {
     int deleteUploadFeature(UploadValue uploadValue);
 
     /**
-     * 查询最早的一条数据的时间
-     *
+     * 查询t_face_image表最早第一条数据的时间
      * @return
      */
     Date selectFirstOne();

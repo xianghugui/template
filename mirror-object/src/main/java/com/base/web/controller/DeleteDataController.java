@@ -9,6 +9,7 @@ import com.base.web.service.DeleteDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -25,7 +26,10 @@ public class DeleteDataController{
     @AccessLogger("清空某时间段数据库数据")
     @Authorize(action = "D")
     public ResponseMessage clearData(@RequestBody UploadValue uploadValue) throws ParseException {
-        return ResponseMessage.ok(deleteDataService.clearData(uploadValue));
+        if(deleteDataService.clearData(uploadValue)){
+            return ResponseMessage.ok("清理成功");
+        }
+        return ResponseMessage.error("清理失败");
     }
 
 
