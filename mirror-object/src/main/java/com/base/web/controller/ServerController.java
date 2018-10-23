@@ -29,9 +29,6 @@ public class ServerController extends GenericController<Server, Long>{
     }
 
     @Autowired
-    private CameraService cameraService;
-
-    @Autowired
     private ServerDeviceService serverDeviceService;
 
 

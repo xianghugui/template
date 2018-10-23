@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.nio.ch.Net;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,11 +97,14 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 camera = cameraService.selectByPk(deviceIds[i]);
                 NetDvrInit.login(camera);
                 if (!NetDvrInit.closeAlarmChan(camera.getAlarmHandleId())) {
-                    logger.error("摄像头ID:" + deviceIds[i] + "，报警撤防失败，错误码：" + NetDvrInit.getLastError());
-                    deviceIds[i] = -1L;
-                    str += camera.getCode() + "：撤防失败，" + (HCNetSDK.ERROR_MAP.containsKey(NetDvrInit.getLastError()) ?
-                            HCNetSDK.ERROR_MAP.get(NetDvrInit.getLastError()) : "错误码:" + NetDvrInit.getLastError() + "\n");
-                    continue;
+                    int error = NetDvrInit.getLastError();
+                    if (error != 12) {
+                        logger.error("摄像头ID:" + deviceIds[i] + "，报警撤防失败，错误码：" + error);
+                        deviceIds[i] = -1L;
+                        str += camera.getCode() + "：撤防失败，" + (HCNetSDK.ERROR_MAP.containsKey(error) ?
+                                HCNetSDK.ERROR_MAP.get(error) : "错误码:" + error + "\n");
+                        continue;
+                    }
                 }
                 if (!NetDvrInit.logout(camera.getUserId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，登出，错误码：" + NetDvrInit.getLastError());
