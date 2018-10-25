@@ -24,6 +24,28 @@ public class UploadValue {
 
     private int pageSize;
 
+    public static UploadValue copyUploadValue(UploadValue uploadValue) {
+        return new UploadValue(uploadValue.getUploadId(), uploadValue.getOrganizationId(), uploadValue.getDeviceId(),
+                uploadValue.getSearchStart(), uploadValue.getSearchEnd(), uploadValue.getMinSimilarity(),
+                uploadValue.getPageIndex(), uploadValue.getPageSize());
+    }
+
+    public UploadValue(Long uploadId, String organizationId, Long deviceId, String searchStart, String searchEnd, Float minSimilarity,
+                       int pageIndex, int pageSize) {
+        this.uploadId = uploadId;
+        this.organizationId = organizationId;
+        this.deviceId = deviceId;
+        this.searchStart = searchStart;
+        this.searchEnd = searchEnd;
+        this.minSimilarity = minSimilarity;
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize;
+    }
+
+    public UploadValue(){
+        super();
+    }
+
     public int getPageIndex() {
         return pageIndex;
     }

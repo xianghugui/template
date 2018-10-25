@@ -143,8 +143,10 @@ public class AimsController extends GenericController<FaceImage, Long> {
             List<AimsMessageDTO> returnFaceList = new ArrayList<>();
             //当end与start之间的差小于threshold时，返回人脸对比结果
             if(end - start <= 4000){
+                uploadValue.setPageIndex(start);
+                uploadValue.setPageSize(end);
                 try {
-                    returnFaceList = face(start, end);
+                    returnFaceList = face(UploadValue.copyUploadValue(uploadValue));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -159,10 +161,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             return returnFaceList;
         }
 
-        public List<AimsMessageDTO> face(int pageIndex, int pageSize) throws Exception {
-
-            uploadValue.setPageIndex(pageIndex);
-            uploadValue.setPageSize(pageSize);
+        public List<AimsMessageDTO> face(UploadValue uploadValue) throws Exception {
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
             List<FaceFeature> faceFeatureList;
             //遍历匹配数据库的特征值
