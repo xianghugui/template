@@ -243,7 +243,7 @@ $(function () {
             + ":" + date.getSeconds();
         $('#searchStart').val(searchStart);
         $('#searchEnd').val(searchEnd);
-        $('#minSimilarity').val(40);
+        $('#minSimilarity').val(50);
     }
 
 
