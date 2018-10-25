@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/aims")
@@ -29,6 +30,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
     @Autowired
     private FaceImageService faceImageService;
+
+    @Autowired
+    private FaceFeatureService faceFeatureService;
 
     @Autowired
     private UploadFeatureService uploadFeatureService;
@@ -144,7 +148,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             //当end与start之间的差小于threshold时，返回人脸对比结果
             if(end - start <= 4000){
                 uploadValue.setPageIndex(start);
-                uploadValue.setPageSize(end);
+                uploadValue.setPageSize(end - start);
                 try {
                     returnFaceList = face(UploadValue.copyUploadValue(uploadValue));
                 } catch (Exception e) {
@@ -152,8 +156,8 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 }
             }else {
                 int middle = start+(end - start)/2;
-                RetrieveBlacklistThread left = new RetrieveBlacklistThread(start,middle, uploadFaceFeature, uploadValue);
-                RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle,end - middle, uploadFaceFeature, uploadValue);
+                RetrieveBlacklistThread left = new RetrieveBlacklistThread(start, middle, uploadFaceFeature, uploadValue);
+                RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle, end, uploadFaceFeature, uploadValue);
                 invokeAll(left, right);
                 returnFaceList = left.join();
                 returnFaceList.addAll(right.join());
@@ -161,30 +165,27 @@ public class AimsController extends GenericController<FaceImage, Long> {
             return returnFaceList;
         }
 
-        public List<AimsMessageDTO> face(UploadValue uploadValue) throws Exception {
+        public List<AimsMessageDTO> face(UploadValue uploadValue) {
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
-            List<FaceFeature> faceFeatureList;
-            //遍历匹配数据库的特征值
-            for (int i = 0; i < faceImageList.size(); ) {
-                //查询当前图片包含的所有人脸特征值
-                faceFeatureList = faceImageList.get(i).getList();
-                //特征不匹配,则删除list中的记录
-                if (faceFeatureList.size() == 0) {
-                    faceImageList.remove(i);
-                } else {
-                    for (int k = 0; k < faceFeatureList.size(); k++) {
-                        //检测成功之后跳出当前寻缓
-                        Float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(k).getFaceFeature());
-                        if (similarity >= uploadValue.getMinSimilarity()) {
-                            faceImageList.get(i).setSimilarity(similarity);
-                            i++;
-                            continue;
-                        } else if (k + 1 == faceFeatureList.size()) {
-                            faceImageList.remove(i);
-                        }
+            faceImageList = faceImageList.stream().filter(aimsMessageDTO -> {
+                if (aimsMessageDTO.getList().size() < 1){
+                    return false;
+                }
+                List<FaceFeature> faceFeatureList = aimsMessageDTO.getList();
+                for (int i = 0; i < faceFeatureList.size(); i++) {
+                    Float similarity = 0F;
+                    try {
+                        similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (similarity >= uploadValue.getMinSimilarity()) {
+                        aimsMessageDTO.setSimilarity(similarity);
+                        return true;
                     }
                 }
-            }
+                return false;
+            }).collect(Collectors.toList());
             return faceImageList;
         }
     }

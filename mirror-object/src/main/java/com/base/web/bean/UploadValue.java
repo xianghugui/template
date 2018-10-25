@@ -24,6 +24,11 @@ public class UploadValue {
 
     private int pageSize;
 
+    /**
+     * 复制对象
+     * @param uploadValue
+     * @return
+     */
     public static UploadValue copyUploadValue(UploadValue uploadValue) {
         return new UploadValue(uploadValue.getUploadId(), uploadValue.getOrganizationId(), uploadValue.getDeviceId(),
                 uploadValue.getSearchStart(), uploadValue.getSearchEnd(), uploadValue.getMinSimilarity(),
