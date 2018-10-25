@@ -88,7 +88,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @RequestMapping(value = "/faceRecognize", method = RequestMethod.GET)
     @AccessLogger("目标查询")
     @Authorize(action = "R")
-    public ResponseMessage faceRecognize(UploadValue uploadValue, HttpServletRequest req) throws ExecutionException, InterruptedException {
+    public ResponseMessage faceRecognize(UploadValue uploadValue) throws ExecutionException, InterruptedException {
         //模糊匹配组织ID
         String organizationId = uploadValue.getOrganizationId();
         if (organizationId != null) {
@@ -106,10 +106,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
             //关闭线程池
             forkjoinPool.shutdown();
-            List<AimsMessageDTO> list = new ArrayList<>();
-            //获取返回结果
-            list = result.get();
-            return ResponseMessage.ok(list);
+            return ResponseMessage.ok(result.get());
         }
     }
 
@@ -123,10 +120,8 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
 
     private class RetrieveBlacklistThread extends RecursiveTask<List<AimsMessageDTO>> {
-        private int THRESHOLD = 4000;
         private int start;
         private int end;
-        private List<AimsMessageDTO> returnFaceList = new ArrayList<AimsMessageDTO>();
         private byte[] uploadFaceFeature;
         private UploadValue uploadValue;
 
@@ -145,26 +140,22 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         @Override
         protected List<AimsMessageDTO> compute() {
+            List<AimsMessageDTO> returnFaceList = new ArrayList<>();
             //当end与start之间的差小于threshold时，返回人脸对比结果
-            if(end - start <= THRESHOLD){
+            if(end - start <= 4000){
                 try {
                     returnFaceList = face(start, end);
-                    return returnFaceList;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else {//当end与start之间的差大于threshold，将大任务分解成小任务
+            }else {
                 int middle = start+(end - start)/2;
                 RetrieveBlacklistThread left = new RetrieveBlacklistThread(start,middle, uploadFaceFeature, uploadValue);
-                RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle,end, uploadFaceFeature, uploadValue);
-                //并行执行两个小任务
-                left.fork();
-                right.fork();
-                //把两个小任务累加的结果合并起来
-                returnFaceList.addAll(left.join());
+                RetrieveBlacklistThread right = new RetrieveBlacklistThread(middle,end - middle, uploadFaceFeature, uploadValue);
+                invokeAll(left, right);
+                returnFaceList = left.join();
                 returnFaceList.addAll(right.join());
             }
-            //返回合并结果
             return returnFaceList;
         }
 

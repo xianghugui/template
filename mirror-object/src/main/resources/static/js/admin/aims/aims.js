@@ -9,6 +9,8 @@ $(function () {
     var organization_list = [];
     var target_list = null;
     var uploadId = null;
+    //是否正在上传图片
+    var is_upload = false;
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
@@ -280,59 +282,60 @@ $(function () {
      */
 
     $("#file_upload").change(function () {
-        var $file = $(this);
-        var fileObj = $file[0];
-        var windowURL = window.URL || window.webkitURL;
-        var dataURL;
-        var $img = $("#preview");
-        if (fileObj && fileObj.files && fileObj.files[0]) {
-            dataURL = windowURL.createObjectURL(fileObj.files[0]);
-            $img.attr('src', dataURL);
-            $("#preview").show();
-        } else {
+        if (!is_upload) {
+            $('#upload_button').attr('disabled', "true");
+            $('#upload_button').text("上传中");
+            var $file = $(this);
+            var fileObj = $file[0];
+            var windowURL = window.URL || window.webkitURL;
+            var dataURL;
+            var $img = $("#preview");
+            if (fileObj && fileObj.files && fileObj.files[0]) {
+                dataURL = windowURL.createObjectURL(fileObj.files[0]);
+                $img.attr('src', dataURL);
+                $("#preview").show();
+            } else {
 
-            //在IE9下,获取图片绝对路径
-            var imgObj = document.getElementById("preview");
-            var file = document.getElementById("file_upload");
-            file.select();
-            file.blur();
-            var dataURL = document.selection.createRange().text;
-            document.selection.empty();
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=image)";
-            //图片必须显示出来,才能获取原图片的高和宽
-            $("#preview").show();
+                //在IE9下,获取图片绝对路径
+                var imgObj = document.getElementById("preview");
+                var file = document.getElementById("file_upload");
+                file.select();
+                file.blur();
+                var dataURL = document.selection.createRange().text;
+                document.selection.empty();
+                imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=image)";
+                //图片必须显示出来,才能获取原图片的高和宽
+                $("#preview").show();
 
-            //获取原图片的高和宽
-            var nWidth = imgObj.offsetWidth;
-            var nHight = imgObj.offsetHeight;
-            //按比例设置图片的宽
-            var imgWidth = parseInt(nWidth * (200 / nHight));
-            $('.preview_img').css("width", imgWidth);
-
-            imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=scale)";
+                //获取原图片的高和宽
+                var nWidth = imgObj.offsetWidth;
+                var nHight = imgObj.offsetHeight;
+                //按比例设置图片的宽
+                var imgWidth = parseInt(nWidth * (200 / nHight));
+                $('.preview_img').css("width", imgWidth);
+                imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + dataURL + "',sizingMethod=scale)";
+            }
+            //用ajaxSubmit提交图片
+            var options = {
+                url: "/aims/upload",
+                success: function (res) {
+                    uploadId = null;
+                    $('#upload_button').removeAttr('disabled');
+                    $('#upload_button').text("上传");
+                    if (res == "没有获取到特征值,请重新上传图片") {
+                        toastr.warning("没有获取到特征值,请重新上传图片");
+                        return false;
+                    }
+                    else if (res == "检测到多张人脸,请重新上传图片") {
+                        toastr.warning("检测到多张人脸,请重新上传图片");
+                        return false;
+                    }
+                    uploadId = res;
+                },
+                resetForm: true
+            };
+            $("#uploadForm").ajaxSubmit(options);
         }
-
-        $('#upload_button').attr('disabled', "true");
-        //用ajaxSubmit提交图片
-        var options = {
-            url: "/aims/upload",
-            success: function (res) {
-                uploadId = null;
-                $('#upload_button').removeAttr('disabled');
-                if (res == "没有获取到特征值,请重新上传图片") {
-                    toastr.warning("没有获取到特征值,请重新上传图片");
-                    return false;
-                }
-                else if (res == "检测到多张人脸,请重新上传图片") {
-                    toastr.warning("检测到多张人脸,请重新上传图片");
-                    return false;
-                }
-                uploadId = res;
-            },
-            resetForm: true
-        };
-        $("#uploadForm").ajaxSubmit(options);
-
     });
 
 
