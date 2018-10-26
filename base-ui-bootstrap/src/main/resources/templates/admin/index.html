@@ -139,7 +139,7 @@
                 if (e.success) {
                     $("#ram").val(e.data.ram).trigger('change');
                     $("#cpu").val(e.data.cpu).trigger('change');
-                    $("#disk").val(e.data.disk).trigger('change');
+                    $("#disk").val(e.data.disk["percent"]).trigger('change');
                 }
             });
         };

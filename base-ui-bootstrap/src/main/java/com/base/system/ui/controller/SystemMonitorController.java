@@ -9,6 +9,7 @@ import com.base.web.core.message.ResponseMessage;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -20,7 +21,7 @@ public class SystemMonitorController {
 
         double cpuLoad = CPUInfo.getProcessCpuLoad();
 
-        double diskLoad = DiskInfo.getDiskPercentUsage(0);
+        HashMap diskLoad = DiskInfo.getDiskPercentUsage(0);
 
         double ramLoad = RAMInfo.getRamPercentUsage();
 
