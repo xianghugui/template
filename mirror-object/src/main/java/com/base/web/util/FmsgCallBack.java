@@ -284,6 +284,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                         associationBlickListDO.setCreateTime(resources.getCreateTime());
                         associationBlickListService.insert(associationBlickListDO);
                     }
+                    //插入抓拍图片特征值
                     faceFeature.setId(GenericPo.createUID());
                     faceFeature.setResourceId(resourceId);
                     faceFeature.setFaceFeature(bytes[i]);
