@@ -13,8 +13,8 @@ public class DiskInfo {
         long freeSpace=roots[i].getFreeSpace();
         long usedSpace=totalSpace-freeSpace;
 
-        double maxvalue= (totalSpace/1024/1024);
-        double current= ((usedSpace)/1024/1024);
+        double maxvalue= (totalSpace/1024/1024/1024);
+        double current= ((usedSpace)/1024/1024/1024);
         double percent=(current/maxvalue)*100;
         double result=Math.round(percent*100.0)/100.0;
         //硬盘使用率
