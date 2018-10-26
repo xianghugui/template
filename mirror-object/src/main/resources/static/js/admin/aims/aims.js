@@ -282,7 +282,13 @@ $(function () {
             && last_param.searchEnd == $('#searchEnd').val() && last_param.minSimilarity < minSimilarity){
             last_param.minSimilarity = minSimilarity;
             var data = target_list.data();
-            data = data.filter(data => data.similarity * 100 > minSimilarity);
+            for (var i = 0, length = data.length; i < length; ) {
+                if (data[i].similarity * 100 < minSimilarity) {
+                    data.splice(i, 1);
+                    continue;
+                }
+                i++;
+            }
             target_list.clear();
             target_list.rows.add(data).draw(false);
         } else {

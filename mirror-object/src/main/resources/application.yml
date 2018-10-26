@@ -10,7 +10,7 @@ multipart:
 
 spring:
     profiles:
-       active: dev
+       active: prod
     thymeleaf:
       prefix: classpath:/templates/
       suffix: .html

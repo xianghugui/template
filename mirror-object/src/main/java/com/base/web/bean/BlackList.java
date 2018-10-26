@@ -25,7 +25,7 @@ public class BlackList extends GenericPo<Long> {
     //检索相识度
     private int similarity;
 
-    //启用状态
+    //启用状态 0:启用，1：禁用
     private int status;
 
     public byte[] getFaceFeature() {
