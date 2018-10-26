@@ -47,7 +47,7 @@ public class SimpleHttpSessionManager extends AbstractHttpSessionManager {
 
     @Override
     public String getSessionIdByUserId(Long userId) {
-        HttpSession session = userSessionStorage.get(userId);
+        HttpSession session = userSessionStorage.get(userId.toString());
         if (session != null) {
             User user = WebUtil.getLoginUser(session);
             if (user == null) {
@@ -61,11 +61,11 @@ public class SimpleHttpSessionManager extends AbstractHttpSessionManager {
 
     @Override
     public void removeUser(Long userId) {
-        HttpSession session = userSessionStorage.get(userId);
+        HttpSession session = userSessionStorage.get(userId.toString());
         if (session != null) {
             session.removeAttribute("user");
             sessionStorage.remove(session.getId());
-            userSessionStorage.remove(userId);
+            userSessionStorage.remove(userId.toString());
             onUserLoginOut(userId, session);
         }
     }

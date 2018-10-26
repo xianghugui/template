@@ -253,7 +253,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             faceImage.setCreateTime(resources.getCreateTime());
             faceImage.setResourceId(resourceId);
             Long faceImageId = faceImageService.insert(faceImage);
-            List<BlackList> list = blackListService.createQuery().where(BlackList.Property.status,"0").list();
+            List<BlackList> list = blackListService.select();
             FaceFeature faceFeature = new FaceFeature();
             AssociationBlickListDO associationBlickListDO = new AssociationBlickListDO();
             float similarity;

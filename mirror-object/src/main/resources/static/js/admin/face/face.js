@@ -158,6 +158,9 @@ $(function () {
                         toastr.warning("开始时间必须小于结束时间");
                         return false;
                     }
+                    if ($('#blackList').val() > 0) {
+                        param.blackListId = $('#blackList').val();
+                    }
                     $.ajax({
                         url: BASE_PATH + "aims/faceimage",
                         type: "GET",
@@ -204,6 +207,31 @@ $(function () {
             ]
         });
     }
+
+    /**
+     * 初始化黑名单列表
+     */
+    function initBlackList(){
+        var blackList = $('#blackList');
+        $.ajax({
+            url: BASE_PATH + "blacklist",
+            type: "GET",
+            cache: false,
+            async: false,
+            dataType: "json",
+            success: function (result) {
+                var data = result.data.data;
+                for (var i = 0; i < result.data.total; i++) {
+                    blackList.append("<option value='" + data[i].id + "'>" + data[i].name + "</option>")
+                }
+            },
+            error: function () {
+                toastr.warning("加载黑名单列表失败，请刷新页面");
+            }
+        });
+    }
+
+    initBlackList();
 
     /**
      * 时间选择控件

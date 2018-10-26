@@ -1,7 +1,7 @@
 package com.base.web.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.base.web.bean.po.GenericPo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
@@ -11,11 +11,11 @@ public class BlackList extends GenericPo<Long> {
     //名字
     private String name;
     //资源ID
-    @JsonIgnore
+    @JSONField(serialize = false)
     private Long resourceId;
 
     //人脸特征值
-    @JsonIgnore
+    @JSONField(serialize = false)
     private byte[] faceFeature;
 
     private Date createTime;
