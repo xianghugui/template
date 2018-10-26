@@ -46,10 +46,9 @@ public class BlackListController extends GenericController<BlackList, Long> {
     @AccessLogger("查询列表")
     @Authorize(action = "R")
     public ResponseMessage list(QueryParam param) {
-        List<BlackList> list = blackListService.createQuery().orderByDesc(BlackList.Property.createTime).list();
+        List<BlackList> list = blackListService.createQuery().listNoPaging();
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setImageUrl(ResourceUtil.resourceBuildPath(request, list.get(i).getResourceId().toString()));
-            list.get(i).setFaceFeature(null);
         }
         return ResponseMessage.ok(new PagerResult(list.size(), list));
     }

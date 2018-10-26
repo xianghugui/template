@@ -255,7 +255,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             faceImage.setResourceId(resourceId);
             Long faceImageId = faceImageService.insert(faceImage);
             //检索黑名单
-            List<BlackList> list = blackListService.createQuery().where(BlackList.Property.status, 0).list();
+            List<BlackList> list = blackListService.createQuery().where(BlackList.Property.status, 0).listNoPaging();
             FaceFeature faceFeature = new FaceFeature();
             AssociationBlickListDO associationBlickListDO = new AssociationBlickListDO();
             //遍历图片所有特征值
