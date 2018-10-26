@@ -8,7 +8,7 @@ public class DiskInfo {
     static  File[] roots = File.listRoots();
 
     public static HashMap getDiskPercentUsage(int i){
-        HashMap integerDoubleList = null;
+        HashMap integerDoubleList = new HashMap();
         long totalSpace=roots[i].getTotalSpace();
         long freeSpace=roots[i].getFreeSpace();
         long usedSpace=totalSpace-freeSpace;
