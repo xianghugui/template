@@ -21,7 +21,7 @@ public class SystemMonitorController {
 
         double cpuLoad = CPUInfo.getProcessCpuLoad();
 
-        HashMap diskLoad = DiskInfo.getDiskPercentUsage(0);
+        HashMap diskLoad = DiskInfo.getDiskPercentUsage();
 
         double ramLoad = RAMInfo.getRamPercentUsage();
 
