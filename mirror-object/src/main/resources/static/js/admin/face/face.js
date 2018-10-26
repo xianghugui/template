@@ -217,9 +217,13 @@ $(function () {
             url: BASE_PATH + "blacklist",
             type: "GET",
             cache: false,
+            async: false,
             dataType: "json",
             success: function (result) {
-               result.data.data.forEach(data => blackList.append("<option value='" + data.id + "'>" + data.name + "</option>"))
+                var data = result.data.data;
+                for (var i = 0; i < result.data.total; i++) {
+                    blackList.append("<option value='" + data[i].id + "'>" + data[i].name + "</option>")
+                }
             },
             error: function () {
                 toastr.warning("加载黑名单列表失败，请刷新页面");
