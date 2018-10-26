@@ -58,7 +58,7 @@
         t_face_image tfi
         INNER JOIN t_device td ON td.u_id = tfi.device_id
         LEFT JOIN ( t_association_blicklist tab, t_blacklist tb ) ON tfi.u_id = tab.face_image_id
-        AND tab.blacklist_id = tb.u_id
+        AND tab.blacklist_id = tb.u_id AND tb.`status` = 0
         <where>
             <if test="organizationId != null">
                 td.organization_id Like CONCAT(#{organizationId},'%')

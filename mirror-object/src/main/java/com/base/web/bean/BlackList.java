@@ -22,6 +22,12 @@ public class BlackList extends GenericPo<Long> {
 
     private String imageUrl;
 
+    //检索相识度
+    private int similarity;
+
+    //启用状态
+    private int status;
+
     public byte[] getFaceFeature() {
         return faceFeature;
     }
@@ -70,11 +76,29 @@ public class BlackList extends GenericPo<Long> {
         this.createTime = createTime;
     }
 
-    public interface Property extends GenericPo.Property{
+    public int getSimilarity() {
+        return similarity;
+    }
+
+    public void setSimilarity(int similarity) {
+        this.similarity = similarity;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public interface Property extends GenericPo.Property {
         String code = "code";
         String name = "name";
         String resourceId = "resourceId";
         String faceFeature = "faceFeature";
         String createTime = "createTime";
+        String similarity = "similarity";
+        String status = "status";
     }
 }

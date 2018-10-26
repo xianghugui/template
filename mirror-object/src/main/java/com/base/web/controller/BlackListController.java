@@ -66,6 +66,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
             return "-1";
         } else {
             blackList.setCreateTime(new Date());
+            blackList.setStatus(0);
             return blackListService.insert(blackList).toString();
         }
     }
@@ -178,8 +179,31 @@ public class BlackListController extends GenericController<BlackList, Long> {
         return fileLength;
     }
 
+    @AccessLogger("禁用")
+    @RequestMapping(value = "/{id}/disable", method = RequestMethod.PUT)
+    @Authorize(action = "disable")
+    public ResponseMessage disable(@PathVariable("id") Long id) {
+        BlackList blackList = new BlackList();
+        blackList.setId(id);
+        blackList.setStatus(1);
+        return ResponseMessage.ok(blackListService.update(blackList));
+    }
+
+    @AccessLogger("启用")
+    @RequestMapping(value = "/{id}/enable", method = RequestMethod.PUT)
+    @Authorize(action = "enable")
+    public ResponseMessage enable(@PathVariable("id") Long id) {
+        BlackList blackList = new BlackList();
+        blackList.setId(id);
+        blackList.setStatus(0);
+        return ResponseMessage.ok(blackListService.update(blackList));
+    }
+
+
     @Override
     protected BlackListService getService() {
         return this.blackListService;
     }
+
+
 }
