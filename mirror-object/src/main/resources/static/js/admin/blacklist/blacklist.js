@@ -14,7 +14,6 @@ $(function () {
             "searching": true,
             "pageLength": 16,
             "dom": 'lrtip',
-            "processing": true,
             "serverSide": false,
             "destroy": true,
             "info": true,
@@ -131,7 +130,7 @@ $(function () {
         $("#preview").hide();
         $("input#name").val("");
         $("input#code").val("");
-        $("input#similarity").val(40);
+        $("input#similarity").val(50);
         $("input#file_upload").val("");
         $("#preview").attr("src", "");
         $("#preview").hide();
