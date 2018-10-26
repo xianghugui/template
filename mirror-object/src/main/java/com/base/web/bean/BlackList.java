@@ -23,7 +23,7 @@ public class BlackList extends GenericPo<Long> {
     private String imageUrl;
 
     //检索相识度
-    private int similarity;
+    private float similarity;
 
     //启用状态 0:启用，1：禁用
     private int status;
@@ -76,11 +76,11 @@ public class BlackList extends GenericPo<Long> {
         this.createTime = createTime;
     }
 
-    public int getSimilarity() {
+    public float getSimilarity() {
         return similarity;
     }
 
-    public void setSimilarity(int similarity) {
+    public void setSimilarity(float similarity) {
         this.similarity = similarity;
     }
 

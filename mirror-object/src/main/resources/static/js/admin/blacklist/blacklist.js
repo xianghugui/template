@@ -38,6 +38,24 @@ $(function () {
                             resultData.data = [];
                         }
                         callback(resultData);
+                        $('[name="my-checkbox"]').bootstrapSwitch({
+                            onText: "启用",
+                            offText: "禁用",
+                            onColor: "success",
+                            offColor: "warning",
+                            size: "small",
+                            onSwitchChange: function (event, state) {
+                                var url = "/enable",
+                                    id = event.target.value;
+                                if (state) {
+                                    url = "/disable";
+                                    console.log(id);
+                                }
+                                Request.put("blacklist/" + id + url, null, function (e) {
+                                    console.log(e);
+                                })
+                            }
+                        });
                     },
                     error: function () {
                         toastr.warning("请求列表数据失败, 请重试");
@@ -58,27 +76,15 @@ $(function () {
                         if (data.status === 0) {
                             status = "checked";
                         }
-                        html += "<div class='switch switch-small'> <input class='status-switch' value='" + data.id + "' type='checkbox' " + status + " /></div>";
-                        html += "</div>";
+                        html += "</div><input name='my-checkbox' type='checkbox' " + status + " data-size='small' value='" + data.id + "'>";
                         return html;
                     }
-                },
+                }
             ]
         });
     }
 
-    //启用或禁用状态切换
-    $(".switch").off('click', '.status-switch').on('click', '.status-switch', function () {
-        var _self = $(this),
-            id = _self.value(),
-            request = "/enable";
-        if (_self.prop("checked")) {
-            request = "/disable";
-        }
-        Request.put(id + request, null, function (e) {
-            _self.check();
-        });
-    });
+    //
 
     //新增设备弹出操作
     $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
@@ -96,6 +102,7 @@ $(function () {
         $("#preview").hide();
         $("input#name").val("");
         $("input#code").val("");
+        $("input#similarity").val(40);
         $("input#file_upload").val("");
         $("#preview").attr("src", "");
         $("#preview").hide();
@@ -109,6 +116,7 @@ $(function () {
         black_id = data.id;
         $("input#name").val(data.name);
         $("input#code").val(data.code);
+        $("input#similarity").val(data.similarity * 100);
         $("#preview").attr("src", data.imageUrl);
         $('#upload_button').attr('disabled', true);
         $('#upload_button').hide();
@@ -133,19 +141,20 @@ $(function () {
     $("form#uploadForm").validate({
         rules: {
             name: {required: true},
-            code: {isIdCardNo: true,},
+            code: {isIdCardNo: true},
             file: {fileValidator: true},
-            similarity: {required: true},
+            similarity: {required: true}
         },
         messages: {
             name: {required: "请输入名称"},
             code: {isIdCardNo: "请输入正确的身份证号码"},
             file: {fileValidator: "请上传图片"},
-            similarity: {required: "请输入相识度"},
+            similarity: {required: "请输入相识度"}
         },
         submitHandler: function (form) {
             $('#insert').attr('disabled', true);
             if (black_id != '') {
+                $("#similarity").val($("#similarity").val()/100);
                 var data = formatArray($("#uploadForm").serializeArray(), "json");
                 Request.put("blacklist/" + black_id, data, function (e) {
                     $('#insert').attr('disabled', false);

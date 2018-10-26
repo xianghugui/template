@@ -181,7 +181,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
 
     @AccessLogger("禁用")
     @RequestMapping(value = "/{id}/disable", method = RequestMethod.PUT)
-    @Authorize(action = "disable")
+    @Authorize(action = "U")
     public ResponseMessage disable(@PathVariable("id") Long id) {
         BlackList blackList = new BlackList();
         blackList.setId(id);
@@ -191,7 +191,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
 
     @AccessLogger("启用")
     @RequestMapping(value = "/{id}/enable", method = RequestMethod.PUT)
-    @Authorize(action = "enable")
+    @Authorize(action = "U")
     public ResponseMessage enable(@PathVariable("id") Long id) {
         BlackList blackList = new BlackList();
         blackList.setId(id);
