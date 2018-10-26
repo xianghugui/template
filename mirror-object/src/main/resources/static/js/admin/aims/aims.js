@@ -282,7 +282,7 @@ $(function () {
             && last_param.searchEnd == $('#searchEnd').val() && last_param.minSimilarity < minSimilarity){
             last_param.minSimilarity = minSimilarity;
             var data = target_list.data();
-            for (var i = 0, length = data.length; i < length; ) {
+            for (var i = 0; i < data.length;) {
                 if (data[i].similarity * 100 < minSimilarity) {
                     data.splice(i, 1);
                     continue;

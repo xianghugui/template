@@ -1,13 +1,6 @@
 server:
     port: 8080
-#文件上传配置
-multipart:
-    enabled: true
-    maxFileSize: 100Mb
-    maxRequestSize: 100Mb
-    location: /data/apache-tomcat-8.5.31/bin/upload
 #spring config
-
 spring:
     profiles:
        active: prod
@@ -21,6 +14,12 @@ spring:
     aop:
       auto: true
       proxyTargetClass: true
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: 100Mb
+        max-request-size: 100Mb
+        location: /data/apache-tomcat-8.5.31/bin/upload
 
 
 # MyBatis
