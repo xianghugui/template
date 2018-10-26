@@ -32,7 +32,7 @@
         INNER JOIN t_device td ON td.u_id = tfi.device_id
         INNER JOIN t_face_feature tff ON tfi.resource_id = tff.resource_id
         LEFT JOIN ( t_association_blicklist tab, t_blacklist tb ) ON tfi.u_id = tab.face_image_id AND tb.u_id =
-        tab.blacklist_id
+        tab.blacklist_id AND tb.`status` = 0
         <where>
             <if test="organizationId != null">
                 AND td.organization_id Like #{organizationId}

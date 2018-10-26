@@ -245,6 +245,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
         @Override
         public void run() {
+            //插入抓拍图片记录
             resources.setId(GenericPo.createUID());
             Long resourceId = resourcesService.insert(resources);
             FaceImage faceImage = new FaceImage();
@@ -253,35 +254,39 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
             faceImage.setCreateTime(resources.getCreateTime());
             faceImage.setResourceId(resourceId);
             Long faceImageId = faceImageService.insert(faceImage);
-            List<BlackList> list = blackListService.select();
+            //检索黑名单
+            List<BlackList> list = blackListService.createQuery().where(BlackList.Property.status, 0).list();
             FaceFeature faceFeature = new FaceFeature();
             AssociationBlickListDO associationBlickListDO = new AssociationBlickListDO();
-            float similarity;
             //遍历图片所有特征值
-            for (int j =  0; j < bytes.length; j++) {
-                //遍历所有黑名单
-                if (bytes[j].length > 0) {
-                    for (int i = 0; i < list.size(); ) {
+            for (int i =  0; i < bytes.length; i++) {
+                if (bytes[i].length > 0) {
+                    float maxSimilarity = 0F;
+                    int blackListIndex = -1;
+                    //遍历所有黑名单,获取匹配度最高的索引
+                    for (int j = 0; j < list.size(); j++) {
                         try {
-                            similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[j], list.get(i).getFaceFeature());
-                            if (similarity - 0.4 > 0) {
-                                associationBlickListDO.setId(GenericPo.createUID());
-                                associationBlickListDO.setBlackListId(list.get(i).getId());
-                                associationBlickListDO.setFaceImageId(faceImageId);
-                                associationBlickListDO.setSimilarity((int) (similarity * 100));
-                                associationBlickListDO.setCreateTime(resources.getCreateTime());
-                                associationBlickListService.insert(associationBlickListDO);
-                                list.remove(i);
-                                continue;
+                            float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[i], list.get(j).getFaceFeature());
+                            if (similarity > maxSimilarity) {
+                                maxSimilarity = similarity;
+                                blackListIndex = j;
                             }
-                            i++;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
+                    //相似度大于黑名单中设置的相似度值才插入数据
+                    if (maxSimilarity > list.get(blackListIndex).getSimilarity() && blackListIndex > 0) {
+                        associationBlickListDO.setId(GenericPo.createUID());
+                        associationBlickListDO.setBlackListId(list.get(blackListIndex).getId());
+                        associationBlickListDO.setFaceImageId(faceImageId);
+                        associationBlickListDO.setSimilarity((int) (maxSimilarity * 100));
+                        associationBlickListDO.setCreateTime(resources.getCreateTime());
+                        associationBlickListService.insert(associationBlickListDO);
+                    }
                     faceFeature.setId(GenericPo.createUID());
                     faceFeature.setResourceId(resourceId);
-                    faceFeature.setFaceFeature(bytes[j]);
+                    faceFeature.setFaceFeature(bytes[i]);
                     faceFeature.setCreateTime(resources.getCreateTime());
                     faceFeatureService.insert(faceFeature);
                 }

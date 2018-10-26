@@ -1,6 +1,5 @@
 package com.base.web.bean;
 
-import java.util.Date;
 
 /**
  * 人脸检索参数类
@@ -19,6 +18,9 @@ public class UploadValue {
     private String searchEnd;
     //最小相识度
     private Float minSimilarity;
+
+    //黑名单人物ID
+    private Long blackListId;
 
     private int pageIndex;
 
@@ -49,6 +51,14 @@ public class UploadValue {
 
     public UploadValue(){
         super();
+    }
+
+    public Long getBlackListId() {
+        return blackListId;
+    }
+
+    public void setBlackListId(Long blackListId) {
+        this.blackListId = blackListId;
     }
 
     public int getPageIndex() {

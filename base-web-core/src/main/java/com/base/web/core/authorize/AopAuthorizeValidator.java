@@ -91,7 +91,7 @@ public class AopAuthorizeValidator extends SimpleAuthorizeValidator {
             if (user == null)
                 user = (User) session.getAttribute("user");
             if (user == null)
-                throw new AuthorizeException("未登录", 401);
+                throw new AuthorizeException("账号在其他设备登录", 401);
         }
         if (config.isEmpty()) return true;
         Map<String, Object> param = new LinkedHashMap<>();

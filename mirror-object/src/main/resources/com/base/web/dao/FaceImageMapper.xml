@@ -58,10 +58,13 @@
         t_face_image tfi
         INNER JOIN t_device td ON td.u_id = tfi.device_id
         LEFT JOIN ( t_association_blicklist tab, t_blacklist tb ) ON tfi.u_id = tab.face_image_id
-        AND tab.blacklist_id = tb.u_id
+        AND tab.blacklist_id = tb.u_id AND tb.`status` = 0
         <where>
+            <if test="blackListId > 0">
+                AND tab.blacklist_id = #{blackListId}
+            </if>
             <if test="organizationId != null">
-                td.organization_id Like CONCAT(#{organizationId},'%')
+                AND td.organization_id Like CONCAT(#{organizationId},'%')
             </if>
             <if test="deviceId != null">
                 AND tfi.device_id = #{deviceId}
@@ -82,9 +85,12 @@
         FROM
         t_face_image tfi
         INNER JOIN t_device td ON td.u_id = tfi.device_id
+        <if test="blackListId > 0">
+            INNER JOIN t_association_blicklist tab ON tfi.u_id = tab.face_image_id AND tab.blacklist_id = #{blackListId}
+        </if>
         <where>
             <if test="organizationId != null">
-                td.organization_id Like CONCAT(#{organizationId},'%')
+                AND td.organization_id Like CONCAT(#{organizationId},'%')
             </if>
             <if test="deviceId != null">
                 AND tfi.device_id = #{deviceId}

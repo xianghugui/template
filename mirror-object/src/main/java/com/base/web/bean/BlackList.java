@@ -1,7 +1,7 @@
 package com.base.web.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.base.web.bean.po.GenericPo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
@@ -11,16 +11,22 @@ public class BlackList extends GenericPo<Long> {
     //名字
     private String name;
     //资源ID
-    @JsonIgnore
+    @JSONField(serialize = false)
     private Long resourceId;
 
     //人脸特征值
-    @JsonIgnore
+    @JSONField(serialize = false)
     private byte[] faceFeature;
 
     private Date createTime;
 
     private String imageUrl;
+
+    //检索相识度
+    private int similarity;
+
+    //启用状态 0:启用，1：禁用
+    private int status;
 
     public byte[] getFaceFeature() {
         return faceFeature;
@@ -70,11 +76,29 @@ public class BlackList extends GenericPo<Long> {
         this.createTime = createTime;
     }
 
-    public interface Property extends GenericPo.Property{
+    public int getSimilarity() {
+        return similarity;
+    }
+
+    public void setSimilarity(int similarity) {
+        this.similarity = similarity;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public interface Property extends GenericPo.Property {
         String code = "code";
         String name = "name";
         String resourceId = "resourceId";
         String faceFeature = "faceFeature";
         String createTime = "createTime";
+        String similarity = "similarity";
+        String status = "status";
     }
 }
