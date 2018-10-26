@@ -88,7 +88,7 @@
                                                 <div class="knob-label">
                                                     磁盘容量：<span id="totalSpace"></span><span>GB</span></span>;
                                                     剩余容量：<span id="remain"></span><span>GB</span></span>;
-                                                    硬盘使用率(%)
+                                                    硬盘使用率达<span id="user"></span><span>%</span></span>
                                                 </div>
                                             </div>
                                             <!-- ./col -->
@@ -147,6 +147,8 @@
                     $("#totalSpace").text(e.data.disk["totalSpace"]).trigger('change');
                     var remain = e.data.disk["totalSpace"] - e.data.disk["usedSpace"];
                     $("#remain").text(remain).trigger('change');
+                    var user = e.data.disk["percent"];
+                    $("#user").text(user).trigger('change');
                 }
             });
         };
