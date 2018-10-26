@@ -7,11 +7,16 @@ public class DiskInfo {
 
     static  File[] roots = File.listRoots();
 
-    public static HashMap getDiskPercentUsage(int i){
+    public static HashMap getDiskPercentUsage(){
         HashMap integerDoubleList = new HashMap();
-        long totalSpace=roots[i].getTotalSpace();
-        long freeSpace=roots[i].getFreeSpace();
-        long usedSpace=totalSpace-freeSpace;
+        long totalSpace = 0L;
+        long freeSpace  = 0L;
+        for (int i  = 0; i < roots.length; i ++){
+             totalSpace +=roots[i].getTotalSpace();
+             freeSpace +=roots[i].getFreeSpace();
+
+        }
+        long  usedSpace = totalSpace-freeSpace;
 
         double maxvalue= (totalSpace/1024/1024/1024);
         double current= ((usedSpace)/1024/1024/1024);
