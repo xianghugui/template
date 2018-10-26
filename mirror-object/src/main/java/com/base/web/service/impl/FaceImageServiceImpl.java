@@ -34,11 +34,12 @@ public class FaceImageServiceImpl extends AbstractServiceImpl<FaceImage, Long> i
         if (total == 0) {
             pagerResult.setData(new ArrayList<>());
         } else {
-            pagerResult.setData(faceImageMapper.listFaceImage(uploadValue));
-            for (int k = 0; k < pagerResult.getData().size(); k++) {
-                pagerResult.getData().get(k).put("imageUrl",
-                        ResourceUtil.resourceBuildPath(req, pagerResult.getData().get(k).get("resourceId").toString()));
+            List<Map> list = faceImageMapper.listFaceImage(uploadValue);
+            for (int k = 0; k < list.size(); k++) {
+                list.get(k).put("imageUrl",
+                        ResourceUtil.resourceBuildPath(req, list.get(k).get("resourceId").toString()));
             }
+            pagerResult.setData(faceImageMapper.listFaceImage(uploadValue));
         }
         return pagerResult;
     }
