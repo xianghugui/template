@@ -2,6 +2,8 @@ package com.base.web.util;
 
 import com.base.web.bean.UploadValue;
 import com.base.web.service.DeleteDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -29,6 +31,8 @@ public class MonitorLinuxHardInfo {
     private int THRESHOLD = 90; //清理数据阈值
 
     private int DELETE_DAY_LENGTH = 4; //删除数据的天数
+
+    private Logger logger = LoggerFactory.getLogger(MonitorLinuxHardInfo.class);
 
     @Autowired
     private DeleteDataService deleteDataService;
@@ -82,8 +86,8 @@ public class MonitorLinuxHardInfo {
                                         uploadValue.setSearchEnd(sd.format(deleteDateEnd));
 
                                         //清理规定时间内的数据
+                                        logger.debug("定时清理，从" + uploadValue.getSearchStart() + "至" + uploadValue.getSearchEnd());
                                         deleteDataService.clearData(uploadValue);
-                                        System.out.println("定时清理数据结束");
                                     }
                                 }
                             }

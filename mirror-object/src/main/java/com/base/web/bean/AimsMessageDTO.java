@@ -1,5 +1,7 @@
 package com.base.web.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.util.Date;
 import java.util.List;
 
@@ -9,21 +11,13 @@ public class AimsMessageDTO {
     private String deviceName;
     private Long resourceId;
     private Date createTime;
-    private String imageUrl;
     private float similarity;
     //黑名单名称
     private String blackListName;
     //身份证号
     private String code;
+    @JSONField(serialize = false)
     List<FaceFeature> list;
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 
     public float getSimilarity() {
         return similarity;

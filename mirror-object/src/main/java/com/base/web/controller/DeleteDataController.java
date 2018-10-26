@@ -6,6 +6,8 @@ import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.DeleteDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +24,13 @@ public class DeleteDataController{
     @Autowired
     private DeleteDataService deleteDataService;
 
+    private Logger logger = LoggerFactory.getLogger(DeleteDataController.class);
+
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @AccessLogger("清空某时间段数据库数据")
     @Authorize(action = "D")
-    public ResponseMessage clearData(@RequestBody UploadValue uploadValue) throws ParseException {
+    public ResponseMessage clearData(@RequestBody UploadValue uploadValue, HttpServletRequest request) throws ParseException {
+        logger.debug("IP:" + request.getRemoteAddr() + "执行清理，从" + uploadValue.getSearchStart() + "至" + uploadValue.getSearchEnd());
         if(deleteDataService.clearData(uploadValue)){
             return ResponseMessage.ok("清理成功");
         }

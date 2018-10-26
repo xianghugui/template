@@ -11,6 +11,8 @@ $(function () {
     var uploadId = null;
     //是否正在上传图片
     var is_upload = false;
+    //最后一次检索的参数
+    var last_param = null;
 
     var initOrganizationTree = function () {
         Request.get("organization/queryTree", function (e) {
@@ -158,10 +160,12 @@ $(function () {
                 }
                 if ($('#searchEnd').val() !== "") {
                     param.searchEnd = $('#searchEnd').val();
+                    last_searchEnd = param.searchEnd;
                 }
                 var minSimilarity = $("#minSimilarity").val();
                 param.minSimilarity = minSimilarity;
                 param.uploadId = uploadId;
+                last_param = param;
                 $.ajax({
                     url: BASE_PATH + "aims/faceRecognize",
                     type: "GET",
@@ -253,6 +257,7 @@ $(function () {
 
     $(".form-inline").off('click', '.btn-search').on('click', '.btn-search', function () {
         var organization = $('#area_tree').treeview('getSelected')[0];
+        var minSimilarity = $("#minSimilarity").val();
         if (GetDateDiff($('#searchStart').val(), $('#searchEnd').val()) > 7) {
             toastr.warning("数据量过大,查询时间间隔不能超过7天");
             return false;
@@ -269,11 +274,20 @@ $(function () {
             toastr.warning("开始时间必须小于结束时间");
             return false;
         }
-        else if (!checkNumber($("#minSimilarity").val())) {
+        else if (!checkNumber(minSimilarity)) {
             toastr.warning("请输入0~100的相识度");
             return false;
         }
-        target_list.ajax.reload();
+        if (last_param.uploadId == uploadId && last_param.searchStart == $('#searchStart').val()
+            && last_param.searchEnd == $('#searchEnd').val() && last_param.minSimilarity < minSimilarity){
+            last_param.minSimilarity = minSimilarity;
+            var data = target_list.data();
+            data = data.filter(data => data.similarity * 100 > minSimilarity);
+            target_list.clear();
+            target_list.rows.add(data).draw(false);
+        } else {
+            target_list.ajax.reload();
+        }
         $('#target_list').show();
     });
 
@@ -283,8 +297,8 @@ $(function () {
 
     $("#file_upload").change(function () {
         if (!is_upload) {
-            $('#upload_button').attr('disabled', "true");
-            $('#upload_button').text("上传中");
+            $('#upload_button').hide();
+            $('#uploading_button').show();
             var $file = $(this);
             var fileObj = $file[0];
             var windowURL = window.URL || window.webkitURL;
@@ -320,8 +334,8 @@ $(function () {
                 url: "/aims/upload",
                 success: function (res) {
                     uploadId = null;
-                    $('#upload_button').removeAttr('disabled');
-                    $('#upload_button').text("上传");
+                    $('#upload_button').show();
+                    $('#uploading_button').hide();
                     if (res == "没有获取到特征值,请重新上传图片") {
                         toastr.warning("没有获取到特征值,请重新上传图片");
                         return false;
