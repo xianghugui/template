@@ -73,10 +73,13 @@ $(function () {
                             + data.createTime + "'><div class='img-box'><image class='img' src='" + data.imageUrl + "'></image></div>" +
                             "<div class='img-content'>" + data.name + "<button data-row='" + meta.row + "'  class='btn btn-default btn-xs btn-edit pull-right'>编辑</button></div>" +
                             "<div class='img-content'>" + data.code + "<button data-id='" + data.id + "'  class='btn btn-danger btn-xs btn-delete pull-right'>删除</button></div>";
-                        if (data.status === 0) {
-                            status = "checked";
+                        if (data.status == 0) {
+                            html += "<div class='img-content'>检索相识度:  " + data.similarity * 100 + "%<button type='button' data-id='" + data.id + "' class='btn btn-warning btn-xs btn-close pull-right'>禁用</button></div>";
                         }
-                        html += "</div><input name='my-checkbox' type='checkbox' " + status + " data-size='small' value='" + data.id + "'>";
+                        else {
+                            html += "<div class='img-content'>检索相识度:  " + data.similarity * 100 + "%<button type='button' data-id='" + data.id + "' class='btn btn-success btn-xs btn-open pull-right'>启用</button></div>";
+                        }
+                        html += "</div>";
                         return html;
                     }
                 }
@@ -84,7 +87,33 @@ $(function () {
         });
     }
 
-    //
+    //用户禁用
+    $("#black_list").off('click', '.btn-close').on('click', '.btn-close', function () {
+        var that = $(this);
+        var id = that.data('id');
+        Request.put("blacklist/" + id + "/disable", {}, function (e) {
+            if (e.success) {
+                black_list.draw();
+                black_list.ajax.reload();
+            } else {
+                toastr.error(e.message);
+            }
+        });
+    });
+
+    //用户启用
+    $("#black_list").off('click', '.btn-open').on('click', '.btn-open', function () {
+        var that = $(this);
+        var id = that.data('id');
+        Request.put("blacklist/" + id + "/enable", {}, function (e) {
+            if (e.success) {
+                black_list.draw();
+                black_list.ajax.reload();
+            } else {
+                toastr.error(e.message);
+            }
+        });
+    });
 
     //新增设备弹出操作
     $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
@@ -154,9 +183,9 @@ $(function () {
         submitHandler: function (form) {
             $('#insert').attr('disabled', true);
             if (black_id != '') {
-                $("#similarity").val($("#similarity").val()/100);
-                var data = formatArray($("#uploadForm").serializeArray(), "json");
-                Request.put("blacklist/" + black_id, data, function (e) {
+                var data = formatArray($("#uploadForm").serializeArray());
+                data.similarity = data.similarity / 100;
+                Request.put("blacklist/" + black_id, JSON.stringify(data), function (e) {
                     $('#insert').attr('disabled', false);
                     if (e.success) {
                         toastr.info("更新成功");
@@ -259,7 +288,7 @@ $(function () {
     * @param array 数组
     * @param type 类型 json array
     */
-    function formatArray(array, type) {
+    function formatArray(array) {
         var dataArray = {};
         $.each(array, function () {
             if (dataArray[this.name]) {
@@ -271,7 +300,7 @@ $(function () {
                 dataArray[this.name] = this.value || '';
             }
         });
-        return ((type == "json") ? JSON.stringify(dataArray) : dataArray);
+        return (dataArray);
     }
 
     var idCardNoUtil = {
