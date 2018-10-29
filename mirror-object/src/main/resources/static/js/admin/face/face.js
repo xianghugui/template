@@ -224,6 +224,7 @@ $(function () {
                 for (var i = 0; i < result.data.total; i++) {
                     blackList.append("<option value='" + data[i].id + "'>" + data[i].name + "</option>")
                 }
+                $('#blackList').selectpicker('refresh');
             },
             error: function () {
                 toastr.warning("加载黑名单列表失败，请刷新页面");

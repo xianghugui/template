@@ -11,10 +11,3 @@ base:
             log_base_dir: ./data/apache-tomcat-8.5.31/webapps/ROOT/tmp/atomikos
             default-jta-timeout: 300000
     access-logger: on #开启访问日志
-
-#文件上传配置
-multipart:
-    enabled: true
-    maxFileSize: 100Mb
-    maxRequestSize: 100Mb
-    location: /data/apache-tomcat-8.5.31/bin/upload
