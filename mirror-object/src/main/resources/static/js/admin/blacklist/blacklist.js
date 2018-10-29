@@ -37,30 +37,11 @@ $(function () {
                             resultData.data = [];
                         }
                         callback(resultData);
-                        $('[name="my-checkbox"]').bootstrapSwitch({
-                            onText: "启用",
-                            offText: "禁用",
-                            onColor: "success",
-                            offColor: "warning",
-                            size: "small",
-                            onSwitchChange: function (event, state) {
-                                var url = "/enable",
-                                    id = event.target.value;
-                                if (state) {
-                                    url = "/disable";
-                                    console.log(id);
-                                }
-                                Request.put("blacklist/" + id + url, null, function (e) {
-                                    console.log(e);
-                                })
-                            }
-                        });
                     },
                     error: function () {
                         toastr.warning("请求列表数据失败, 请重试");
                     }
                 });
-
             },
             "columns": [
                 {
@@ -69,50 +50,49 @@ $(function () {
                     render: function (data, type, row, meta) {
                         var status = "";
                         var html = "<div class='img-show-box' class='btn btn-default' data-toggle='tooltip' data-placement='bottom' title='"
-                            + data.createTime + "'><div class='img-box'><image class='img' src='" + data.imageUrl + "'></image></div>" +
-                            "<div class='img-content'>" + data.name + "<button data-row='" + meta.row + "'  class='btn btn-default btn-xs btn-edit pull-right'>编辑</button></div>" +
-                            "<div class='img-content'>" + data.code + "<button data-id='" + data.id + "'  class='btn btn-danger btn-xs btn-delete pull-right'>删除</button></div>";
-                        if (data.status == 0) {
-                            html += "<div class='img-content'>检索相识度:  " + data.similarity * 100 + "%<button type='button' data-id='" + data.id + "' class='btn btn-warning btn-xs btn-close pull-right'>禁用</button></div>";
+                            + data.createTime + "'><div class='img-box'><image class='img' src='" + data.imageUrl + "'></image></div>";
+                        if (data.status === 0) {
+                            status = "checked";
                         }
-                        else {
-                            html += "<div class='img-content'>检索相识度:  " + data.similarity * 100 + "%<button type='button' data-id='" + data.id + "' class='btn btn-success btn-xs btn-open pull-right'>启用</button></div>";
+                        if (accessUpdate) {
+                            html += "<div class='img-content'>检索相识度:&nbsp;&nbsp;" + data.similarity*100 + "%<input class='myChecked' type='checkbox' " + status + " value='" + data.id + "'/></div>" +
+                                "<div class='img-content'>" + data.name + "<button data-row='" + meta.row + "' " +
+                                " class='btn btn-default btn-xs btn-edit pull-right'>编辑</button></div>";
                         }
-                        html += "</div>";
+                        if (accessDelete) {
+                            html +="<div class='img-content'>" + data.code + "<button data-id='" + data.id + "' " +
+                            " class='btn btn-danger btn-xs btn-delete pull-right'>删除</button></div>";
+                        }
+                        html+="</div>";
                         return html;
                     }
                 }
-            ]
+            ],
+            "drawCallback": function () {
+                //黑名单启用状态事件
+                $('.myChecked').bootstrapSwitch({
+                    onText: "启用",
+                    offText: "禁用",
+                    onColor: "success",
+                    offColor: "warning",
+                    size: "mini",
+                    labelWidth: 0,
+                    onSwitchChange: function (event, status) {
+                        var id = event.target.value,
+                            str = "/disable";
+                        if (status) {
+                            str = "/enable";
+                        }
+                        Request.put("blacklist/" + id + str, {}, function (e) {
+                            if (!e.success) {
+                                toastr.error(e.message);
+                            }
+                        });
+                    }
+                });
+            }
         });
     }
-
-    //用户禁用
-    $("#black_list").off('click', '.btn-close').on('click', '.btn-close', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.put("blacklist/" + id + "/disable", {}, function (e) {
-            if (e.success) {
-                black_list.draw();
-                black_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-    });
-
-    //用户启用
-    $("#black_list").off('click', '.btn-open').on('click', '.btn-open', function () {
-        var that = $(this);
-        var id = that.data('id');
-        Request.put("blacklist/" + id + "/enable", {}, function (e) {
-            if (e.success) {
-                black_list.draw();
-                black_list.ajax.reload();
-            } else {
-                toastr.error(e.message);
-            }
-        });
-    });
 
     //新增设备弹出操作
     $(".box-header").off('click', '.btn-add').on('click', '.btn-add', function () {
