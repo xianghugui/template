@@ -1,5 +1,6 @@
 package com.base.web.controller;
 
+import com.base.web.bean.AssociationBlickListDO;
 import com.base.web.bean.BlackList;
 import com.base.web.bean.common.PagerResult;
 import com.base.web.bean.common.QueryParam;
@@ -7,6 +8,7 @@ import com.base.web.bean.po.resource.Resources;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
+import com.base.web.service.AssociationBlickListService;
 import com.base.web.service.BlackListService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
@@ -33,6 +35,9 @@ public class BlackListController extends GenericController<BlackList, Long> {
     private BlackListService blackListService;
 
     @Autowired
+    private AssociationBlickListService associationBlickListService;
+
+    @Autowired
     private ResourcesService resourcesService;
 
     @Autowired
@@ -46,7 +51,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
     @AccessLogger("查询列表")
     @Authorize(action = "R")
     public ResponseMessage list(QueryParam param) {
-        List<BlackList> list = blackListService.createQuery().listNoPaging();
+        List<BlackList> list = blackListService.createQuery().orderByDesc(BlackList.Property.createTime).listNoPaging();
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setImageUrl(ResourceUtil.resourceBuildPath(request, list.get(i).getResourceId().toString()));
         }
@@ -78,6 +83,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         BlackList oldBlackList = blackListService.selectByPk(id);
         assertFound(oldBlackList, "data is not found!");
         blackListService.delete(id);
+        associationBlickListService.createDelete().where(AssociationBlickListDO.Property.blackListId, id).exec();
         deleteImage(oldBlackList.getResourceId());
         return ResponseMessage.ok("删除成功");
     }
