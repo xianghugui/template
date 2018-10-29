@@ -199,6 +199,7 @@ $(function () {
             } else {
                 var options = {
                     url: "/blacklist/upload",
+                    beforeSubmit: validate,
                     success: function (res) {
                         $('#insert').attr('disabled', false);
                         if (res < 0) {
@@ -441,4 +442,10 @@ $(function () {
             return idCardNoUtil.checkParityBit(idCardNo);
         },
     };
+
+    //添加提交相识度参数转换成小数
+    function validate(formData, jqForm, options) {
+        formData[2].value = formData[2].value / 100;
+        return true;
+    }
 });

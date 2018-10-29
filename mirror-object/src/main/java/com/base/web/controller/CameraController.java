@@ -2,8 +2,6 @@ package com.base.web.controller;
 
 import com.base.web.bean.Camera;
 import com.base.web.bean.ServerDevice;
-import com.base.web.bean.common.PagerResult;
-import com.base.web.bean.common.QueryParam;
 import com.base.web.core.authorize.annotation.Authorize;
 import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
@@ -11,15 +9,10 @@ import com.base.web.service.CameraService;
 import com.base.web.service.FaceImageService;
 import com.base.web.service.ServerDeviceService;
 import com.base.web.util.NetDvrInit;
-import com.base.web.util.ResourceUtil;
-import oracle.jdbc.proxy.annotation.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static com.base.web.core.message.ResponseMessage.ok;
 
