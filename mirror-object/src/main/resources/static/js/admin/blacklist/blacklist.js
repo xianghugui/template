@@ -48,11 +48,11 @@ $(function () {
                     className: "col-md-3",
                     "data": null,
                     render: function (data, type, row, meta) {
-                        var status = "";
+                        var status = "checked";
                         var html = "<div class='img-show-box' class='btn btn-default' data-toggle='tooltip' data-placement='bottom' title='"
                             + data.createTime + "'><div class='img-box'><image class='img' src='" + data.imageUrl + "'></image></div>";
                         if (data.status === 0) {
-                            status = "checked";
+                            status = "";
                         }
                         if (accessUpdate) {
                             html += "<div class='img-content'>检索相识度:&nbsp;&nbsp;" + data.similarity*100 + "%<input class='myChecked' type='checkbox' " + status + " value='" + data.id + "'/></div>" +
@@ -79,9 +79,9 @@ $(function () {
                     labelWidth: 0,
                     onSwitchChange: function (event, status) {
                         var id = event.target.value,
-                            str = "/disable";
-                        if (status) {
                             str = "/enable";
+                        if (status) {
+                            str = "/disable";
                         }
                         Request.put("blacklist/" + id + str, {}, function (e) {
                             if (!e.success) {
