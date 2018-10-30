@@ -19,13 +19,17 @@ import java.util.Date;
 
 @Service("FileService")
 public class FileServiceImpl implements FileService {
-    @Resource
-    private ConfigService configService;
+
     @Resource
     private ResourcesService resourcesService;
 
+    private final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
+
+    @Override
     public String getFileBasePath() {
-        return configService.get("upload", "basePath", "./upload").trim();
+//        return configService.get("upload", "basePath",
+//                System.getProperty("os.name").toLowerCase().startsWith("win") ? "./upload" : "/data/apache-tomcat-8.5.31/bin/upload").trim();
+        return isWin ? "./upload" : "/data/apache-tomcat-8.5.31/bin/upload";
     }
 
     @Override

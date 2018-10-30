@@ -276,7 +276,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                         }
                     }
                     //相似度大于黑名单中设置的相似度值才插入数据
-                    if (maxSimilarity > list.get(blackListIndex).getSimilarity() && blackListIndex > 0) {
+                    if (blackListIndex > 0 && maxSimilarity > list.get(blackListIndex).getSimilarity()) {
                         associationBlickListDO.setId(GenericPo.createUID());
                         associationBlickListDO.setBlackListId(list.get(blackListIndex).getId());
                         associationBlickListDO.setFaceImageId(faceImageId);

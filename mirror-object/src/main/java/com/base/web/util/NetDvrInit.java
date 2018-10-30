@@ -17,6 +17,8 @@ import java.util.List;
 @Service
 public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
 
+    public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
+
     @Autowired
     private FmsgCallBack fmsgCallBack;
 
@@ -67,10 +69,12 @@ public class NetDvrInit implements ApplicationListener<ContextRefreshedEvent> {
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
+                //每个摄像头分配一个识别引擎
                 FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
                 System.out.println("摄像头登陆以及报警布防完成。。。。。。。。。。。。。。。。。。。。。。。。。。。");
                 cameraService.update(camera);
             }
+            //抓拍图片检索黑名单时用的引擎
             FaceFeatureUtil.ENGINEMAPS.put(0L, new FaceFeatureUtil());
         }
 

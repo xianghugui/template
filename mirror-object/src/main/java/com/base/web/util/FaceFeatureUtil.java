@@ -18,13 +18,13 @@ public class FaceFeatureUtil {
     //存放人脸识别引擎，根据摄像头ID获取对应引擎，key：0为目标检索等使用
     public static final Map<Long, FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
 
-    public static final Boolean isWin = System.getProperty("os.name").toLowerCase().startsWith("win");
+
     /**
      * 虹软人脸识别
      */
-    private static final String APPID = isWin ? "GaNub6zqMbUnpmfBkM9BNJzvCHF8atej4mSjD5a5rzbg" : "GaNub6zqMbUnpmfBkM9BNJzo2syzZUHfef2nPzQpnQKh";
-    private static final String FD_SDKKEY = isWin ? "6RuX1NkZyFCsjVDsynZaCpKFBXWdeeTXoGJsCYERaYWi" : "5n7iBGp5wqVyJqSwq1WjGmvdAqcJ1bpEBBVWH83LZw2M";
-    private static final String FR_SDKKEY = isWin ? "6RuX1NkZyFCsjVDsynZaCpKjq8ZLi8XGyK5AdKijT6og" : "5n7iBGp5wqVyJqSwq1WjGmw7pSezPmb6DDvUhStyjLiC";
+    private static final String APPID = NetDvrInit.isWin ? "GaNub6zqMbUnpmfBkM9BNJzvCHF8atej4mSjD5a5rzbg" : "GaNub6zqMbUnpmfBkM9BNJzo2syzZUHfef2nPzQpnQKh";
+    private static final String FD_SDKKEY = NetDvrInit.isWin ? "6RuX1NkZyFCsjVDsynZaCpKFBXWdeeTXoGJsCYERaYWi" : "5n7iBGp5wqVyJqSwq1WjGmvdAqcJ1bpEBBVWH83LZw2M";
+    private static final String FR_SDKKEY = NetDvrInit.isWin ? "6RuX1NkZyFCsjVDsynZaCpKjq8ZLi8XGyK5AdKijT6og" : "5n7iBGp5wqVyJqSwq1WjGmw7pSezPmb6DDvUhStyjLiC";
 
     private static final int FD_WORKBUF_SIZE = 20 * 1024 * 1024;
     private static final int FR_WORKBUF_SIZE = 40 * 1024 * 1024;
@@ -45,7 +45,7 @@ public class FaceFeatureUtil {
         if (ret.longValue() != 0) {
             CLibrary.INSTANCE.free(pFDWorkMem);
             CLibrary.INSTANCE.free(pFRWorkMem);
-//            System.out.println(String.format("AFD_FSDK_InitialFaceEngine ret 0x%x", ret.longValue()));
+            System.out.println(String.format("AFD_FSDK_InitialFaceEngine ret 0x%x", ret.longValue()));
             throw new RuntimeException();
         }
 
@@ -56,7 +56,7 @@ public class FaceFeatureUtil {
         ret = AFR_FSDKLibrary.INSTANCE.AFR_FSDK_InitialEngine(APPID, FR_SDKKEY, pFRWorkMem, FR_WORKBUF_SIZE, phFREngine);
         if (ret.longValue() != 0) {
             clearFaceEngine();
-//            System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
+            System.out.println(String.format("AFR_FSDK_InitialEngine ret 0x%x", ret.longValue()));
             throw new RuntimeException();
         }
         hFREngine = phFREngine.getValue();
@@ -138,7 +138,7 @@ public class FaceFeatureUtil {
         PointerByReference ppFaceRes = new PointerByReference();
         NativeLong ret = AFD_FSDKLibrary.INSTANCE.AFD_FSDK_StillImageFaceDetection(hFDEngine, inputImg, ppFaceRes);
         if (ret.longValue() != 0) {
-//            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
+            System.out.println(String.format("AFD_FSDK_StillImageFaceDetection ret 0x%x", ret.longValue()));
             return faceInfo;
         }
         AFD_FSDK_FACERES faceRes = new AFD_FSDK_FACERES(ppFaceRes.getValue());
@@ -167,10 +167,9 @@ public class FaceFeatureUtil {
         faceA.freeUnmanaged();
         faceB.freeUnmanaged();
         if (ret.longValue() != 0) {
+            System.out.println(String.format("AFR_FSDK_FacePairMatching failed:ret 0x%x" ,ret.longValue()));
             return 0.0f;
         }
-//        System.out.println("人脸相似度为：");
-//        System.out.println(fSimilScore.getValue());
         return fSimilScore.getValue();
     }
 

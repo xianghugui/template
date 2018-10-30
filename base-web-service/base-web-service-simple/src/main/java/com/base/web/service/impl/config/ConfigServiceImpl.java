@@ -109,13 +109,14 @@ public class ConfigServiceImpl extends AbstractServiceImpl<Config, String> imple
         try {
             val = this.get(name, key);
             if (val == null) {
-                logger.warn("获取配置:{}.{}失败,defaultValue:{}", name, key, defaultValue);
+                logger.error("获取配置:{}.{}失败,defaultValue:{}", name, key, defaultValue);
                 return defaultValue;
             }
         } catch (Exception e) {
             logger.error("获取配置:{}.{}失败,defaultValue:{}", name, key, defaultValue, e);
             return defaultValue;
         }
+        logger.info("获取配置:{}.{}成功,defaultValue:{}", name, key, defaultValue);
         return val;
     }
 

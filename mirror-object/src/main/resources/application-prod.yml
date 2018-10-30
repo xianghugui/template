@@ -1,6 +1,5 @@
 base:
     dynamic-datasource: #动态数据源配置
-
           url: jdbc:mysql://localhost:3306/zxwl_monitor_2018?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
           type: mysql
           username: root

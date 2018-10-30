@@ -8,6 +8,7 @@ import com.base.web.core.logger.annotation.AccessLogger;
 import com.base.web.core.message.ResponseMessage;
 import com.base.web.service.*;
 import com.base.web.util.FaceFeatureUtil;
+import com.base.web.util.NetDvrInit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
         String returnStr = "没有获取到特征值,请重新上传图片";
         if (file != null) {
             String currentImagePath;
-            if (FaceFeatureUtil.isWin) {
+            if (NetDvrInit.isWin) {
                 currentImagePath = System.getProperty("user.dir") + File.separator
                         + "upload" + File.separator + "face" + File.separator;
             } else {
@@ -104,10 +105,10 @@ public class AimsController extends GenericController<FaceImage, Long> {
             //创建线程池
             ForkJoinPool forkjoinPool = new ForkJoinPool();
             RetrieveBlacklistThread task = new RetrieveBlacklistThread(0,faceImageListTotal, uploadFaceFeature, uploadValue);
-            Future<List<AimsMessageDTO>> result = forkjoinPool.submit(task);
+            List<AimsMessageDTO> result = forkjoinPool.invoke(task);
             //关闭线程池
             forkjoinPool.shutdown();
-            return ResponseMessage.ok(result.get());
+            return ResponseMessage.ok(result);
         }
     }
 
@@ -164,25 +165,27 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         public List<AimsMessageDTO> face(UploadValue uploadValue) {
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
+            FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
             faceImageList = faceImageList.stream().filter(aimsMessageDTO -> {
-                if (aimsMessageDTO.getList().size() < 1){
-                    return false;
-                }
                 List<FaceFeature> faceFeatureList = aimsMessageDTO.getList();
-                for (int i = 0; i < faceFeatureList.size(); i++) {
-                    Float similarity = 0F;
-                    try {
-                        similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (similarity >= uploadValue.getMinSimilarity()) {
-                        aimsMessageDTO.setSimilarity(similarity);
-                        return true;
+                if (faceFeatureList != null) {
+                    for (int i = 0; i < faceFeatureList.size(); i++) {
+                        Float similarity;
+                        try {
+                            similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        if (similarity >= uploadValue.getMinSimilarity()) {
+                            aimsMessageDTO.setSimilarity(similarity);
+                            return true;
+                        }
                     }
                 }
                 return false;
             }).collect(Collectors.toList());
+            faceFeatureUtil.clearFaceEngine();
             return faceImageList;
         }
     }
