@@ -6,6 +6,7 @@ import com.base.web.dao.GenericMapper;
 import com.base.web.service.DeleteDataService;
 import com.base.web.util.DeleteFileUtil;
 import com.base.web.util.FaceFeatureUtil;
+import com.base.web.util.NetDvrInit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class DeleteDataServiceImpl implements DeleteDataService {
         String currentImagePath;
 
         //获取服务器人脸图片存储文件夹路径
-        if (FaceFeatureUtil.isWin) {
+        if (NetDvrInit.isWin) {
             currentImagePath = System.getProperty("user.dir") + File.separator
                     + "upload" + File.separator + "file" + File.separator;
         } else {

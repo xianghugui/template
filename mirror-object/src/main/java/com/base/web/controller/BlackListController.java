@@ -13,6 +13,7 @@ import com.base.web.service.BlackListService;
 import com.base.web.service.resource.FileService;
 import com.base.web.service.resource.ResourcesService;
 import com.base.web.util.FaceFeatureUtil;
+import com.base.web.util.NetDvrInit;
 import com.base.web.util.ResourceUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
             return null;
         }
         String currentImagePath;
-        if (FaceFeatureUtil.isWin) {
+        if (NetDvrInit.isWin) {
             currentImagePath = System.getProperty("user.dir") + File.separator
                     + "upload" + File.separator + "blacklist" + File.separator;
         } else {

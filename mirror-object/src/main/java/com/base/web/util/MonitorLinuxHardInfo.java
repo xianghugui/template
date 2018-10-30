@@ -40,7 +40,7 @@ public class MonitorLinuxHardInfo {
     @Scheduled(cron = "* * 0/3 * * ? ")
     public void getLinuxMemInfo() {
         //判断系统
-        if (!FaceFeatureUtil.isWin) {
+        if (!NetDvrInit.isWin) {
             try {
                 String[] readLineArray = null;
                 String getReadLine = null;
