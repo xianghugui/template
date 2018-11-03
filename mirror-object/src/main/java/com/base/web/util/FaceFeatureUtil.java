@@ -16,7 +16,7 @@ import java.util.Map;
 public class FaceFeatureUtil {
 
     //存放人脸识别引擎，根据摄像头ID获取对应引擎，key：0为目标检索等使用
-    public static final Map<Long, FaceFeatureUtil> ENGINEMAPS = new HashMap<Long, FaceFeatureUtil>();
+    public static final FaceFeatureUtil ENGINE = new FaceFeatureUtil();
 
 
     /**

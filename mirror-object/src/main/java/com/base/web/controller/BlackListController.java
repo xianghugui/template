@@ -135,7 +135,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         fileLength = getFileLength(file.getInputStream(), currentImagePath + fileName, fileLength);
         File faceFile = new File(currentImagePath + fileName);
         //获取人脸特征值
-        byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
+        byte[][] bytes = FaceFeatureUtil.ENGINE.returnFaceFeature(faceFile);
         if (bytes != null && bytes.length != 1) {
             //没有检测到人脸
             faceFile.delete();

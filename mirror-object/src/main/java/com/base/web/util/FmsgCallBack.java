@@ -218,12 +218,14 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
 
         @Override
         public void run() {
-            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(cameraId).returnFaceFeature(oldFile);
+            FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
+            byte[][] bytes = faceFeatureUtil.returnFaceFeature(oldFile);
             if (bytes != null && bytes.length > 0) {
                 oldFile.renameTo(newFile);
-                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(bytes, resources, cameraId));
+                RETRIEVE_BLACKLIST_POOL.execute(new RetrieveBlacklistThread(bytes, resources, cameraId, faceFeatureUtil));
             } else {
                 oldFile.delete();
+                faceFeatureUtil.clearFaceEngine();
             }
         }
     }
@@ -236,11 +238,13 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
         private byte[][] bytes;
         private Resources resources;
         private Long cameraId;
+        private FaceFeatureUtil faceFeatureUtil;
 
-        public RetrieveBlacklistThread(byte[][] bytes, Resources resources, Long cameraId) {
+        public RetrieveBlacklistThread(byte[][] bytes, Resources resources, Long cameraId, FaceFeatureUtil faceFeatureUtil) {
             this.bytes = bytes;
             this.resources = resources;
             this.cameraId = cameraId;
+            this.faceFeatureUtil = faceFeatureUtil;
         }
 
         @Override
@@ -266,7 +270,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     //遍历所有黑名单,获取匹配度最高的索引
                     for (int j = 0; j < list.size(); j++) {
                         try {
-                            float similarity = FaceFeatureUtil.ENGINEMAPS.get(0L).compareFaceSimilarity(bytes[i], list.get(j).getFaceFeature());
+                            float similarity = faceFeatureUtil.compareFaceSimilarity(bytes[i], list.get(j).getFaceFeature());
                             if (similarity > maxSimilarity) {
                                 maxSimilarity = similarity;
                                 blackListIndex = j;
@@ -292,6 +296,7 @@ public class FmsgCallBack implements HCNetSDK.FMSGCallBack {
                     faceFeatureService.insert(faceFeature);
                 }
             }
+            faceFeatureUtil.clearFaceEngine();
         }
     }
 

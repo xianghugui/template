@@ -19,7 +19,7 @@
     </springProfile>
 
     <springProfile name="prod">
-        <root level="ERROR">
+        <root level="INFO">
             <appender-ref ref="Console"/>
         </root>
     </springProfile>
