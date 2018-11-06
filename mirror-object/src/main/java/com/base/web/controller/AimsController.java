@@ -168,13 +168,14 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         public List<AimsMessageDTO> face(UploadValue uploadValue) {
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
+            FaceFeatureUtil faceUtil = new FaceFeatureUtil();
             faceImageList = faceImageList.stream().filter(aimsMessageDTO -> {
                 List<FaceFeature> faceFeatureList = aimsMessageDTO.getList();
                 if (faceFeatureList != null) {
                     for (int i = 0; i < faceFeatureList.size(); i++) {
                         Float similarity;
                         try {
-                            similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
+                            similarity = faceUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
                         } catch (Exception e) {
                             e.printStackTrace();
                             return false;
@@ -187,6 +188,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 }
                 return false;
             }).collect(Collectors.toList());
+            faceUtil.clearFaceEngine();
             return faceImageList;
         }
     }
