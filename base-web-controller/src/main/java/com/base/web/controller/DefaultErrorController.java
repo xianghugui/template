@@ -1,6 +1,8 @@
 package com.base.web.controller;
 
 import com.base.web.core.logger.annotation.AccessLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -8,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,6 +23,8 @@ import java.util.Map;
 @AccessLogger("错误请求")
 public class DefaultErrorController implements ErrorController {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private ErrorAttributes errorAttributes;
 
@@ -31,6 +33,7 @@ public class DefaultErrorController implements ErrorController {
     public ModelAndView errorHtml(HttpServletRequest request, HttpServletResponse response) {
         WebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> model = errorAttributes.getErrorAttributes(webRequest, true);
+        logger.error(model.get("status") + ":" + model.get("error") + ":" + model.get("path"));
         int code = ((int) model.get("code"));
         response.setStatus(code);
         return new ModelAndView("error/" + response.getStatus(), model);

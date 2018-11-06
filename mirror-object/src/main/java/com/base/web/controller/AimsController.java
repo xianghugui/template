@@ -38,6 +38,9 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Autowired
     private AimsMessageService aimsMessageService;
 
+    @Autowired
+    private FaceFeatureUtil faceFeatureUtil;
+
     @Override
     protected FaceImageService getService() {
         return faceImageService;
@@ -68,7 +71,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             file.transferTo(faceFile);
 
             //获取人脸特征值
-            byte[][] bytes = FaceFeatureUtil.ENGINE.returnFaceFeature(faceFile);
+            byte[][] bytes = faceFeatureUtil.returnFaceFeature(faceFile);
             //删除图片
             faceFile.delete();
 
@@ -171,7 +174,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                     for (int i = 0; i < faceFeatureList.size(); i++) {
                         Float similarity;
                         try {
-                            similarity = FaceFeatureUtil.ENGINE.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
+                            similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
                         } catch (Exception e) {
                             e.printStackTrace();
                             return false;
