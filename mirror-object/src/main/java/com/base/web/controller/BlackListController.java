@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/blacklist")
@@ -42,9 +43,6 @@ public class BlackListController extends GenericController<BlackList, Long> {
 
     @Autowired
     private FileService fileService;
-
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
 
     @Autowired
     private HttpServletRequest request;
@@ -137,7 +135,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         fileLength = getFileLength(file.getInputStream(), currentImagePath + fileName, fileLength);
         File faceFile = new File(currentImagePath + fileName);
         //获取人脸特征值
-        byte[][] bytes = faceFeatureUtil.returnFaceFeature(faceFile);
+        byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
         if (bytes != null && bytes.length != 1) {
             //没有检测到人脸
             faceFile.delete();

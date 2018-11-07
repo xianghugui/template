@@ -38,9 +38,6 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @Autowired
     private AimsMessageService aimsMessageService;
 
-    @Autowired
-    private FaceFeatureUtil faceFeatureUtil;
-
     @Override
     protected FaceImageService getService() {
         return faceImageService;
@@ -71,7 +68,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
             file.transferTo(faceFile);
 
             //获取人脸特征值
-            byte[][] bytes = faceFeatureUtil.returnFaceFeature(faceFile);
+            byte[][] bytes = FaceFeatureUtil.ENGINEMAPS.get(0L).returnFaceFeature(faceFile);
             //删除图片
             faceFile.delete();
 
@@ -93,7 +90,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
     @RequestMapping(value = "/faceRecognize", method = RequestMethod.GET)
     @AccessLogger("目标查询")
     @Authorize(action = "R")
-    public ResponseMessage faceRecognize(UploadValue uploadValue) throws ExecutionException, InterruptedException {
+    public ResponseMessage faceRecognize(UploadValue uploadValue) {
         //模糊匹配组织ID
         String organizationId = uploadValue.getOrganizationId();
         if (organizationId != null) {
@@ -168,14 +165,14 @@ public class AimsController extends GenericController<FaceImage, Long> {
 
         public List<AimsMessageDTO> face(UploadValue uploadValue) {
             List<AimsMessageDTO> faceImageList = aimsMessageService.listAimsMessage(uploadValue);
-            FaceFeatureUtil faceUtil = new FaceFeatureUtil();
+            FaceFeatureUtil faceFeatureUtil = new FaceFeatureUtil();
             faceImageList = faceImageList.stream().filter(aimsMessageDTO -> {
                 List<FaceFeature> faceFeatureList = aimsMessageDTO.getList();
                 if (faceFeatureList != null) {
                     for (int i = 0; i < faceFeatureList.size(); i++) {
                         Float similarity;
                         try {
-                            similarity = faceUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
+                            similarity = faceFeatureUtil.compareFaceSimilarity(uploadFaceFeature, faceFeatureList.get(i).getFaceFeature());
                         } catch (Exception e) {
                             e.printStackTrace();
                             return false;
@@ -188,7 +185,7 @@ public class AimsController extends GenericController<FaceImage, Long> {
                 }
                 return false;
             }).collect(Collectors.toList());
-            faceUtil.clearFaceEngine();
+            faceFeatureUtil.clearFaceEngine();
             return faceImageList;
         }
     }

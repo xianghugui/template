@@ -81,7 +81,7 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 } else {
                     camera.setAlarmHandleId(alarmHandleId);
                 }
-//                FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
+                FaceFeatureUtil.ENGINEMAPS.put(camera.getId(),new FaceFeatureUtil());
                 camera.setStatus(1);
                 cameraService.update(camera);
                 serverDevice.setDeviceId(deviceIds[i]);
@@ -109,11 +109,11 @@ public class ServerServiceImpl extends AbstractServiceImpl<Server, Long> impleme
                 if (!NetDvrInit.logout(camera.getUserId())) {
                     logger.error("摄像头ID:" + deviceIds[i] + "，登出，错误码：" + NetDvrInit.getLastError());
                 }
-//                FaceFeatureUtil faceFeatureUtil = FaceFeatureUtil.ENGINEMAPS.get(camera.getId());
-//                if (faceFeatureUtil != null) {
-//                    faceFeatureUtil.clearFaceEngine();
-//                }
-//                FaceFeatureUtil.ENGINEMAPS.remove(camera.getId());
+                FaceFeatureUtil faceFeatureUtil = FaceFeatureUtil.ENGINEMAPS.get(camera.getId());
+                if (faceFeatureUtil != null) {
+                    faceFeatureUtil.clearFaceEngine();
+                }
+                FaceFeatureUtil.ENGINEMAPS.remove(camera.getId());
             }
             serverDeviceMapper.batchDeleteServerDevice(serverDevice);
             map.put("status", 0);

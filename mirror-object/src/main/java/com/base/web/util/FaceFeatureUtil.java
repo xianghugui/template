@@ -8,15 +8,15 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.PointerByReference;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-@Service("faceFeatureUtil")
 public class FaceFeatureUtil {
 
     //存放人脸识别引擎，根据摄像头ID获取对应引擎，key：0为目标检索等使用
-//    public static final FaceFeatureUtil ENGINE = new FaceFeatureUtil();
+    public static final Map<Long, FaceFeatureUtil> ENGINEMAPS = new HashMap<>();
 
 
     /**
