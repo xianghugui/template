@@ -209,11 +209,12 @@ $(function () {
     WebVideo();
 
     function WebVideo() {
-        if (-2 == WebVideoCtrl.I_CheckPluginInstall()) {
+        var iRet = WebVideoCtrl.I_CheckPluginInstall();
+        if (-2 == iRet) {
             alert("Chrome浏览器版本过高，不支持NPAPI");
             return;
         }
-        if (-1 == WebVideoCtrl.I_CheckPluginInstall()) {
+        if (-1 == iRet) {
             alert("您还未安装过插件，请安装WebComponentsKit.exe！");
             window.open(Request.BASH_PATH + "webcomponents/WebComponentsKit.exe")
             return;
@@ -231,16 +232,23 @@ $(function () {
 
 // 登录以及预览
     function clickLogin(data, index) {
-        WebVideoCtrl.I_Login(data.ip, 1, data.httpPort, data.account, data.password, {
+        var iRet = WebVideoCtrl.I_Login(data.ip, 1, data.httpPort, data.account, data.password, {
             success: function (xmlDoc) {
                 WebVideoCtrl.I_StartRealPlay(data.ip, {
-                    iWndIndex: index
+                    iRtspPort: 554,
+                    iWndIndex: index,
+                    error: function (status, xmlDoc) {
+                        toastr.warning(status + " " + xmlDoc);
+                    }
                 });
             },
-            error: function (e) {
-                toastr.warning("请确认IP/端口/用户名/密码是否正确");
+            error: function (status, xmlDoc) {
+                toastr.warning(data.ip + " 登录失败！", status, xmlDoc);
             }
         });
+        if (-1 == iRet) {
+            toastr.warning(data.ip + " 已登录过！");
+        }
     }
 
 });
