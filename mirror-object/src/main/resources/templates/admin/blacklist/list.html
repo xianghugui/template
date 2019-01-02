@@ -4,16 +4,31 @@
 <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
 <link rel="stylesheet" th:href="@{/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"/>
 <style>
-
-    .table-box {
+    #black_list {
+        width: 100%;
+        height: 100%;
+        margin: 0;
         padding: 10px;
+        clear: none !important;
     }
 
-    .img-box{
+    #black_list > tbody{
+        width: 100%;
+        height: 100%;
+    }
+
+    #black_list > tr {
+        width: 100%;
+        height: 312px;
+        border: 1px solid blue;
+        float: left;
+    }
+
+    .img-box {
         width: 100%;
         height: 212px;
         text-align: center;
-        margin-bottom:5px;
+        margin-bottom: 5px;
     }
 
     .img {
@@ -46,6 +61,7 @@
     }
 
     .img-show-box {
+        width: 100%;
         height: 300px;
         color: #524e4e;
         font-size: 16px;
@@ -53,7 +69,9 @@
         border-radius: 5px;
         box-shadow: 1px 1px 2px 1px #cecece;
         margin-bottom: 20px;
+        display: inline-block;
     }
+
     .preview_img {
         width: 370px;
         border: 1px solid #cecece;
@@ -61,19 +79,24 @@
         box-shadow: 1px 1px 2px 1px #cecece;
         margin-bottom: 20px;
     }
-    .bootstrap-switch{
+
+    .bootstrap-switch {
         float: right;
     }
-    .bootstrap-switch-mini{
+
+    .bootstrap-switch-mini {
         width: 36px !important;
     }
-    .bootstrap-switch-container{
+
+    .bootstrap-switch-container {
         width: 78px !important;
     }
-    .bootstrap-switch-handle-on,.bootstrap-switch-handle-off{
+
+    .bootstrap-switch-handle-on, .bootstrap-switch-handle-off {
         width: 36px !important;
     }
-    .bootstrap-switch-label{
+
+    .bootstrap-switch-label {
         display: none !important;
     }
 </style>
@@ -102,7 +125,7 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <table id="black_list" style="width: 100%"></table>
+                    <table id="black_list"></table>
                 </div>
             </div>
         </section>

@@ -4,10 +4,15 @@
 <link rel="stylesheet" th:href="@{/plugins/datetimppicker/bootstrap-datetimepicker.min.css}"/>
 <link rel="stylesheet" th:href="@{/plugins/bootstrap-select/css/bootstrap-select.min.css}"/>
 <style>
-    .table-box{
+    #face_list {
+        clear: none !important;
+    }
+
+    .table-box {
         padding: 10px;
     }
-    .img{
+
+    .img {
         width: 100%;
     }
 
@@ -17,7 +22,7 @@
         margin-top: 20px;
     }
 
-    .close{
+    .close {
         font-size: 100px;
         color: red;
         position: absolute;
@@ -27,7 +32,7 @@
         opacity: 0.8;
     }
 
-    .close:hover{
+    .close:hover {
         color: #fff;
     }
 
@@ -42,7 +47,7 @@
         height: 57px;
     }
 
-    .aims-name{
+    .aims-name {
         line-height: 30px;
         height: 50%;
     }
@@ -54,16 +59,16 @@
         margin-bottom: 20px;
     }
 
-    .similarity-box{
+    .similarity-box {
         float: right;
         color: #00a65a;
     }
 
-    .black-code{
+    .black-code {
         float: right;
     }
 
-    .blackListName-box{
+    .blackListName-box {
         color: red;
     }
 </style>
@@ -89,7 +94,8 @@
                     <div class="form-inline pull-right">
                         <div class="form-group">
                             <label for="searchStart">黑名单</label>
-                            <select id="blackList" class="selectpicker" data-live-search="true" data-width="100px" data-size="10">
+                            <select id="blackList" class="selectpicker" data-live-search="true" data-width="100px"
+                                    data-size="10">
                                 <option value="-1">未选择</option>
                             </select>
                         </div>

@@ -72,6 +72,7 @@ public class BlackListController extends GenericController<BlackList, Long> {
         } else {
             blackList.setCreateTime(new Date());
             blackList.setStatus(0);
+            blackList.setSimilarity(blackList.getSimilarity()/100);
             return blackListService.insert(blackList).toString();
         }
     }

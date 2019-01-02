@@ -49,7 +49,7 @@ $(function () {
                     "data": null,
                     render: function (data, type, row, meta) {
                         var status = "checked";
-                        var html = "<div class='img-show-box' class='btn btn-default' data-toggle='tooltip' data-placement='bottom' title='"
+                        var html = "<div class='img-show-box btn btn-default' data-toggle='tooltip' data-placement='bottom' title='"
                             + data.createTime + "'><div class='img-box'><image class='img' src='" + data.imageUrl + "'></image></div>";
                         if (data.status === 0) {
                             status = "";
@@ -425,7 +425,6 @@ $(function () {
 
     //添加提交相识度参数转换成小数
     function validate(formData, jqForm, options) {
-        formData[2].value = formData[2].value / 100;
         return true;
     }
 });
